@@ -1,0 +1,74 @@
+package com.fis.boportalservice.api.configuration;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fis.boportalservice.api.constant.ApiConstant;
+import io.swagger.v3.core.jackson.ModelResolver;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.client.RestTemplate;
+
+@Configuration
+public class BeanConfiguration {
+
+    public static final String SECURITY_SCHEME_NAME = "bearerAuth";
+    public static final String VERSION = "1.0";
+    public static final String DESCRIPTION = "Stock service";
+
+    /**
+     * OpenAPI bean.
+     *
+     * @param title String
+     * @return OpenAPI
+     */
+    @Bean
+    public OpenAPI customOpenAPI(@Value("${spring.application.name}") final String title) {
+        SecurityScheme securityScheme =
+                new SecurityScheme()
+                        .name(ApiConstant.GTW_AUTHORIZATION)
+                        .type(SecurityScheme.Type.APIKEY)
+                        .in(SecurityScheme.In.HEADER);
+        return new OpenAPI()
+                .components(new Components().addSecuritySchemes(SECURITY_SCHEME_NAME, securityScheme))
+                .info(new Info().title(title).version(VERSION).description(DESCRIPTION));
+    }
+
+    /**
+     * Model resolver bean.
+     *
+     * @param objectMapper ObjectMapper
+     * @return ModelResolver
+     */
+    @Bean
+    public ModelResolver modelResolver(final ObjectMapper objectMapper) {
+        return new ModelResolver(
+                objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE));
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper()
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}

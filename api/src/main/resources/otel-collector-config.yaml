@@ -1,0 +1,29 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+exporters:
+  debug:
+    verbosity: detailed
+
+  otlphttp:
+    #    port and http(s) must be coherent with OTLP protocol (http VS grpc)
+    endpoint: http://jaeger:4318
+    tls:
+      insecure: true
+service:
+  pipelines:
+    traces:
+      receivers: [ otlp ]
+      exporters:
+        - debug
+        - otlphttp
+    metrics:
+      receivers: [ otlp ]
+      exporters: [ debug ]
+    logs:
+      receivers: [ otlp ]
+      exporters: [ debug ]

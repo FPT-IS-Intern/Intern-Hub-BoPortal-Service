@@ -1,0 +1,42 @@
+dependencies {
+    implementation project(':common')
+    implementation project(':core')
+
+    implementation libs.openFeign.starter
+    implementation libs.openFeign.core
+    implementation libs.hibernateUtils
+    implementation libs.commonIO
+    implementation libs.mapstruct
+
+    compileOnly libs.lombok
+
+    implementation libs.feign.okhttp
+    implementation libs.feign.httpclient
+    implementation libs.feign.jackson
+    implementation libs.feign.micrometer
+
+    implementation libs.springBoot.starter.validation
+
+    implementation libs.apacheCommons.v313
+
+    implementation libs.javaJwt
+
+    implementation libs.httpclient5
+
+    testImplementation libs.jackson.datatype.jsr310
+
+    annotationProcessor libs.lombokProcessor
+    annotationProcessor libs.mapstructProcessor
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}

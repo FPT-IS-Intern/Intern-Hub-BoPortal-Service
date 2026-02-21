@@ -1,0 +1,32 @@
+dependencies {
+    implementation project(':common')
+    // implementation files('libs/lib.rssp.exsig.jar')
+    // implementation files('libs/itextpdf-5.5.13.jar')
+    // implementation files('libs/lib.rssp.pdf-3.0.0.jar')
+    // implementation files('libs/bcprov-jdk15on-1.50.jar')
+//    implementation libs.springKafka
+    implementation libs.openFeign.starter
+    implementation libs.openFeign.core
+
+    implementation libs.commonIO
+    implementation libs.springBoot.starter
+    implementation libs.servlet.api
+    implementation libs.apacheCommons
+    implementation libs.spring.web
+    implementation libs.jackson.databind
+    implementation libs.mapstruct
+    implementation libs.internHub.common
+    annotationProcessor libs.mapstructProcessor
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
