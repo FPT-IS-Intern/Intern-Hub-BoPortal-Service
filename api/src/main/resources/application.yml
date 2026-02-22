@@ -1,11 +1,11 @@
 server:
-  port: ${APP_PORT:8081}
+  port: ${APP_PORT:8087}
   servlet:
-    context-path: /bo-portal-service
+    context-path: /bo-portal
 
 spring:
   application:
-    name: bo-portal-service
+    name: bo-portal
   profiles:
     active: prod
 #  config:
