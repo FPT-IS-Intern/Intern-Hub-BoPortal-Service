@@ -1,0 +1,24 @@
+package com.fis.boportalservice.api.controller;
+
+import com.fis.boportalservice.api.dto.response.SystemConfigInternalResponse;
+import com.fis.boportalservice.api.mapper.SystemConfigApiMapper;
+import com.fis.boportalservice.common.dto.ResponseApi;
+import com.fis.boportalservice.core.service.SystemConfigService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/internal/system-config")
+@RequiredArgsConstructor
+public class InternalSystemConfigController {
+
+    private final SystemConfigService systemConfigService;
+    private final SystemConfigApiMapper apiMapper;
+
+    @GetMapping
+    public ResponseApi<SystemConfigInternalResponse> getSystemConfig() {
+        return ResponseApi.success(apiMapper.toInternalResponse(systemConfigService.getSystemConfig()));
+    }
+}
