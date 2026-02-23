@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/admin/system-config")
+@RequestMapping("/admin/system-config")
 @RequiredArgsConstructor
 public class AdminSystemConfigController {
 

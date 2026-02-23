@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/admin/allowed-ip-ranges")
+@RequestMapping("/admin/allowed-ip-ranges")
 @RequiredArgsConstructor
 public class AdminAllowedIpRangeController {
 
