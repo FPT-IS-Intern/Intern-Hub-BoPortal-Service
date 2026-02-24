@@ -4,11 +4,13 @@ import com.fis.boportalservice.core.domain.model.HomepageBanner;
 import com.fis.boportalservice.core.domain.repository.HomepageBannerRepository;
 import com.fis.boportalservice.core.service.HomepageBannerService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HomepageBannerServiceImpl implements HomepageBannerService {
@@ -28,7 +30,10 @@ public class HomepageBannerServiceImpl implements HomepageBannerService {
     @Override
     public HomepageBanner getBannerById(UUID id) {
         return bannerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Banner not found with id: " + id));
+                .orElseThrow(() -> {
+                    log.error("Homepage banner not found with id: {}", id);
+                    return new RuntimeException("Banner not found with id: " + id);
+                });
     }
 
     @Override
@@ -38,6 +43,7 @@ public class HomepageBannerServiceImpl implements HomepageBannerService {
 
     @Override
     public HomepageBanner updateBanner(UUID id, HomepageBanner banner) {
+        log.info("Updating homepage banner with id: {}", id);
         HomepageBanner existing = getBannerById(id);
 
         // Update fields
@@ -59,6 +65,7 @@ public class HomepageBannerServiceImpl implements HomepageBannerService {
 
     @Override
     public void deleteBanner(UUID id) {
+        log.info("Deleting homepage banner with id: {}", id);
         bannerRepository.deleteById(id);
     }
 }

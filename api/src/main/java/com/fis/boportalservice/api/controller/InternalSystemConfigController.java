@@ -5,10 +5,12 @@ import com.fis.boportalservice.api.mapper.SystemConfigApiMapper;
 import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.service.SystemConfigService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/internal/system-config")
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ public class InternalSystemConfigController {
 
     @GetMapping
     public ResponseApi<SystemConfigInternalResponse> getSystemConfig() {
+        log.info("Internal request to get system configuration");
         return ResponseApi.success(apiMapper.toInternalResponse(systemConfigService.getSystemConfig()));
     }
 }

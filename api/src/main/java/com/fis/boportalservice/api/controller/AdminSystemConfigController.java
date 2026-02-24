@@ -7,8 +7,10 @@ import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.domain.model.SystemConfig;
 import com.fis.boportalservice.core.service.SystemConfigService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/admin/system-config")
 @RequiredArgsConstructor
@@ -19,13 +21,16 @@ public class AdminSystemConfigController {
 
     @GetMapping
     public ResponseApi<SystemConfigInternalResponse> getSystemConfig() {
+        log.info("Request to get system configuration");
         return ResponseApi.success(apiMapper.toInternalResponse(systemConfigService.getSystemConfig()));
     }
 
     @PutMapping
     public ResponseApi<SystemConfigInternalResponse> updateSystemConfig(@RequestBody SystemConfigRequest request) {
+        log.info("Request to update system configuration: {}", request);
         SystemConfig domain = apiMapper.toDomain(request);
         SystemConfig updated = systemConfigService.updateSystemConfig(domain);
+        log.info("System configuration updated successfully");
         return ResponseApi.success(apiMapper.toInternalResponse(updated));
     }
 }

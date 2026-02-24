@@ -4,11 +4,13 @@ import com.fis.boportalservice.core.domain.model.AllowedIpRange;
 import com.fis.boportalservice.core.domain.repository.AllowedIpRangeRepository;
 import com.fis.boportalservice.core.service.AllowedIpRangeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AllowedIpRangeServiceImpl implements AllowedIpRangeService {
@@ -28,7 +30,10 @@ public class AllowedIpRangeServiceImpl implements AllowedIpRangeService {
     @Override
     public AllowedIpRange getById(UUID id) {
         return allowedIpRangeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("AllowedIpRange not found with id: " + id));
+                .orElseThrow(() -> {
+                    log.error("Allowed IP range not found with id: {}", id);
+                    return new RuntimeException("AllowedIpRange not found with id: " + id);
+                });
     }
 
     @Override
@@ -38,6 +43,7 @@ public class AllowedIpRangeServiceImpl implements AllowedIpRangeService {
 
     @Override
     public AllowedIpRange update(UUID id, AllowedIpRange ipRange) {
+        log.info("Updating allowed IP range with id: {}", id);
         AllowedIpRange existing = getById(id);
         existing.setName(ipRange.getName());
         existing.setIpPrefix(ipRange.getIpPrefix());
@@ -48,6 +54,7 @@ public class AllowedIpRangeServiceImpl implements AllowedIpRangeService {
 
     @Override
     public void delete(UUID id) {
+        log.info("Deleting allowed IP range with id: {}", id);
         allowedIpRangeRepository.deleteById(id);
     }
 }

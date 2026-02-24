@@ -10,6 +10,7 @@ import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.service.PortalMenuService;
 import com.fis.boportalservice.core.service.SystemConfigService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/portal")
 @RequiredArgsConstructor
@@ -32,12 +34,14 @@ public class PortalController {
 
     @GetMapping("/init")
     public ResponseApi<PortalInitResponse> getPortalInit() {
+        log.info("Request to initialize portal data");
         // 1. Get Public System Config
         SystemConfigPublicResponse config = systemConfigApiMapper
                 .toPublicResponse(systemConfigService.getSystemConfig());
 
         // 2. Get User Permissions from Security Context
         List<String> userPermissions = getUserPermissions();
+        log.info("User permissions: {}", userPermissions);
 
         // 3. Get Filtered Menus
         List<PortalMenuResponse> menus = menuApiMapper.toResponseList(menuService.getAvailableMenus(userPermissions));
