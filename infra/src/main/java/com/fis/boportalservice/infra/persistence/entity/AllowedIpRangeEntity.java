@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "allowed_ip_ranges", schema = "bo_portal")
+@Table(name = "allowed_ip_ranges", schema = "ih_bo_portal")
 @Getter
 @Setter
 @NoArgsConstructor

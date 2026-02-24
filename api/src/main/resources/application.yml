@@ -7,7 +7,7 @@ spring:
   application:
     name: bo-portal
   profiles:
-    active: local #prod
+    active: prod
   config:
     import:
       - 'classpath:client.yml'

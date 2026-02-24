@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "portal_menu", schema = "bo_portal")
+@Table(name = "portal_menu", schema = "ih_bo_portal")
 @Getter
 @Setter
 @NoArgsConstructor
