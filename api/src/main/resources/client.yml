@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL:}
-    username: ${DB_USERNAME:}
-    password: ${DB_PASSWORD:}
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:bo-portal}}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: HikariCP
@@ -14,6 +14,7 @@ spring:
       auto-commit: true
       connection-init-sql: SELECT 1
       connection-test-query: SELECT 1
+      schema: ${SCHEMA_NAME:bo_portal}
 
   jpa:
     hibernate:

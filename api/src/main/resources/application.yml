@@ -7,10 +7,10 @@ spring:
   application:
     name: bo-portal
   profiles:
-    active: prod
-#  config:
-#    import:
-#      - 'classpath:client.yml'
+    active: local #prod
+  config:
+    import:
+      - 'classpath:client.yml'
   jackson:
 #    deserialization:
 #      read-date-timestamps-as-nanoseconds: false
@@ -21,13 +21,6 @@ spring:
       exporter:
         otlp:
           endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:}
-  datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/bo-portal}
-    username: ${POSTGRES_USER:admin}
-    password: ${POSTGRES_PASSWORD:admin}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      schema: bo_portal
   liquibase:
     enabled: false
   jpa:
