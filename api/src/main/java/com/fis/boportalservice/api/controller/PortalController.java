@@ -17,9 +17,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import com.fis.boportalservice.api.util.MenuHierarchyHelper;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -44,11 +43,15 @@ public class PortalController {
         log.info("User permissions: {}", userPermissions);
 
         // 3. Get Filtered Menus
-        List<PortalMenuResponse> menus = menuApiMapper.toResponseList(menuService.getAvailableMenus(userPermissions));
+        List<PortalMenuResponse> flatMenus = menuApiMapper
+                .toResponseList(menuService.getAvailableMenus(userPermissions));
+
+        // 4. Build Hierarchy
+        List<PortalMenuResponse> hierarchicalMenus = MenuHierarchyHelper.buildMenuHierarchy(flatMenus);
 
         return ResponseApi.success(PortalInitResponse.builder()
                 .systemConfig(config)
-                .menus(menus)
+                .menus(hierarchicalMenus)
                 .build());
     }
 

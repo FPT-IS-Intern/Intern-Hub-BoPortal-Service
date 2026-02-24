@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,4 +21,5 @@ public class PortalMenuResponse {
     private String permissionCode;
     private Integer sortOrder;
     private String status;
+    private List<PortalMenuResponse> children;
 }

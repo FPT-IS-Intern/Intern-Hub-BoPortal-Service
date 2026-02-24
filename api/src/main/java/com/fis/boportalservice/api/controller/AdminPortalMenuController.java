@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import com.fis.boportalservice.api.util.MenuHierarchyHelper;
 import java.util.List;
 
 @Slf4j
@@ -24,8 +25,9 @@ public class AdminPortalMenuController {
 
     @GetMapping
     public ResponseApi<List<PortalMenuResponse>> getAllMenus() {
-        log.info("Request to get all portal menus");
-        return ResponseApi.success(apiMapper.toResponseList(menuService.getAllMenus()));
+        log.info("Request to get all portal menus (flat list)");
+        List<PortalMenuResponse> flatMenus = apiMapper.toResponseList(menuService.getAllMenus());
+        return ResponseApi.success(MenuHierarchyHelper.buildMenuHierarchy(flatMenus));
     }
 
     @GetMapping("/{id}")
