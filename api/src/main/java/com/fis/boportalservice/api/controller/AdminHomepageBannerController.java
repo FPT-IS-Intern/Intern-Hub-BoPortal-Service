@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping("/admin/banners")
+@RequestMapping("/banners")
 @RequiredArgsConstructor
 public class AdminHomepageBannerController {
 

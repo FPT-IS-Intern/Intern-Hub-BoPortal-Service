@@ -22,21 +22,11 @@ public class SecurityConfiguration {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 return http.csrf(AbstractHttpConfigurer::disable)
-                                .sessionManagement(
-                                                configurer -> configurer
-                                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .headers(
-                                                configurer -> configurer.frameOptions(
-                                                                HeadersConfigurer.FrameOptionsConfig::disable))
-                                .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers(
-                                                                "/docs/swagger-ui/**",
-                                                                "/docs/bo-portal/v3/api-docs/**",
-                                                                "/docs/bo-portal/v3/api-docs",
-                                                                "/actuator/health")
-                                                .permitAll()
-                                                .anyRequest().authenticated())
-                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                                .build();
+                        .sessionManagement(
+                                configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .headers(
+                                configurer -> configurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                        .build();
         }
 }

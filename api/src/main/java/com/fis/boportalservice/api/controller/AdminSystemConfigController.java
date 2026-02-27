@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/admin/system-config")
+@RequestMapping("/system-config")
 @RequiredArgsConstructor
 public class AdminSystemConfigController {
 

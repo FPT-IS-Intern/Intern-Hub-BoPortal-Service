@@ -16,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/admin/menus")
+@RequestMapping("/menus")
 @RequiredArgsConstructor
 public class AdminPortalMenuController {
 
