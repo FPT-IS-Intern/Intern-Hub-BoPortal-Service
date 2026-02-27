@@ -1,10 +1,11 @@
 server:
   port: ${APP_PORT:8080}
   servlet:
-    context-path: /admin/bo-portal
+    context-path: /bo-portal
 
 security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue}
+  internal-path-prefix: /bo-portal/internal/
 
 spring:
   application:
@@ -21,8 +22,8 @@ feign:
       auth:
         url: ${AUTH_SERVICE_URL:http://localhost:8888}
   jackson:
-#    deserialization:
-#      read-date-timestamps-as-nanoseconds: false
+  #    deserialization:
+  #      read-date-timestamps-as-nanoseconds: false
   sleuth:
     otel:
       config:
