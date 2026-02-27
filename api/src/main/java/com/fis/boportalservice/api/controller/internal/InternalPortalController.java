@@ -24,7 +24,7 @@ import java.util.*;
 @Slf4j
 @Tag(name = "Internal - Portal Menus")
 @RestController
-@RequestMapping("/internal")
+@RequestMapping("/bo-portal/internal")
 @RequiredArgsConstructor
 public class InternalPortalController {
 

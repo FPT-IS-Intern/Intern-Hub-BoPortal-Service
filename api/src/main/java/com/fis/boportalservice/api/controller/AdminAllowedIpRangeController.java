@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Tag(name = "Admin - Allowed IP Ranges")
 @RestController
-@RequestMapping("/allowed-ip-ranges")
+@RequestMapping("/bo-portal/allowed-ip-ranges")
 @RequiredArgsConstructor
 public class AdminAllowedIpRangeController {
 

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Tag(name = "Admin - System Configurations")
 @RestController
-@RequestMapping("/system-config")
+@RequestMapping("/bo-portal/system-config")
 @RequiredArgsConstructor
 public class AdminSystemConfigController {
 

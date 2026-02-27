@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Tag(name = "Internal - System Configurations")
 @RestController
-@RequestMapping("/internal/system-config")
+@RequestMapping("/bo-portal/internal/system-config")
 @RequiredArgsConstructor
 public class InternalSystemConfigController {
 
