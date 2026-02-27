@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Tag(name = "Internal - Allowed IP Ranges")
 @RestController
-@RequestMapping("/bo-portal/internal")
+@RequestMapping("/internal")
 @RequiredArgsConstructor
 public class InternalAllowedIpRangeController {
 

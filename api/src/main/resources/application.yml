@@ -1,5 +1,7 @@
 server:
   port: ${APP_PORT:8080}
+  servlet:
+    context-path: /admin/bo-portal
 
 security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue}
@@ -54,9 +56,9 @@ app:
 
 springdoc:
   swagger-ui:
-    path: /bo-portal/docs/swagger-ui
+    path: /docs/swagger-ui
   api-docs:
-    path: /bo-portal/docs/bo-portal/v3/api-docs
+    path: /docs/bo-portal/v3/api-docs
 
 configuration:
   timezone: ${TIMEZONE_CONFIG:Asia/Ho_Chi_Minh}

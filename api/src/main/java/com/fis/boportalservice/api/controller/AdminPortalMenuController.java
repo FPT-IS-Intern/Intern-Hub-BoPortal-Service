@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Admin - Portal Menus")
 @RestController
-@RequestMapping("/bo-portal/menus")
+@RequestMapping("/menus")
 @RequiredArgsConstructor
 public class AdminPortalMenuController {
 
