@@ -1,7 +1,10 @@
 server:
   port: ${APP_PORT:8080}
   servlet:
-    context-path: /bo-portal
+    context-path: /admin/bo-portal
+
+security:
+  internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue}
 
 spring:
   application:
@@ -11,6 +14,12 @@ spring:
   config:
     import:
       - 'classpath:client.yml'
+
+feign:
+  client:
+    config:
+      auth:
+        url: ${AUTH_SERVICE_URL:http://localhost:8888}
   jackson:
 #    deserialization:
 #      read-date-timestamps-as-nanoseconds: false
@@ -102,3 +111,7 @@ threadPool:
 
 application:
   cache-ttl-default-days: 3
+
+services:
+  gateway:
+    url: ${GATEWAY_URL:http://localhost:8765}
