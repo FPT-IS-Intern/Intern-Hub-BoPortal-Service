@@ -9,7 +9,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -18,7 +17,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -31,13 +29,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
 
-    private static final List<String> PROTECTED_PATH_PATTERNS =
-            List.of(
-                    "/api/invest-service/v1/internal/transaction-limit/**",
-                    "/api/invest-service/v1/internal/account-info");
-
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
-
     @Override
     protected final void doFilterInternal(
             @NonNull final HttpServletRequest request,
@@ -46,16 +37,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
-        boolean isProtected =
-                PROTECTED_PATH_PATTERNS.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
 
-        // bypass filter for non-protected paths
-        if (true) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (isBypassPath(request.getRequestURI())) {
+        if (isBypassPath(path)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -72,13 +55,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (loginUserInfo != null) {
                     MDC.put("clientNo", loginUserInfo.INDI.clientNo);
 
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(loginUserInfo, null, null);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            loginUserInfo, null, null);
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } else {
-                log.error("Unauthorized access - Missing JWT Token {}", request.getRequestId());
+                log.error("Unauthorized access - Missing JWT Token for path: {}", path);
                 writeErrorResponse(response, "Missing JWT Token");
                 return;
             }
@@ -92,19 +75,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean isBypassPath(String path) {
         return path.contains("/actuator")
-                || path.contains("/docs/api-docs")
-                || path.contains("/docs/swagger-ui")
-                || path.contains("/swagger-resources")
+                || path.contains("/docs/")
+                || path.contains("/swagger")
                 || path.contains("/internal")
-                || path.contains("/webjars")
-                || path.contains("/swagger-ui.html");
+                || path.contains("/webjars");
     }
 
     private void writeErrorResponse(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        ResponseApi<?> res =
-                ResponseApi.error(String.valueOf(HttpServletResponse.SC_UNAUTHORIZED), message);
+        ResponseApi<?> res = ResponseApi.error(String.valueOf(HttpServletResponse.SC_UNAUTHORIZED), message);
         response.getWriter().write(objectMapper.writeValueAsString(res));
     }
 }

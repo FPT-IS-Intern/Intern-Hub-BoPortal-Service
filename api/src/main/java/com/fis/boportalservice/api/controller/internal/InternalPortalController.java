@@ -57,6 +57,9 @@ public class InternalPortalController {
     }
 
     private List<String> getUserPermissions() {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            return Collections.emptyList();
+        }
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof LoginUserInfo) {
             LoginUserInfo userInfo = (LoginUserInfo) principal;

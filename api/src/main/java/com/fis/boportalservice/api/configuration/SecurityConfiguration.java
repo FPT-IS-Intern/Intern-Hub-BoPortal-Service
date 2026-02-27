@@ -19,6 +19,9 @@ public class SecurityConfiguration {
 
         private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+        @org.springframework.beans.factory.annotation.Value("${security.internal-path-prefix:/bo-portal/internal/}")
+        private String internalPathPrefix;
+
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 return http.csrf(AbstractHttpConfigurer::disable)
@@ -28,6 +31,13 @@ public class SecurityConfiguration {
                                 .headers(
                                                 configurer -> configurer.frameOptions(
                                                                 HeadersConfigurer.FrameOptionsConfig::disable))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(
+                                                                "/bo-portal/docs/**",
+                                                                "/actuator/**",
+                                                                internalPathPrefix + "**")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                                 .build();
         }
