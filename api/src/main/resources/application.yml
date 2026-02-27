@@ -3,7 +3,6 @@ server:
 
 security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue}
-  internal-path-prefix: /bo-portal/internal/
 
 spring:
   application:
