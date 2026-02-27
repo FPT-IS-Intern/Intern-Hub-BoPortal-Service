@@ -45,10 +45,10 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_REGISTRY }}/internhub-v2/dev/bo-portal
           tags: |
+            # Ghi đè tag 'latest' khi push lên branch chính (main)
             type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix=sha-,format=short
+            # Ghi đè theo tên branch (vùng dev, staging...)
             type=ref,event=branch
-            type=raw,value={{sha}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
