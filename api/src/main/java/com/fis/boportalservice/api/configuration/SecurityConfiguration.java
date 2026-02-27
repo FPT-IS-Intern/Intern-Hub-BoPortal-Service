@@ -22,11 +22,13 @@ public class SecurityConfiguration {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 return http.csrf(AbstractHttpConfigurer::disable)
-                        .sessionManagement(
-                                configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                        .headers(
-                                configurer -> configurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-                        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                        .build();
+                                .sessionManagement(
+                                                configurer -> configurer
+                                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .headers(
+                                                configurer -> configurer.frameOptions(
+                                                                HeadersConfigurer.FrameOptionsConfig::disable))
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                                .build();
         }
 }
