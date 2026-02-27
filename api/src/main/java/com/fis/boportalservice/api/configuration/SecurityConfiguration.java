@@ -17,16 +17,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(
-                        configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(
-                        configurer -> configurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                return http.csrf(AbstractHttpConfigurer::disable)
+                                .sessionManagement(
+                                                configurer -> configurer
+                                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .headers(
+                                                configurer -> configurer.frameOptions(
+                                                                HeadersConfigurer.FrameOptionsConfig::disable))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(
+                                                                "/docs/swagger-ui/**",
+                                                                "/docs/bo-portal/v3/api-docs/**",
+                                                                "/docs/bo-portal/v3/api-docs",
+                                                                "/actuator/health")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                                .build();
+        }
 }

@@ -25,3 +25,5 @@ gradle-app.setting
 # doc project
 *.md
 /docs
+
+*.env

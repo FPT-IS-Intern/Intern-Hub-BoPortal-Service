@@ -3,7 +3,7 @@ FROM eclipse-temurin:25.0.1_8-jdk AS build
 WORKDIR /app
 
 # Copy Gradle wrapper & config files first (for layer caching)
-COPY gradlew gradlew.bat build.gradle settings.gradle ./
+COPY gradlew gradlew.bat build.gradle settings.gradle sonar.gradle ./
 COPY gradle/ gradle/
 
 # Copy submodule build files
@@ -34,7 +34,7 @@ RUN jdeps --ignore-missing-deps -q \
     --multi-release 25 \
     --print-module-deps \
     --class-path 'common/build/libs/*:core/build/libs/*:infra/build/libs/*' \
-    api/build/libs/bo-portal-service-1.0.0-SNAPSHOT.jar > deps.txt
+    api/build/libs/api-1.0.0-SNAPSHOT.jar > deps.txt
 
 RUN jlink \
     --add-modules $(cat deps.txt),java.base,java.logging,java.naming,java.desktop,java.management,java.security.jgss,java.instrument,java.sql,java.compiler,jdk.crypto.ec,jdk.unsupported \
@@ -50,7 +50,7 @@ FROM gcr.io/distroless/base-debian12
 WORKDIR /app
 
 COPY --from=build /custom-jre /opt/java/openjdk
-COPY --from=build /app/api/build/libs/bo-portal-service-1.0.0-SNAPSHOT.jar ./app.jar
+COPY --from=build /app/api/build/libs/api-1.0.0-SNAPSHOT.jar ./app.jar
 
 EXPOSE 8080
 
