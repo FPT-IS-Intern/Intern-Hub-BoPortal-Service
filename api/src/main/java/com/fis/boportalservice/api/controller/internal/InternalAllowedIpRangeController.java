@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Tag(name = "Internal - Allowed IP Ranges")
 @RestController
 @RequestMapping("/internal")
 @RequiredArgsConstructor

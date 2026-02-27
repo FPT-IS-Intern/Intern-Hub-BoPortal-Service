@@ -7,11 +7,13 @@ import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.service.SystemConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@Tag(name = "Internal - System Configurations")
 @RestController
 @RequestMapping("/internal/system-config")
 @RequiredArgsConstructor
