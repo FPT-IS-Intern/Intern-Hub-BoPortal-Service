@@ -1,17 +1,15 @@
-package com.fis.boportalservice.api.dto.response;
+package com.fis.boportalservice.core.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AttendanceLocationResponse {
+public class AttendanceLocation {
     private UUID id;
     private String name;
     private Double latitude;
