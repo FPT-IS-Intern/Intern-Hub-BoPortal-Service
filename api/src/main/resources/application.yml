@@ -1,7 +1,7 @@
 server:
   port: ${APP_PORT:8080}
-  servlet:
-    context-path: /bo-portal
+#  servlet:
+#    context-path: /bo-portal
 
 security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue}
@@ -21,6 +21,10 @@ feign:
     config:
       auth:
         url: ${AUTH_SERVICE_URL:http://localhost:8888}
+      hrm:
+        url: ${HRM_SERVICE_URL:http://localhost:8080}
+      lms:
+        url: ${LMS_SERVICE_URL:http://localhost:6666}
   jackson:
   #    deserialization:
   #      read-date-timestamps-as-nanoseconds: false
@@ -55,11 +59,11 @@ app:
     remember-me:
       expires-in: ${APP_JWT_REMEMBER_ME_EXPIRES_IN:#{24 * 60 * 60 * 1000 * 7}} # 7 days in milliseconds
 
-springdoc:
-  swagger-ui:
-    path: /docs/swagger-ui
-  api-docs:
-    path: /docs/bo-portal/v3/api-docs
+#springdoc:
+#  swagger-ui:
+#    path: /docs/swagger-ui
+#  api-docs:
+#    path: /docs/bo-portal/v3/api-docs
 
 configuration:
   timezone: ${TIMEZONE_CONFIG:Asia/Ho_Chi_Minh}

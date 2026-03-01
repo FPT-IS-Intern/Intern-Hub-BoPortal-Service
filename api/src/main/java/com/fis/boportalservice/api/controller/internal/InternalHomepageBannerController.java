@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Tag(name = "Internal - Homepage Banners")
 @RestController
-@RequestMapping("/internal/banners")
+@RequestMapping("/bo-portal/internal/banners")
 @RequiredArgsConstructor
 public class InternalHomepageBannerController {
 
