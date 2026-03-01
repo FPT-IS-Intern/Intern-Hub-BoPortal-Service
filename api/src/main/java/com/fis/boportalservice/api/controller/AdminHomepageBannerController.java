@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Tag(name = "Admin - Homepage Banners")
+@Tag(name = "3. Admin - Homepage Banners")
 @RestController
 @RequestMapping("/banners")
 @RequiredArgsConstructor

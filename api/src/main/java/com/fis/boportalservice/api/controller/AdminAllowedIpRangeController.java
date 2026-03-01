@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Tag(name = "Admin - Allowed IP Ranges")
+@Tag(name = "1. Admin - Allowed IP Ranges")
 @RestController
 @RequestMapping("/allowed-ip-ranges")
 @RequiredArgsConstructor

@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@Tag(name = "Admin - System Configurations")
+@Tag(name = "5. Admin - System Configurations")
 @RestController
 @RequestMapping("/system-config")
 @RequiredArgsConstructor

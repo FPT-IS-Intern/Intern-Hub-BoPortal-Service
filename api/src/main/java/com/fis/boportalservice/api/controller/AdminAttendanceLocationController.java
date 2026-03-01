@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Tag(name = "Admin - Attendance Locations")
+@Tag(name = "2. Admin - Attendance Locations")
 @RestController
 @RequestMapping("/attendance-locations")
 @RequiredArgsConstructor

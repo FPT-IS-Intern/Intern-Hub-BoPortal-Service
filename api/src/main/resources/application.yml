@@ -59,11 +59,13 @@ app:
     remember-me:
       expires-in: ${APP_JWT_REMEMBER_ME_EXPIRES_IN:#{24 * 60 * 60 * 1000 * 7}} # 7 days in milliseconds
 
-#springdoc:
-#  swagger-ui:
-#    path: /docs/swagger-ui
-#  api-docs:
-#    path: /docs/bo-portal/v3/api-docs
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha
+    operations-sorter: alpha
+    path: /docs/swagger-ui
+  api-docs:
+    path: /docs/bo-portal/v3/api-docs
 
 configuration:
   timezone: ${TIMEZONE_CONFIG:Asia/Ho_Chi_Minh}

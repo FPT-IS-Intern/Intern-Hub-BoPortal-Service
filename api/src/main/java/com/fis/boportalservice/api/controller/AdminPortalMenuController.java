@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 
 @Slf4j
-@Tag(name = "Admin - Portal Menus")
+@Tag(name = "4. Admin - Portal Menus")
 @RestController
 @RequestMapping("/menus")
 @RequiredArgsConstructor
