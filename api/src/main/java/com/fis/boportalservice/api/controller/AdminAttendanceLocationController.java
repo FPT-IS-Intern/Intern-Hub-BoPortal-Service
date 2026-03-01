@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Tag(name = "2. Admin - Attendance Locations")
 @RestController
-@RequestMapping("/bo-portal/attendance-locations")
+@RequestMapping("/attendance-locations")
 @RequiredArgsConstructor
 public class AdminAttendanceLocationController {
 

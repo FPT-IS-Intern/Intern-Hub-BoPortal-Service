@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Tag(name = "6. Internal APIs")
 @RestController
-@RequestMapping("/bo-portal/internal")
+@RequestMapping("/internal")
 @RequiredArgsConstructor
 public class InternalController {
 
