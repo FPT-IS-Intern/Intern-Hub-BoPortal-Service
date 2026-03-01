@@ -65,7 +65,7 @@ springdoc:
     operations-sorter: alpha
     path: /docs/swagger-ui
   api-docs:
-    path: /docs/bo-portal/v3/api-docs
+    path: /docs/v3/api-docs
 
 configuration:
   timezone: ${TIMEZONE_CONFIG:Asia/Ho_Chi_Minh}
