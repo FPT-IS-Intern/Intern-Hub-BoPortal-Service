@@ -63,9 +63,9 @@ springdoc:
   swagger-ui:
     tags-sorter: alpha
     operations-sorter: alpha
-    path: /swagger-ui.html
-  api-docs:
-    path: /v3/api-docs
+#    path: /swagger-ui.html
+#  api-docs:
+#    path: /v3/api-docs
 
 configuration:
   timezone: ${TIMEZONE_CONFIG:Asia/Ho_Chi_Minh}
