@@ -1,7 +1,7 @@
 server:
   port: ${APP_PORT:8080}
-  servlet:
-    context-path: /bo-portal
+#  servlet:
+#    context-path: /bo-portal
 
 security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue}

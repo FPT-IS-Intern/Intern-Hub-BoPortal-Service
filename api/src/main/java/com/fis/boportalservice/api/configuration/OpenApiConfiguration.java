@@ -14,9 +14,6 @@ public class OpenApiConfiguration {
     @Value("${services.gateway.url:http://localhost:8765}")
     private String gatewayUrl;
 
-    @Value("${server.servlet.context-path:bo-portal}")
-    private String contextPath;
-
     @Bean
     public OpenApiCustomizer openApiCustomizer() {
         SecurityScheme bearerAuthScheme = new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer")
@@ -27,7 +24,7 @@ public class OpenApiConfiguration {
                 .name("X-Internal-Secret");
 
         return openApi -> openApi
-                .addServersItem(new Server().url(gatewayUrl + "/api" + contextPath))
+                .addServersItem(new Server().url(gatewayUrl + "/api"))
                 .components(
                         openApi.getComponents() == null
                                 ? new Components()
