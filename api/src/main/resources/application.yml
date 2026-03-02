@@ -19,11 +19,11 @@ spring:
 feign:
   client:
     config:
-      auth:
+      auth-service:
         url: ${AUTH_SERVICE_URL:http://localhost:8888}
-      hrm:
+      hrm-service:
         url: ${HRM_SERVICE_URL:http://localhost:8080}
-      lms:
+      lms-service:
         url: ${LMS_SERVICE_URL:http://localhost:6666}
   jackson:
   #    deserialization:
