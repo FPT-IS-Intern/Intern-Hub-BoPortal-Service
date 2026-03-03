@@ -48,6 +48,7 @@ public class AttendanceLocationServiceImpl implements AttendanceLocationService 
         existing.setLongitude(location.getLongitude());
         existing.setRadiusMeters(location.getRadiusMeters());
         existing.setIsActive(location.getIsActive());
+        existing.setBranchId(location.getBranchId());
         return attendanceLocationRepository.save(existing);
     }
 

@@ -14,4 +14,5 @@ public class AllowedIpRange {
     private String ipPrefix;
     private Boolean isActive;
     private String description;
+    private UUID branchId;
 }

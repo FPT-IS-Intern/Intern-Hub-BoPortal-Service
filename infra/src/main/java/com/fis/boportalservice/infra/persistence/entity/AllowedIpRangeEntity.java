@@ -41,4 +41,7 @@ public class AllowedIpRangeEntity {
     @Column(name = "updated_at", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Column(name = "branch_id")
+    private UUID branchId;
 }

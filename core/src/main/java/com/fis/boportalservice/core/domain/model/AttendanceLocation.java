@@ -16,4 +16,5 @@ public class AttendanceLocation {
     private Double longitude;
     private Integer radiusMeters;
     private Boolean isActive;
+    private UUID branchId;
 }

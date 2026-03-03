@@ -13,4 +13,5 @@ public class BoPortalAllowedIpRangeResponse {
     private String ipPrefix;
     private Boolean isActive;
     private String description;
+    private UUID branchId;
 }
