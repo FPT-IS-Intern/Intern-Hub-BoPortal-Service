@@ -6,6 +6,8 @@ server:
 security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue}
   internal-path-prefix: /bo-portal/internal/
+  cors:
+    allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:https://internhub-v2.bbtech.io.vn}
 
 spring:
   application:
@@ -63,7 +65,7 @@ springdoc:
   swagger-ui:
     tags-sorter: alpha
     operations-sorter: alpha
-#    path: /swagger-ui.html
+    path: /swagger-ui.html
 #  api-docs:
 #    path: /v3/api-docs
 

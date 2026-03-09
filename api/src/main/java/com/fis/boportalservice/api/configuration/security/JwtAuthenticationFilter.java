@@ -13,6 +13,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,13 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     private final ObjectMapper objectMapper;
-
-    private static final List<String> PROTECTED_PATH_PATTERNS =
-            List.of(
-                    "/api/invest-service/v1/internal/transaction-limit/**",
-                    "/api/invest-service/v1/internal/account-info");
-
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     @Override
     protected final void doFilterInternal(
@@ -45,17 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull final FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getRequestURI();
-        boolean isProtected =
-                PROTECTED_PATH_PATTERNS.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
-
-        // bypass filter for non-protected paths
-        if (true) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (isBypassPath(request.getRequestURI())) {
+        if (isBypassPath(request)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -90,14 +75,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isBypassPath(String path) {
-        return path.contains("/actuator")
-                || path.contains("/docs/api-docs")
-                || path.contains("/docs/swagger-ui")
-                || path.contains("/swagger-resources")
-                || path.contains("/internal")
-                || path.contains("/webjars")
-                || path.contains("/swagger-ui.html");
+    private boolean isBypassPath(HttpServletRequest request) {
+        if (HttpMethod.OPTIONS.matches(request.getMethod())) {
+            return true;
+        }
+        String path = request.getRequestURI();
+        return antPathMatcher.match("/actuator/**", path)
+                || antPathMatcher.match("/docs/**", path)
+                || antPathMatcher.match("/swagger-ui/**", path)
+                || antPathMatcher.match("/swagger-ui.html", path)
+                || antPathMatcher.match("/v3/api-docs/**", path)
+                || antPathMatcher.match("/swagger-resources/**", path)
+                || antPathMatcher.match("/webjars/**", path)
+                || antPathMatcher.match("/bo-portal/internal/**", path)
+                || antPathMatcher.match("/bo-portal/auth/login", path)
+                || antPathMatcher.match("/bo-portal/auth/refresh", path);
     }
 
     private void writeErrorResponse(HttpServletResponse response, String message) throws IOException {
