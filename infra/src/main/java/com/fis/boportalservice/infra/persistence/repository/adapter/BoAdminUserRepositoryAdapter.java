@@ -5,6 +5,7 @@ import com.fis.boportalservice.core.domain.repository.BoAdminUserRepository;
 import com.fis.boportalservice.infra.persistence.entity.BoAdminUserEntity;
 import com.fis.boportalservice.infra.persistence.mapper.BoAdminUserEntityMapper;
 import com.fis.boportalservice.infra.persistence.repository.BoAdminUserJPARepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,18 @@ public class BoAdminUserRepositoryAdapter implements BoAdminUserRepository {
     }
 
     @Override
+    public List<String> findRoleCodes(UUID userId) {
+        return jpaRepository.findRoleCodesByUserId(userId);
+    }
+
+    @Override
+    public List<String> findPermissionCodes(UUID userId) {
+        return jpaRepository.findPermissionCodesByUserId(userId);
+    }
+
+    @Override
     public BoAdminUser save(BoAdminUser user) {
         BoAdminUserEntity saved = jpaRepository.save(entityMapper.toEntity(user));
         return entityMapper.toDomain(saved);
     }
 }
-

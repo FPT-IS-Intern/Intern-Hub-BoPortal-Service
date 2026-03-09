@@ -120,12 +120,15 @@ public class BoAuthServiceImpl implements BoAuthService {
     }
 
     private BoAuthSession issueSession(BoAdminUser user, String deviceId) {
+        List<String> roles = resolveRoles(user);
+        List<String> permissions = resolvePermissions(user);
+
         BoAdminProfile profile = BoAdminProfile.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .displayName(user.getDisplayName())
-                .roles(splitCodes(user.getRoleCodes()))
-                .permissions(splitCodes(user.getPermissionCodes()))
+                .roles(roles)
+                .permissions(permissions)
                 .build();
 
         BoTokenClaims tokenClaims = BoTokenClaims.builder()
@@ -155,6 +158,22 @@ public class BoAuthServiceImpl implements BoAuthService {
                 .refreshExpiresIn(boTokenProvider.getRefreshTokenExpiresInSeconds())
                 .user(profile)
                 .build();
+    }
+
+    private List<String> resolveRoles(BoAdminUser user) {
+        List<String> roles = boAdminUserRepository.findRoleCodes(user.getId());
+        if (roles != null && !roles.isEmpty()) {
+            return roles;
+        }
+        return splitCodes(user.getRoleCodes());
+    }
+
+    private List<String> resolvePermissions(BoAdminUser user) {
+        List<String> permissions = boAdminUserRepository.findPermissionCodes(user.getId());
+        if (permissions != null && !permissions.isEmpty()) {
+            return permissions;
+        }
+        return splitCodes(user.getPermissionCodes());
     }
 
     private List<String> splitCodes(String raw) {
