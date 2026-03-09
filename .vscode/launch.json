@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-BoPortalServiceApplication<bo-portal-service-Intern-Hub-BoPortal-Service-api>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.fis.boportalservice.api.BoPortalServiceApplication",
+            "projectName": "bo-portal-service-Intern-Hub-BoPortal-Service-api",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

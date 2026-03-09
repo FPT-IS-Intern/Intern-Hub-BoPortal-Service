@@ -3,7 +3,7 @@ FROM eclipse-temurin:25.0.1_8-jdk AS build
 WORKDIR /app
 
 # Copy Gradle wrapper & config files first (for layer caching)
-COPY gradlew gradlew.bat build.gradle settings.gradle sonar.gradle ./
+COPY gradlew gradlew.bat build.gradle settings.gradle ./
 COPY gradle/ gradle/
 
 # Copy submodule build files

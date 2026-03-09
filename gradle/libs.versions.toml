@@ -4,7 +4,6 @@ springBoot = "4.0.1"
 springBootGradle = "4.0.1"
 dependencyManagement = "1.1.7"
 spotless = "7.0.2"
-sonarqube = "5.1.0.4882"
 jib = "3.4.4"
 
 mapstruct = "1.6.0"
@@ -102,11 +101,9 @@ mockitoInline = { module = "org.mockito:mockito-inline", version.ref = "mockitoI
 jackson-datatype-jsr310 = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2"
 
 [plugins]
-sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 jib = { id = "com.google.cloud.tools.jib", version.ref = "jib" }
 
 [bundles]
 feign = ["feign-okhttp", "feign-httpclient", "feign-jackson"]
 jjwt = ["jjwt-api", "jjwt-impl", "jjwt-jackson"]
-

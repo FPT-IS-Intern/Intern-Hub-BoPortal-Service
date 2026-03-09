@@ -1,8 +1,0 @@
-
-sonar {
-  properties {
-    property "sonar.host.url", "https://sonarqube.nonprod.galaxyfinx.in"
-    property "sonar.sources", "src/main"
-    // Other global properties
-  }
-}

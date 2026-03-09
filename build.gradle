@@ -13,7 +13,6 @@ buildscript {
 plugins {
     id 'java'
     id 'jacoco'
-    alias libs.plugins.sonarqube
     alias libs.plugins.spotless apply false
 }
 
@@ -115,5 +114,3 @@ subprojects {
         }
     }
 }
-
-apply from: "$project.rootDir/sonar.gradle"
