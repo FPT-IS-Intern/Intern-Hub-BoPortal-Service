@@ -42,14 +42,14 @@ public class BoAuthServiceImpl implements BoAuthService {
     @Override
     public BoAuthSession login(String username, String password, String deviceId) {
         BoAdminUser user = boAdminUserRepository.findByUsername(username)
-                .orElseThrow(() -> new ClientSideException(ErrorCode.BAD_REQUEST, "Invalid credential"));
+                .orElseThrow(() -> new ClientSideException(ErrorCode.BO_INVALID_CREDENTIAL));
 
         if (!ACTIVE_STATUS.equalsIgnoreCase(user.getStatus())) {
-            throw new ClientSideException(ErrorCode.BAD_REQUEST, "Account is inactive");
+            throw new ClientSideException(ErrorCode.BO_ACCOUNT_INACTIVE);
         }
 
         if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(LocalDateTime.now())) {
-            throw new ClientSideException(ErrorCode.BAD_REQUEST, "Account is temporarily locked");
+            throw new ClientSideException(ErrorCode.BO_ACCOUNT_LOCKED);
         }
 
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
@@ -59,7 +59,7 @@ public class BoAuthServiceImpl implements BoAuthService {
                 user.setLockedUntil(LocalDateTime.now().plusMinutes(15));
             }
             boAdminUserRepository.save(user);
-            throw new ClientSideException(ErrorCode.BAD_REQUEST, "Invalid credential");
+            throw new ClientSideException(ErrorCode.BO_INVALID_CREDENTIAL);
         }
 
         user.setFailedAttempt(0);
@@ -74,23 +74,23 @@ public class BoAuthServiceImpl implements BoAuthService {
     public BoAuthSession refresh(String refreshToken, String deviceId) {
         BoTokenClaims claims = boTokenProvider.parseRefreshToken(refreshToken);
         BoRefreshToken storedToken = boRefreshTokenRepository.findByTokenHash(hashToken(refreshToken))
-                .orElseThrow(() -> new ClientSideException(ErrorCode.BAD_REQUEST, "Refresh token not found"));
+                .orElseThrow(() -> new ClientSideException(ErrorCode.BO_REFRESH_TOKEN_NOT_FOUND));
 
         if (storedToken.getRevokedAt() != null || storedToken.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ClientSideException(ErrorCode.BAD_REQUEST, "Refresh token expired or revoked");
+            throw new ClientSideException(ErrorCode.BO_REFRESH_TOKEN_INVALID);
         }
 
         if (StringUtils.hasText(deviceId) && StringUtils.hasText(storedToken.getDeviceId())
                 && !deviceId.equals(storedToken.getDeviceId())) {
-            throw new ClientSideException(ErrorCode.BAD_REQUEST, "Token device mismatch");
+            throw new ClientSideException(ErrorCode.BO_TOKEN_DEVICE_MISMATCH);
         }
 
         if (!claims.getUserId().equals(storedToken.getUserId())) {
-            throw new ClientSideException(ErrorCode.BAD_REQUEST, "Refresh token user mismatch");
+            throw new ClientSideException(ErrorCode.BO_REFRESH_TOKEN_USER_MISMATCH);
         }
 
         BoAdminUser user = boAdminUserRepository.findById(claims.getUserId())
-                .orElseThrow(() -> new ClientSideException(ErrorCode.BAD_REQUEST, "User not found"));
+                .orElseThrow(() -> new ClientSideException(ErrorCode.BO_USER_NOT_FOUND));
 
         boRefreshTokenRepository.revokeById(storedToken.getId(), LocalDateTime.now());
         return issueSession(user, deviceId);
@@ -108,7 +108,7 @@ public class BoAuthServiceImpl implements BoAuthService {
     @Override
     public BoAdminProfile me(String accessToken) {
         if (!StringUtils.hasText(accessToken)) {
-            throw new ClientSideException(ErrorCode.BAD_REQUEST, "Missing access token");
+            throw new ClientSideException(ErrorCode.BO_MISSING_ACCESS_TOKEN);
         }
         BoTokenClaims claims = boTokenProvider.parseAccessToken(accessToken);
         return BoAdminProfile.builder()
@@ -194,7 +194,7 @@ public class BoAuthServiceImpl implements BoAuthService {
             return HexFormat.of().formatHex(hash);
         } catch (Exception ex) {
             log.error("Failed to hash refresh token", ex);
-            throw new ClientSideException(ErrorCode.SYSTEM_ERROR, "Cannot process token");
+            throw new ClientSideException(ErrorCode.BO_TOKEN_PROCESS_FAILED);
         }
     }
 }

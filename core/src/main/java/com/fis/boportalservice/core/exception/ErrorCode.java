@@ -19,7 +19,47 @@ public enum ErrorCode {
             "error.external_service_response_error"),
     SERVICE_UNAVAILABLE("0503", "0503", "SYSTEM", "Service unavailable", "error.service_unavailable"),
     SYSTEM_ERROR("0500", "0500", "SYSTEM", "System error", "error.system_error"),
-    NOT_FOUND("0404", "0404", "SYSTEM", "Not found", "error.not_found");
+    NOT_FOUND("0404", "0404", "SYSTEM", "Not found", "error.not_found"),
+    BO_INVALID_CREDENTIAL("1401", "1401", "AUTH", "Invalid credential", "error.bo_auth.invalid_credential"),
+    BO_ACCOUNT_INACTIVE("1402", "1402", "AUTH", "Account is inactive", "error.bo_auth.account_inactive"),
+    BO_ACCOUNT_LOCKED("1403", "1403", "AUTH", "Account is temporarily locked", "error.bo_auth.account_locked"),
+    BO_REFRESH_TOKEN_NOT_FOUND(
+            "1404",
+            "1404",
+            "AUTH",
+            "Refresh token not found",
+            "error.bo_auth.refresh_token_not_found"),
+    BO_REFRESH_TOKEN_INVALID(
+            "1405",
+            "1405",
+            "AUTH",
+            "Refresh token expired or revoked",
+            "error.bo_auth.refresh_token_invalid"),
+    BO_TOKEN_DEVICE_MISMATCH(
+            "1406",
+            "1406",
+            "AUTH",
+            "Token device mismatch",
+            "error.bo_auth.token_device_mismatch"),
+    BO_REFRESH_TOKEN_USER_MISMATCH(
+            "1407",
+            "1407",
+            "AUTH",
+            "Refresh token user mismatch",
+            "error.bo_auth.refresh_token_user_mismatch"),
+    BO_USER_NOT_FOUND("1408", "1408", "AUTH", "User not found", "error.bo_auth.user_not_found"),
+    BO_MISSING_ACCESS_TOKEN(
+            "1409",
+            "1409",
+            "AUTH",
+            "Missing access token",
+            "error.bo_auth.missing_access_token"),
+    BO_TOKEN_PROCESS_FAILED(
+            "1410",
+            "1410",
+            "AUTH",
+            "Cannot process token",
+            "error.bo_auth.token_process_failed");
     private final String code;
     private final String rawCode;
     private final String category;

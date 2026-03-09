@@ -128,7 +128,9 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleGeneralException(Exception exception, WebRequest request) {
         log.error("A internal exception occurred: {}", exception.getMessage(), exception);
         return new ResponseEntity<>(
-                ResponseApi.error("SERVER_ERROR", exception.getMessage()),
+                ResponseApi.error(
+                        ErrorCode.SYSTEM_ERROR.getCode(),
+                        getErrorMessage(ErrorCode.SYSTEM_ERROR, exception.getMessage(), null, Locale.getDefault())),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -147,24 +149,47 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
                 .getFieldErrors()
                 .forEach(error -> errors.add(new FieldError(error.getField(), error.getDefaultMessage())));
         return new ResponseEntity<>(
-                ResponseApi.error("VALIDATION_FAILED", "Validation failed", errors),
+                ResponseApi.error(
+                        ErrorCode.BAD_REQUEST.getCode(),
+                        getErrorMessage(ErrorCode.BAD_REQUEST, "Validation failed", null, Locale.getDefault()),
+                        errors),
                 HttpStatus.BAD_REQUEST);
     }
 
     private String getErrorMessage(
             ErrorCode code, String message, Object[] messageArgs, Locale locale) {
-        if (message == null && code.getMessage() != null) {
-            message = code.getMessage();
+        if (code != null) {
+            String resolvedFromCode =
+                    resolveMessageByKey(code.getMessage(), messageArgs, locale);
+            if (resolvedFromCode != null) {
+                return resolvedFromCode;
+            }
+            if (message == null || message.isBlank()) {
+                return code.getDescription();
+            }
         }
 
+        if (message == null || message.isBlank()) {
+            return ErrorCode.SYSTEM_ERROR.getDescription();
+        }
+
+        String resolvedFromFallback =
+                resolveMessageByKey(message, messageArgs, locale);
+        if (resolvedFromFallback != null) {
+            return resolvedFromFallback;
+        }
+        return message;
+    }
+
+    private String resolveMessageByKey(String key, Object[] messageArgs, Locale locale) {
+        if (key == null || key.isBlank()) {
+            return null;
+        }
         try {
-            if (message != null) {
-                Object[] args = messageArgs != null ? messageArgs : new Object[] {null};
-                return messageSource.getMessage(message, args, locale);
-            }
-            return message;
+            Object[] args = messageArgs != null ? messageArgs : new Object[] {};
+            return messageSource.getMessage(key, args, locale);
         } catch (Exception e) {
-            return message;
+            return null;
         }
     }
 }
