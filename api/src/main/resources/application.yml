@@ -50,7 +50,7 @@ feign:
 
 app:
   jwt:
-    secret: ${APP_JWT_SECRET:}
+    secret: ${APP_JWT_SECRET:change-in-production}
     public: ${APP_JWT_PUBLIC:}
     token:
       expires-in: ${APP_JWT_TOKEN_EXPIRES_IN:#{60 * 60 * 1000}} # 60 minutes in milliseconds
@@ -122,3 +122,4 @@ application:
 services:
   gateway:
     url: ${GATEWAY_URL:http://localhost:8765}
+

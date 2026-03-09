@@ -10,6 +10,7 @@ dependencies {
 
     implementation libs.commonIO
     implementation libs.springBoot.starter
+    implementation libs.springBoot.starter.security
     implementation libs.servlet.api
     implementation libs.apacheCommons
     implementation libs.spring.web

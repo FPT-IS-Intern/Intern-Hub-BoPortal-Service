@@ -5,6 +5,7 @@ import com.fis.boportalservice.common.dto.FieldError;
 import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.exception.ClientSideException;
 import com.fis.boportalservice.core.exception.ErrorCode;
+import com.fis.boportalservice.core.exception.ErrorMessageCatalog;
 import com.fis.boportalservice.core.exception.ServerSideException;
 import feign.FeignException;
 import feign.utils.ExceptionUtils;
@@ -57,9 +58,7 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
 
         if (errorCode != null) {
             code = errorCode.getCode();
-            message =
-                    getErrorMessage(
-                            errorCode, errorCode.getMessage() != null ? null : message, messageArgs, locale);
+            message = getErrorMessage(errorCode, message, messageArgs, locale);
 
             if (!INTERNAL_SERVER_ERROR_CODES.contains(code)) {
                 status = HttpStatus.BAD_REQUEST;
@@ -99,9 +98,7 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
 
             if (errorCode != null) {
                 code = errorCode.getCode();
-                message =
-                        getErrorMessage(
-                                errorCode, errorCode.getMessage() != null ? null : message, messageArgs, locale);
+                message = getErrorMessage(errorCode, message, messageArgs, locale);
 
                 if (INTERNAL_SERVER_ERROR_CODES.contains(code)) {
                     status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -114,9 +111,7 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
             code = APIHelper.toErrorBusinessCode(status).getCode();
 
             if (status == HttpStatus.INTERNAL_SERVER_ERROR) {
-                message =
-                        getErrorMessage(
-                                ErrorCode.SYSTEM_ERROR, ErrorCode.SYSTEM_ERROR.getMessage(), null, locale);
+                message = getErrorMessage(ErrorCode.SYSTEM_ERROR, null, null, locale);
             }
         }
 
@@ -128,7 +123,9 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleGeneralException(Exception exception, WebRequest request) {
         log.error("A internal exception occurred: {}", exception.getMessage(), exception);
         return new ResponseEntity<>(
-                ResponseApi.error("SERVER_ERROR", exception.getMessage()),
+                ResponseApi.error(
+                        ErrorCode.SYSTEM_ERROR.getCode(),
+                        getErrorMessage(ErrorCode.SYSTEM_ERROR, exception.getMessage(), null, Locale.getDefault())),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -147,24 +144,47 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
                 .getFieldErrors()
                 .forEach(error -> errors.add(new FieldError(error.getField(), error.getDefaultMessage())));
         return new ResponseEntity<>(
-                ResponseApi.error("VALIDATION_FAILED", "Validation failed", errors),
+                ResponseApi.error(
+                        ErrorCode.BAD_REQUEST.getCode(),
+                        getErrorMessage(ErrorCode.BAD_REQUEST, "Validation failed", null, Locale.getDefault()),
+                        errors),
                 HttpStatus.BAD_REQUEST);
     }
 
     private String getErrorMessage(
             ErrorCode code, String message, Object[] messageArgs, Locale locale) {
-        if (message == null && code.getMessage() != null) {
-            message = code.getMessage();
+        if (code != null) {
+            String resolvedFromCode =
+                    resolveMessageByKey(ErrorMessageCatalog.getMessageKey(code), messageArgs, locale);
+            if (resolvedFromCode != null) {
+                return resolvedFromCode;
+            }
+            if (message == null || message.isBlank()) {
+                return code.getDescription();
+            }
         }
 
+        if (message == null || message.isBlank()) {
+            return ErrorCode.SYSTEM_ERROR.getDescription();
+        }
+
+        String resolvedFromFallback =
+                resolveMessageByKey(message, messageArgs, locale);
+        if (resolvedFromFallback != null) {
+            return resolvedFromFallback;
+        }
+        return message;
+    }
+
+    private String resolveMessageByKey(String key, Object[] messageArgs, Locale locale) {
+        if (key == null || key.isBlank()) {
+            return null;
+        }
         try {
-            if (message != null) {
-                Object[] args = messageArgs != null ? messageArgs : new Object[] {null};
-                return messageSource.getMessage(message, args, locale);
-            }
-            return message;
+            Object[] args = messageArgs != null ? messageArgs : new Object[] {};
+            return messageSource.getMessage(key, args, locale);
         } catch (Exception e) {
-            return message;
+            return null;
         }
     }
 }
