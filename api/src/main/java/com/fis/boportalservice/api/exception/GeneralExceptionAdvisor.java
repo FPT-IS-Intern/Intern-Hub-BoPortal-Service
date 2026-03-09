@@ -5,6 +5,7 @@ import com.fis.boportalservice.common.dto.FieldError;
 import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.exception.ClientSideException;
 import com.fis.boportalservice.core.exception.ErrorCode;
+import com.fis.boportalservice.core.exception.ErrorMessageCatalog;
 import com.fis.boportalservice.core.exception.ServerSideException;
 import feign.FeignException;
 import feign.utils.ExceptionUtils;
@@ -57,9 +58,7 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
 
         if (errorCode != null) {
             code = errorCode.getCode();
-            message =
-                    getErrorMessage(
-                            errorCode, errorCode.getMessage() != null ? null : message, messageArgs, locale);
+            message = getErrorMessage(errorCode, message, messageArgs, locale);
 
             if (!INTERNAL_SERVER_ERROR_CODES.contains(code)) {
                 status = HttpStatus.BAD_REQUEST;
@@ -99,9 +98,7 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
 
             if (errorCode != null) {
                 code = errorCode.getCode();
-                message =
-                        getErrorMessage(
-                                errorCode, errorCode.getMessage() != null ? null : message, messageArgs, locale);
+                message = getErrorMessage(errorCode, message, messageArgs, locale);
 
                 if (INTERNAL_SERVER_ERROR_CODES.contains(code)) {
                     status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -114,9 +111,7 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
             code = APIHelper.toErrorBusinessCode(status).getCode();
 
             if (status == HttpStatus.INTERNAL_SERVER_ERROR) {
-                message =
-                        getErrorMessage(
-                                ErrorCode.SYSTEM_ERROR, ErrorCode.SYSTEM_ERROR.getMessage(), null, locale);
+                message = getErrorMessage(ErrorCode.SYSTEM_ERROR, null, null, locale);
             }
         }
 
@@ -160,7 +155,7 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
             ErrorCode code, String message, Object[] messageArgs, Locale locale) {
         if (code != null) {
             String resolvedFromCode =
-                    resolveMessageByKey(code.getMessage(), messageArgs, locale);
+                    resolveMessageByKey(ErrorMessageCatalog.getMessageKey(code), messageArgs, locale);
             if (resolvedFromCode != null) {
                 return resolvedFromCode;
             }
