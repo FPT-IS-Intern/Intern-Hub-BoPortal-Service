@@ -15,12 +15,15 @@ import com.fis.boportalservice.api.mapper.PortalMenuApiMapper;
 import com.fis.boportalservice.api.mapper.SystemConfigApiMapper;
 import com.fis.boportalservice.api.util.MenuHierarchyHelper;
 import com.fis.boportalservice.common.dto.ResponseApi;
+import com.fis.boportalservice.core.domain.model.BoTokenClaims;
+import com.fis.boportalservice.core.domain.repository.BoTokenProvider;
 import com.fis.boportalservice.core.service.AllowedIpRangeService;
 import com.fis.boportalservice.core.service.AttendanceLocationService;
 import com.fis.boportalservice.core.service.HomepageBannerService;
 import com.fis.boportalservice.core.service.PortalMenuService;
 import com.fis.boportalservice.core.service.SystemConfigService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -55,6 +58,7 @@ public class InternalController {
 
     private final PortalMenuService menuService;
     private final PortalMenuApiMapper menuApiMapper;
+    private final BoTokenProvider boTokenProvider;
 
     // ─── Allowed IP Ranges ────────────────────────────────────────────────────
 
@@ -108,12 +112,12 @@ public class InternalController {
     // ─── Portal Init ──────────────────────────────────────────────────────────
 
     @GetMapping("/init")
-    public ResponseApi<PortalInitResponse> getPortalInit() {
+    public ResponseApi<PortalInitResponse> getPortalInit(HttpServletRequest request) {
         log.info("Internal request to initialize portal data");
         SystemConfigPublicResponse config = systemConfigApiMapper
-                .toPublicResponse(systemConfigService.getSystemConfig());
+                .toPublicResponse(systemConfigService.getSystemConfig ());
 
-        List<String> userPermissions = getUserPermissions();
+        List<String> userPermissions = getUserPermissions(request);
         log.info("User permissions: {}", userPermissions);
 
         List<PortalMenuResponse> flatMenus = menuApiMapper
@@ -129,9 +133,9 @@ public class InternalController {
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
-    private List<String> getUserPermissions() {
+    private List<String> getUserPermissions(HttpServletRequest request) {
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            return Collections.emptyList();
+            return getPermissionsFromBoToken(request);
         }
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof LoginUserInfo) {
@@ -140,6 +144,21 @@ public class InternalController {
                 return Arrays.asList(userInfo.INDI.featureList.split(","));
             }
         }
-        return Collections.emptyList();
+        return getPermissionsFromBoToken(request);
+    }
+
+    private List<String> getPermissionsFromBoToken(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        if (!StringUtils.hasText(authorization) || !authorization.startsWith("Bearer ")) {
+            return Collections.emptyList();
+        }
+        String token = authorization.substring("Bearer ".length());
+        try {
+            BoTokenClaims claims = boTokenProvider.parseAccessToken(token);
+            return claims.getPermissions() == null ? Collections.emptyList() : claims.getPermissions();
+        } catch (Exception ex) {
+            log.debug("Cannot parse BO token permission list", ex);
+            return Collections.emptyList();
+        }
     }
 }
