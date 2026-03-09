@@ -7,7 +7,7 @@ security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue}
   internal-path-prefix: /bo-portal/internal/
   cors:
-    allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:https://internhub-v2.bbtech.io.vn}
+    allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:4200}
 
 spring:
   application:
