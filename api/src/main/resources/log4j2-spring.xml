@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Properties>
-        <Property name="LOG_PATTERN">%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}%style{[${spring:spring.application.name}]}{blue}%style{[TraceId:%X{TraceId}][SpanId:%X{SpanId}][X-Request-Id:%X{RequestId}][userId:%X{clientNo}]}{yellow bold}%highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=red, ERROR=red, WARN=yellow, INFO=green, DEBUG=green, TRACE=green}[%15.15t]%style{%-40.40C{1.}}{cyan} %style{%-30.30M} :%m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}
+        <Property name="LOG_PATTERN">%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}%style{[${spring:spring.application.name}]}{blue}%style{[X-Request-Id:%X{RequestId}][userId:%X{clientNo}]}{yellow bold}%highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=red, ERROR=red, WARN=yellow, INFO=green, DEBUG=green, TRACE=green}[%15.15t]%style{%-40.40C{1.}}{cyan} %style{%-30.30M} :%m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}
         </Property>
     </Properties>
 

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.fis.boportalservice.api.constant.ApiConstant;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -35,11 +34,11 @@ public class BeanConfiguration {
    */
   @Bean
   public OpenAPI customOpenAPI(@Value("${spring.application.name}") final String title) {
-    SecurityScheme securityScheme =
-        new SecurityScheme()
-            .name(ApiConstant.GTW_AUTHORIZATION)
-            .type(SecurityScheme.Type.APIKEY)
-            .in(SecurityScheme.In.HEADER);
+    SecurityScheme securityScheme = new SecurityScheme()
+        .name("Authorization")
+        .type(SecurityScheme.Type.HTTP)
+        .scheme("bearer")
+        .bearerFormat("JWT");
     return new OpenAPI()
         .components(new Components().addSecuritySchemes(SECURITY_SCHEME_NAME, securityScheme))
         .info(new Info().title(title).version(VERSION).description(DESCRIPTION));

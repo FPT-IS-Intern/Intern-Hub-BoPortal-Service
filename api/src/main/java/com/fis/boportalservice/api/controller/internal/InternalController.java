@@ -1,6 +1,6 @@
 package com.fis.boportalservice.api.controller.internal;
 
-import com.fis.boportalservice.api.dto.LoginUserInfo;
+import com.fis.boportalservice.core.domain.model.BoTokenClaims;
 import com.fis.boportalservice.api.dto.response.BoPortalAllowedIpRangeResponse;
 import com.fis.boportalservice.api.dto.response.AttendanceLocationResponse;
 import com.fis.boportalservice.api.dto.response.HomepageBannerResponse;
@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -115,7 +114,7 @@ public class InternalController {
     public ResponseApi<PortalInitResponse> getPortalInit(HttpServletRequest request) {
         log.info("Internal request to initialize portal data");
         SystemConfigPublicResponse config = systemConfigApiMapper
-                .toPublicResponse(systemConfigService.getSystemConfig ());
+                .toPublicResponse(systemConfigService.getSystemConfig());
 
         List<String> userPermissions = getUserPermissions(request);
         log.info("User permissions: {}", userPermissions);
@@ -134,14 +133,12 @@ public class InternalController {
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private List<String> getUserPermissions(HttpServletRequest request) {
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            return getPermissionsFromBoToken(request);
-        }
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof LoginUserInfo) {
-            LoginUserInfo userInfo = (LoginUserInfo) principal;
-            if (userInfo.INDI != null && StringUtils.hasText(userInfo.INDI.featureList)) {
-                return Arrays.asList(userInfo.INDI.featureList.split(","));
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (principal instanceof BoTokenClaims boTokenClaims) {
+                if (boTokenClaims.getPermissions() != null && !boTokenClaims.getPermissions().isEmpty()) {
+                    return boTokenClaims.getPermissions();
+                }
             }
         }
         return getPermissionsFromBoToken(request);

@@ -87,8 +87,6 @@ subprojects {
         testCompileOnly libs.lombok
         testAnnotationProcessor libs.lombokProcessor
 
-        implementation libs.micrometer.tracing
-        implementation libs.micrometer.tracing.bridge.otel
         implementation libs.springBoot.starter.actuator
         implementation(libs.jasperreports) {
             exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'

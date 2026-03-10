@@ -17,8 +17,7 @@ public class JWTErrorResponse {
 
     public JWTErrorResponse(String responseMessage) {
         this.responseId = UUID.randomUUID().toString();
-        this.responseTime =
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.responseTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         this.responseMessage = responseMessage;
     }
 }

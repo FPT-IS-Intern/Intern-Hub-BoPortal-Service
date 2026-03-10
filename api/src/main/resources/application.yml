@@ -28,15 +28,6 @@ feign:
       lms-service:
         url: ${LMS_SERVICE_URL:http://localhost:6666}
   jackson:
-  #    deserialization:
-  #      read-date-timestamps-as-nanoseconds: false
-  sleuth:
-    otel:
-      config:
-        trace-id-ratio-based: 1.0
-      exporter:
-        otlp:
-          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:}
   liquibase:
     enabled: false
   jpa:
@@ -53,13 +44,10 @@ feign:
 app:
   jwt:
     secret: ${APP_JWT_SECRET:change-in-production}
-    public: ${APP_JWT_PUBLIC:}
     token:
       expires-in: ${APP_JWT_TOKEN_EXPIRES_IN:#{60 * 60 * 1000}} # 60 minutes in milliseconds
     refresh-token:
       expires-in: ${APP_JWT_REFRESH_TOKEN_EXPIRES_IN:#{24 * 60 * 60 * 1000}} # 24 hours in milliseconds
-    remember-me:
-      expires-in: ${APP_JWT_REMEMBER_ME_EXPIRES_IN:#{24 * 60 * 60 * 1000 * 7}} # 7 days in milliseconds
 
 springdoc:
   swagger-ui:
