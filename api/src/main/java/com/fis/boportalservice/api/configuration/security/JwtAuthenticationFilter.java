@@ -88,8 +88,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || antPathMatcher.match("/swagger-resources/**", path)
                 || antPathMatcher.match("/webjars/**", path)
                 || antPathMatcher.match("/bo-portal/internal/**", path)
+                || antPathMatcher.match("/api/bo-portal/internal/**", path)
                 || antPathMatcher.match("/bo-portal/auth/login", path)
-                || antPathMatcher.match("/bo-portal/auth/refresh", path);
+                || antPathMatcher.match("/api/bo-portal/auth/login", path)
+                || antPathMatcher.match("/bo-portal/auth/refresh", path)
+                || antPathMatcher.match("/api/bo-portal/auth/refresh", path);
     }
 
     private void writeErrorResponse(HttpServletResponse response, String message) throws IOException {
