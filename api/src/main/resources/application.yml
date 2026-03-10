@@ -49,6 +49,9 @@ feign:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         database-platform: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        bytecode:
+          provider: none
+        bytecode.use_reflection_optimizer: false
 
 app:
   jwt:
@@ -65,7 +68,7 @@ springdoc:
   swagger-ui:
     tags-sorter: alpha
     operations-sorter: alpha
-    path: /swagger-ui.html
+#    path: /swagger-ui.html
 #  api-docs:
 #    path: /v3/api-docs
 
