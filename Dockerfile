@@ -14,10 +14,6 @@ COPY api/build.gradle     api/
 
 RUN chmod +x gradlew
 
-# Resolve dependencies (cached layer)
-RUN --mount=type=cache,target=/root/.gradle \
-    ./gradlew dependencies --no-daemon
-
 # Copy source code
 COPY common/src common/src
 COPY core/src   core/src
@@ -36,7 +32,7 @@ COPY --from=build /app/api/build/libs/api-1.0.0-SNAPSHOT.jar ./app.jar
 
 EXPOSE 8080
 
-# Runtime tuning
-ENV JAVA_TOOL_OPTIONS="-XX:+UseZGC -Xms128m -Xmx512m -Duser.timezone=Asia/Ho_Chi_Minh"
+# Runtime tuning for low-memory container (~250MB limit)
+ENV JAVA_TOOL_OPTIONS="-XX:+UseSerialGC -Xms64m -Xmx160m -XX:MaxMetaspaceSize=64m -Duser.timezone=Asia/Ho_Chi_Minh"
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
