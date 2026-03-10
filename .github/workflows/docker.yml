@@ -48,4 +48,4 @@ jobs:
         env:
           JIB_TO_AUTH_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           JIB_TO_AUTH_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: ./gradlew :api:jib -Djib.to.image=${{ secrets.DOCKERHUB_REGISTRY }}/internhub-v2/dev/lms:latest
+        run: ./gradlew :api:jib -Djib.to.image=${{ secrets.DOCKERHUB_REGISTRY }}/internhub-v2/dev/bo-portal:latest
