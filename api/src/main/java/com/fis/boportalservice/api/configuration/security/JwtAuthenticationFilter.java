@@ -79,7 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (HttpMethod.OPTIONS.matches(request.getMethod())) {
             return true;
         }
-        String path = request.getRequestURI();
+        String path = normalizePath(request.getRequestURI());
         return antPathMatcher.match("/actuator/**", path)
                 || antPathMatcher.match("/docs/**", path)
                 || antPathMatcher.match("/swagger-ui/**", path)
@@ -87,12 +87,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || antPathMatcher.match("/v3/api-docs/**", path)
                 || antPathMatcher.match("/swagger-resources/**", path)
                 || antPathMatcher.match("/webjars/**", path)
-                || antPathMatcher.match("/bo-portal/internal/**", path)
-                || antPathMatcher.match("/api/bo-portal/internal/**", path)
-                || antPathMatcher.match("/bo-portal/auth/login", path)
-                || antPathMatcher.match("/api/bo-portal/auth/login", path)
-                || antPathMatcher.match("/bo-portal/auth/refresh", path)
-                || antPathMatcher.match("/api/bo-portal/auth/refresh", path);
+                || path.contains("/bo-portal/internal/")
+                || path.endsWith("/bo-portal/auth/login")
+                || path.endsWith("/bo-portal/auth/login/")
+                || path.endsWith("/bo-portal/auth/refresh")
+                || path.endsWith("/bo-portal/auth/refresh/");
+    }
+
+    private String normalizePath(String rawPath) {
+        if (!StringUtils.hasText(rawPath)) {
+            return "";
+        }
+        return rawPath.replaceAll("/+", "/");
     }
 
     private void writeErrorResponse(HttpServletResponse response, String message) throws IOException {
