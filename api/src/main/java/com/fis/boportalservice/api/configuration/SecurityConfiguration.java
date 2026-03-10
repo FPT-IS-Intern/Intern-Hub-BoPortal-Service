@@ -39,11 +39,8 @@ public class SecurityConfiguration {
                         .authorizeHttpRequests(auth -> auth
                                 .requestMatchers(
                                         "/bo-portal/auth/login",
-                                        "/api/bo-portal/auth/login",
                                         "/bo-portal/auth/refresh",
-                                        "/api/bo-portal/auth/refresh",
                                         "/bo-portal/internal/**",
-                                        "/api/bo-portal/internal/**",
                                         "/actuator/**",
                                         "/swagger-ui.html",
                                         "/swagger-ui/**",
