@@ -49,13 +49,6 @@ feign:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         database-platform: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-        # Disable bytecode enhancement for low-memory environments
-        bytecode:
-          provider: none
-        bytecode.use_reflection_optimizer: false
-        # Flat keys for Hibernate to ensure the setting is picked up
-        "bytecode.provider": none
-        "bytecode.use_reflection_optimizer": false
 
 app:
   jwt:
@@ -72,7 +65,7 @@ springdoc:
   swagger-ui:
     tags-sorter: alpha
     operations-sorter: alpha
-#    path: /swagger-ui.html
+    path: /swagger-ui.html
 #  api-docs:
 #    path: /v3/api-docs
 
@@ -131,4 +124,3 @@ application:
 services:
   gateway:
     url: ${GATEWAY_URL:http://localhost:8765}
-
