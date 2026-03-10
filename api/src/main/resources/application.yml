@@ -49,9 +49,13 @@ feign:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         database-platform: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        # Disable bytecode enhancement for low-memory environments
         bytecode:
           provider: none
         bytecode.use_reflection_optimizer: false
+        # Flat keys for Hibernate to ensure the setting is picked up
+        "bytecode.provider": none
+        "bytecode.use_reflection_optimizer": false
 
 app:
   jwt:
