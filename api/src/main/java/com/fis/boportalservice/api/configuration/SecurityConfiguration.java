@@ -24,14 +24,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfiguration {
 
         private final JwtAuthenticationFilter jwtAuthenticationFilter;
-        @Value("${security.cors.allowed-origin-patterns:https://internhub-v2.bbtech.io.vn}")
-        private String allowedOriginPatterns;
+//        @Value("${security.cors.allowed-origin-patterns:https://internhub-v2.bbtech.io.vn}")
+//        private String allowedOriginPatterns;
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 return http.csrf(AbstractHttpConfigurer::disable)
-                        .cors(cors -> {
-                        })
+//                        .cors(cors -> {
+//                        })
                         .sessionManagement(
                                 configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                         .headers(
@@ -57,20 +57,20 @@ public class SecurityConfiguration {
                         .build();
         }
 
-        @Bean
-        public CorsConfigurationSource corsConfigurationSource() {
-                CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOriginPatterns(Arrays.stream(allowedOriginPatterns.split(","))
-                                .map(String::trim)
-                                .filter(s -> !s.isBlank())
-                                .toList());
-                configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-                configuration.setAllowedHeaders(List.of("*"));
-                configuration.setExposedHeaders(List.of("Authorization"));
-                configuration.setAllowCredentials(true);
-
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                source.registerCorsConfiguration("/**", configuration);
-                return source;
-        }
+//        @Bean
+//        public CorsConfigurationSource corsConfigurationSource() {
+//                CorsConfiguration configuration = new CorsConfiguration();
+//                configuration.setAllowedOriginPatterns(Arrays.stream(allowedOriginPatterns.split(","))
+//                                .map(String::trim)
+//                                .filter(s -> !s.isBlank())
+//                                .toList());
+//                configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+//                configuration.setAllowedHeaders(List.of("*"));
+//                configuration.setExposedHeaders(List.of("Authorization"));
+//                configuration.setAllowCredentials(true);
+//
+//                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//                source.registerCorsConfiguration("/**", configuration);
+//                return source;
+//        }
 }
