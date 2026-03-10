@@ -16,6 +16,10 @@ plugins {
     alias libs.plugins.spotless apply false
 }
 
+repositories {
+    mavenCentral()
+}
+
 allprojects {
     group = 'com.fis.boportalservice'
     version = '1.0.0-SNAPSHOT'

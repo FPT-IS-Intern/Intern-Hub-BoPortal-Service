@@ -2,12 +2,14 @@ package com.fis.boportalservice.infra.service;
 
 import com.fis.boportalservice.core.domain.model.AuthzResource;
 import com.fis.boportalservice.core.domain.model.AuthzRole;
+import com.fis.boportalservice.core.domain.model.AuthzRolePermission;
 import com.fis.boportalservice.core.service.AuthzServicePort;
 import com.fis.boportalservice.infra.feignclient.AuthServiceClient;
 import com.fis.boportalservice.infra.feignclient.ResponseFeignClient;
 import com.fis.boportalservice.infra.feignclient.dto.AuthzCreateResourceRequest;
 import com.fis.boportalservice.infra.feignclient.dto.AuthzCreateRoleRequest;
 import com.fis.boportalservice.infra.feignclient.dto.AuthzRoleDto;
+import com.fis.boportalservice.infra.feignclient.dto.AuthzRolePermissionDto;
 import com.fis.boportalservice.infra.feignclient.dto.AuthzUpdateRolePermissionRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +86,20 @@ public class AuthzServiceAdapter implements AuthzServicePort {
             .name(dto.getName())
             .description(dto.getDescription())
             .status(dto.getStatus())
+            .build())
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<AuthzRolePermission> getRolePermissions(Long roleId) {
+    log.info("Calling auth-service to get role permissions: roleId={}", roleId);
+    ResponseFeignClient<List<AuthzRolePermissionDto>> response = authServiceClient.getRolePermissions(roleId);
+    List<AuthzRolePermissionDto> dtos = Optional.ofNullable(response.getData())
+        .orElseGet(() -> Optional.ofNullable(response.getResult()).orElse(Collections.emptyList()));
+    return dtos.stream()
+        .map(dto -> AuthzRolePermission.builder()
+            .resourceId(dto.getResource() != null ? dto.getResource().getId() : null)
+            .permissions(dto.getPermissions())
             .build())
         .collect(Collectors.toList());
   }

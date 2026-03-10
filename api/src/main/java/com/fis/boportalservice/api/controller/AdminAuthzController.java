@@ -4,6 +4,7 @@ import com.fis.boportalservice.api.dto.request.CreateAuthzResourceRequest;
 import com.fis.boportalservice.api.dto.request.CreateAuthzRoleRequest;
 import com.fis.boportalservice.api.dto.request.UpdateAuthzRolePermissionRequest;
 import com.fis.boportalservice.api.dto.response.AuthzResourceResponse;
+import com.fis.boportalservice.api.dto.response.AuthzRolePermissionResponse;
 import com.fis.boportalservice.api.dto.response.AuthzRoleResponse;
 import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.domain.model.AuthzResource;
@@ -66,6 +67,18 @@ public class AdminAuthzController {
         .map(r -> new AuthzRoleResponse(r.getId(), r.getName(), r.getDescription(), r.getStatus()))
         .toList();
     return ResponseApi.success(roles);
+  }
+
+  @GetMapping("/roles/{roleId}/permissions")
+  public ResponseApi<List<AuthzRolePermissionResponse>> getRolePermissions(@PathVariable Long roleId) {
+    log.info("Request to get permissions for roleId={}", roleId);
+    List<AuthzRolePermissionResponse> result = authzServicePort.getRolePermissions(roleId).stream()
+        .map(p -> new AuthzRolePermissionResponse(
+            new AuthzRolePermissionResponse.Resource(p.getResourceId()),
+            p.getPermissions()
+        ))
+        .toList();
+    return ResponseApi.success(result);
   }
 
   private AuthzResourceResponse toResourceResponse(AuthzResource resource) {

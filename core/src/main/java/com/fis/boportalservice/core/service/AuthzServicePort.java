@@ -2,6 +2,7 @@ package com.fis.boportalservice.core.service;
 
 import com.fis.boportalservice.core.domain.model.AuthzResource;
 import com.fis.boportalservice.core.domain.model.AuthzRole;
+import com.fis.boportalservice.core.domain.model.AuthzRolePermission;
 
 import java.util.List;
 
@@ -14,6 +15,8 @@ public interface AuthzServicePort {
   void updateRolePermissions(Long roleId, List<ResourcePermission> resources);
 
   List<AuthzRole> getRoles();
+
+  List<AuthzRolePermission> getRolePermissions(Long roleId);
 
   record ResourcePermission(Long id, List<Integer> permissions) {
   }
