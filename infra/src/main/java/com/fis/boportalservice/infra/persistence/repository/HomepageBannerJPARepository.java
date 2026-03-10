@@ -13,10 +13,10 @@ import java.util.UUID;
 @Repository
 public interface HomepageBannerJPARepository extends JpaRepository<HomepageBannerEntity, UUID> {
 
-    @Query("SELECT b FROM HomepageBannerEntity b " +
-            "WHERE b.isActive = true " +
-            "AND (b.startDate IS NULL OR b.startDate <= :now) " +
-            "AND (b.endDate IS NULL OR b.endDate >= :now) " +
-            "ORDER BY b.displayOrder ASC")
-    List<HomepageBannerEntity> findActiveBanners(@Param("now") LocalDateTime now);
+  @Query("SELECT b FROM HomepageBannerEntity b " +
+      "WHERE b.isActive = true " +
+      "AND (b.startDate IS NULL OR b.startDate <= :now) " +
+      "AND (b.endDate IS NULL OR b.endDate >= :now) " +
+      "ORDER BY b.displayOrder ASC")
+  List<HomepageBannerEntity> findActiveBanners(@Param("now") LocalDateTime now);
 }

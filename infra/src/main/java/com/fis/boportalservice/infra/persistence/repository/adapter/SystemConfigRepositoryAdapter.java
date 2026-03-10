@@ -14,21 +14,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SystemConfigRepositoryAdapter implements SystemConfigRepository {
 
-    private static final int CONFIG_ID = 1;
+  private static final int CONFIG_ID = 1;
 
-    private final SystemConfigJPARepository jpaRepository;
-    private final SystemConfigEntityMapper entityMapper;
+  private final SystemConfigJPARepository jpaRepository;
+  private final SystemConfigEntityMapper entityMapper;
 
-    @Override
-    public Optional<SystemConfig> find() {
-        return jpaRepository.findById(CONFIG_ID).map(entityMapper::toDomain);
-    }
+  @Override
+  public Optional<SystemConfig> find() {
+    return jpaRepository.findById(CONFIG_ID).map(entityMapper::toDomain);
+  }
 
-    @Override
-    public SystemConfig save(SystemConfig config) {
-        SystemConfigEntity entity = jpaRepository.findById(CONFIG_ID)
-                .orElseThrow(() -> new RuntimeException("System config not initialized"));
-        entityMapper.updateEntity(config, entity);
-        return entityMapper.toDomain(jpaRepository.save(entity));
-    }
+  @Override
+  public SystemConfig save(SystemConfig config) {
+    SystemConfigEntity entity = jpaRepository.findById(CONFIG_ID)
+        .orElseThrow(() -> new RuntimeException("System config not initialized"));
+    entityMapper.updateEntity(config, entity);
+    return entityMapper.toDomain(jpaRepository.save(entity));
+  }
 }

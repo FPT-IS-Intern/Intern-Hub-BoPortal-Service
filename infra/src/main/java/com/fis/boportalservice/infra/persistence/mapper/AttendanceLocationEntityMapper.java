@@ -7,9 +7,9 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface AttendanceLocationEntityMapper {
-    AttendanceLocation toDomain(AttendanceLocationEntity entity);
+  AttendanceLocation toDomain(AttendanceLocationEntity entity);
 
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    AttendanceLocationEntity toEntity(AttendanceLocation domain);
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "updatedAt", ignore = true)
+  AttendanceLocationEntity toEntity(AttendanceLocation domain);
 }

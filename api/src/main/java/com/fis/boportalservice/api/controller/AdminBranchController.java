@@ -22,45 +22,45 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminBranchController {
 
-    private final BranchService branchService;
-    private final BranchApiMapper apiMapper;
+  private final BranchService branchService;
+  private final BranchApiMapper apiMapper;
 
-    @GetMapping
-    public ResponseApi<List<BranchResponse>> getAll() {
-        log.info("Request to get all branches");
-        List<BranchResponse> responses = branchService.getAll().stream()
-                .map(apiMapper::toResponse)
-                .collect(Collectors.toList());
-        return ResponseApi.success(responses);
-    }
+  @GetMapping
+  public ResponseApi<List<BranchResponse>> getAll() {
+    log.info("Request to get all branches");
+    List<BranchResponse> responses = branchService.getAll().stream()
+        .map(apiMapper::toResponse)
+        .collect(Collectors.toList());
+    return ResponseApi.success(responses);
+  }
 
-    @GetMapping("/{id}")
-    public ResponseApi<BranchResponse> getById(@PathVariable UUID id) {
-        log.info("Request to get branch by id: {}", id);
-        return ResponseApi.success(apiMapper.toResponse(branchService.getById(id)));
-    }
+  @GetMapping("/{id}")
+  public ResponseApi<BranchResponse> getById(@PathVariable UUID id) {
+    log.info("Request to get branch by id: {}", id);
+    return ResponseApi.success(apiMapper.toResponse(branchService.getById(id)));
+  }
 
-    @PostMapping
-    public ResponseApi<BranchResponse> create(@RequestBody BranchRequest request) {
-        log.info("Request to create branch: {}", request.getName());
-        Branch domain = apiMapper.toDomain(request);
-        Branch saved = branchService.create(domain);
-        return ResponseApi.success(apiMapper.toResponse(saved));
-    }
+  @PostMapping
+  public ResponseApi<BranchResponse> create(@RequestBody BranchRequest request) {
+    log.info("Request to create branch: {}", request.getName());
+    Branch domain = apiMapper.toDomain(request);
+    Branch saved = branchService.create(domain);
+    return ResponseApi.success(apiMapper.toResponse(saved));
+  }
 
-    @PutMapping("/{id}")
-    public ResponseApi<BranchResponse> update(@PathVariable UUID id,
-            @RequestBody BranchRequest request) {
-        log.info("Request to update branch: id={}, name={}", id, request.getName());
-        Branch domain = apiMapper.toDomain(request);
-        Branch updated = branchService.update(id, domain);
-        return ResponseApi.success(apiMapper.toResponse(updated));
-    }
+  @PutMapping("/{id}")
+  public ResponseApi<BranchResponse> update(@PathVariable UUID id,
+                                            @RequestBody BranchRequest request) {
+    log.info("Request to update branch: id={}, name={}", id, request.getName());
+    Branch domain = apiMapper.toDomain(request);
+    Branch updated = branchService.update(id, domain);
+    return ResponseApi.success(apiMapper.toResponse(updated));
+  }
 
-    @DeleteMapping("/{id}")
-    public ResponseApi<Void> delete(@PathVariable UUID id) {
-        log.info("Request to delete branch: {}", id);
-        branchService.delete(id);
-        return ResponseApi.success(null);
-    }
+  @DeleteMapping("/{id}")
+  public ResponseApi<Void> delete(@PathVariable UUID id) {
+    log.info("Request to delete branch: {}", id);
+    branchService.delete(id);
+    return ResponseApi.success(null);
+  }
 }

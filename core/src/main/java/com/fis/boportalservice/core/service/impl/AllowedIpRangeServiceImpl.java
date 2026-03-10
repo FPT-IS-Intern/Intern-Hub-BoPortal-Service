@@ -15,46 +15,46 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AllowedIpRangeServiceImpl implements AllowedIpRangeService {
 
-    private final AllowedIpRangeRepository allowedIpRangeRepository;
+  private final AllowedIpRangeRepository allowedIpRangeRepository;
 
-    @Override
-    public List<AllowedIpRange> getAllowedIpRanges() {
-        return allowedIpRangeRepository.findAllActive();
-    }
+  @Override
+  public List<AllowedIpRange> getAllowedIpRanges() {
+    return allowedIpRangeRepository.findAllActive();
+  }
 
-    @Override
-    public List<AllowedIpRange> getAll() {
-        return allowedIpRangeRepository.findAll();
-    }
+  @Override
+  public List<AllowedIpRange> getAll() {
+    return allowedIpRangeRepository.findAll();
+  }
 
-    @Override
-    public AllowedIpRange getById(UUID id) {
-        return allowedIpRangeRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Allowed IP range not found with id: {}", id);
-                    return new RuntimeException("AllowedIpRange not found with id: " + id);
-                });
-    }
+  @Override
+  public AllowedIpRange getById(UUID id) {
+    return allowedIpRangeRepository.findById(id)
+        .orElseThrow(() -> {
+          log.error("Allowed IP range not found with id: {}", id);
+          return new RuntimeException("AllowedIpRange not found with id: " + id);
+        });
+  }
 
-    @Override
-    public AllowedIpRange create(AllowedIpRange ipRange) {
-        return allowedIpRangeRepository.save(ipRange);
-    }
+  @Override
+  public AllowedIpRange create(AllowedIpRange ipRange) {
+    return allowedIpRangeRepository.save(ipRange);
+  }
 
-    @Override
-    public AllowedIpRange update(UUID id, AllowedIpRange ipRange) {
-        log.info("Updating allowed IP range with id: {}", id);
-        AllowedIpRange existing = getById(id);
-        existing.setName(ipRange.getName());
-        existing.setIpPrefix(ipRange.getIpPrefix());
-        existing.setIsActive(ipRange.getIsActive());
-        existing.setDescription(ipRange.getDescription());
-        return allowedIpRangeRepository.save(existing);
-    }
+  @Override
+  public AllowedIpRange update(UUID id, AllowedIpRange ipRange) {
+    log.info("Updating allowed IP range with id: {}", id);
+    AllowedIpRange existing = getById(id);
+    existing.setName(ipRange.getName());
+    existing.setIpPrefix(ipRange.getIpPrefix());
+    existing.setIsActive(ipRange.getIsActive());
+    existing.setDescription(ipRange.getDescription());
+    return allowedIpRangeRepository.save(existing);
+  }
 
-    @Override
-    public void delete(UUID id) {
-        log.info("Deleting allowed IP range with id: {}", id);
-        allowedIpRangeRepository.deleteById(id);
-    }
+  @Override
+  public void delete(UUID id) {
+    log.info("Deleting allowed IP range with id: {}", id);
+    allowedIpRangeRepository.deleteById(id);
+  }
 }

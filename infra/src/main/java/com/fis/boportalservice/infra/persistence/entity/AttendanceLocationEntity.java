@@ -17,35 +17,35 @@ import java.util.UUID;
 @Builder
 public class AttendanceLocationEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(nullable = false, length = 255)
-    private String name;
+  @Column(nullable = false, length = 255)
+  private String name;
 
-    @Column(nullable = false)
-    private Double latitude;
+  @Column(nullable = false)
+  private Double latitude;
 
-    @Column(nullable = false)
-    private Double longitude;
+  @Column(nullable = false)
+  private Double longitude;
 
-    @Column(name = "radius_meters", nullable = false)
-    @Builder.Default
-    private Integer radiusMeters = 200;
+  @Column(name = "radius_meters", nullable = false)
+  @Builder.Default
+  private Integer radiusMeters = 200;
 
-    @Column(name = "is_active", nullable = false)
-    @Builder.Default
-    private Boolean isActive = true;
+  @Column(name = "is_active", nullable = false)
+  @Builder.Default
+  private Boolean isActive = true;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+  @Column(name = "created_at", nullable = false, updatable = false)
+  @CreationTimestamp
+  private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+  @Column(name = "updated_at", nullable = false)
+  @UpdateTimestamp
+  private LocalDateTime updatedAt;
 
-    @Column(name = "branch_id")
-    private UUID branchId;
+  @Column(name = "branch_id")
+  private UUID branchId;
 }

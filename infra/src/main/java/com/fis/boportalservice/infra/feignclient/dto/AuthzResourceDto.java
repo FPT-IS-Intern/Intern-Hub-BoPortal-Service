@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AuthzResourceDto {
-    private Long id;
-    private String name;
-    private String code;
-    private String description;
-    private Long categoryId;
+  private Long id;
+  private String name;
+  private String code;
+  private String description;
+  private Long categoryId;
 }

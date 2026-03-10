@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 @Builder
 public class SystemConfigPublicResponse {
-    private String appName;
-    private String logoUrl;
-    private String defaultLanguage;
+  private String appName;
+  private String logoUrl;
+  private String defaultLanguage;
 }

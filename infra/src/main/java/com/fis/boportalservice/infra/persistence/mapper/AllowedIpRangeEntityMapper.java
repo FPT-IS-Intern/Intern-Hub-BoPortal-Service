@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface AllowedIpRangeEntityMapper {
-    AllowedIpRange toDomain(AllowedIpRangeEntity entity);
+  AllowedIpRange toDomain(AllowedIpRangeEntity entity);
 
-    AllowedIpRangeEntity toEntity(AllowedIpRange domain);
+  AllowedIpRangeEntity toEntity(AllowedIpRange domain);
 }

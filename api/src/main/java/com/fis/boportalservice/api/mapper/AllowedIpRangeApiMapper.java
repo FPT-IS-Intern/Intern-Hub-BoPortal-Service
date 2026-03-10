@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface AllowedIpRangeApiMapper {
-    BoPortalAllowedIpRangeResponse toResponse(AllowedIpRange domain);
+  BoPortalAllowedIpRangeResponse toResponse(AllowedIpRange domain);
 
-    AllowedIpRange toDomain(AllowedIpRangeRequest request);
+  AllowedIpRange toDomain(AllowedIpRangeRequest request);
 }

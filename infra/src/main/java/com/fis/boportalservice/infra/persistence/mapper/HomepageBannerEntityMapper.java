@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface HomepageBannerEntityMapper {
-    HomepageBanner toDomain(HomepageBannerEntity entity);
+  HomepageBanner toDomain(HomepageBannerEntity entity);
 
-    HomepageBannerEntity toEntity(HomepageBanner domain);
+  HomepageBannerEntity toEntity(HomepageBanner domain);
 }

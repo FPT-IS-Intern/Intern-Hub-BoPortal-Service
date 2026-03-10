@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface BranchApiMapper {
-    BranchResponse toResponse(Branch domain);
+  BranchResponse toResponse(Branch domain);
 
-    Branch toDomain(BranchRequest request);
+  Branch toDomain(BranchRequest request);
 }

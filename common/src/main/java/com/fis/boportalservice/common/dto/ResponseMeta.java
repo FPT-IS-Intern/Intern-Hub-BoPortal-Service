@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record ResponseMeta(String requestId, String signature, long timestamp) {
 
-    public static ResponseMeta fromRequestId(String requestId) {
-        return new ResponseMeta(requestId, null, Instant.now().toEpochMilli());
-    }
+  public static ResponseMeta fromRequestId(String requestId) {
+    return new ResponseMeta(requestId, null, Instant.now().toEpochMilli());
+  }
 }

@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthzCreateResourceRequest {
-    private String name;
-    private String code;
-    private Long categoryId;
-    private String description;
+  private String name;
+  private String code;
+  private Long categoryId;
+  private String description;
 }

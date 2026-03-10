@@ -9,7 +9,7 @@ spring:
       minimum-idle: ${HIKARI_CONNECTION_MIN:1}
       maximum-pool-size: ${HIKARI_CONNECTION_MAX:2}
       idle-timeout: ${HIKARI_IDLE_TIMEOUT:600000}
-      max-lifetime:  ${HIKARI_MAX_LIFETIME:1800000}
+      max-lifetime: ${HIKARI_MAX_LIFETIME:1800000}
       connection-timeout: ${HIKARI_CONNECTION_TIMEOUT:180000}
       auto-commit: true
       connection-init-sql: SELECT 1

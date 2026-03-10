@@ -12,11 +12,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttendanceLocationResponse {
-    private UUID id;
-    private String name;
-    private Double latitude;
-    private Double longitude;
-    private Integer radiusMeters;
-    private Boolean isActive;
-    private UUID branchId;
+  private UUID id;
+  private String name;
+  private Double latitude;
+  private Double longitude;
+  private Integer radiusMeters;
+  private Boolean isActive;
+  private UUID branchId;
 }

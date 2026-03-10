@@ -12,10 +12,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttendanceLocationRequest {
-    private String name;
-    private Double latitude;
-    private Double longitude;
-    private Integer radiusMeters;
-    private Boolean isActive;
-    private UUID branchId;
+  private String name;
+  private Double latitude;
+  private Double longitude;
+  private Integer radiusMeters;
+  private Boolean isActive;
+  private UUID branchId;
 }

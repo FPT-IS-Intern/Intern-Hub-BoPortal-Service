@@ -8,9 +8,9 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface SystemConfigApiMapper {
-    SystemConfigInternalResponse toInternalResponse(SystemConfig domain);
+  SystemConfigInternalResponse toInternalResponse(SystemConfig domain);
 
-    SystemConfigPublicResponse toPublicResponse(SystemConfig domain);
+  SystemConfigPublicResponse toPublicResponse(SystemConfig domain);
 
-    SystemConfig toDomain(SystemConfigRequest request);
+  SystemConfig toDomain(SystemConfigRequest request);
 }

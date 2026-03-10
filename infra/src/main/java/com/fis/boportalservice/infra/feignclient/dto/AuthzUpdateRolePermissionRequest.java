@@ -10,13 +10,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthzUpdateRolePermissionRequest {
-    private List<ResourcePermission> resources;
+  private List<ResourcePermission> resources;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ResourcePermission {
-        private Long id;
-        private List<Integer> permissions;
-    }
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class ResourcePermission {
+    private Long id;
+    private List<Integer> permissions;
+  }
 }

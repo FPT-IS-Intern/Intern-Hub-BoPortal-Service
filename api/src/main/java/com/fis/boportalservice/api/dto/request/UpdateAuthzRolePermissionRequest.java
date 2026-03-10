@@ -9,19 +9,19 @@ import java.util.List;
 
 public record UpdateAuthzRolePermissionRequest(
 
-        @NotEmpty(message = "Resources list must not be empty")
-        @Valid
-        List<ResourcePermission> resources
+    @NotEmpty(message = "Resources list must not be empty")
+    @Valid
+    List<ResourcePermission> resources
 ) {
 
-    public record ResourcePermission(
+  public record ResourcePermission(
 
-            @NotNull(message = "Resource ID is required")
-            Long id,
+      @NotNull(message = "Resource ID is required")
+      Long id,
 
-            @NotNull(message = "Permissions are required")
-            @Size(min = 5, max = 5, message = "Permissions must have exactly 5 elements")
-            List<Integer> permissions
-    ) {
-    }
+      @NotNull(message = "Permissions are required")
+      @Size(min = 5, max = 5, message = "Permissions must have exactly 5 elements")
+      List<Integer> permissions
+  ) {
+  }
 }

@@ -1,6 +1,9 @@
 package com.fis.boportalservice.core.domain.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
 import java.util.UUID;
@@ -10,11 +13,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class SystemConfig {
-    private String appName;
-    private String logoUrl;
-    private String defaultLanguage;
-    private LocalTime workStartTime;
-    private LocalTime workEndTime;
-    private LocalTime autoCheckoutTime;
-    private UUID updatedBy;
+  private String appName;
+  private String logoUrl;
+  private String defaultLanguage;
+  private LocalTime workStartTime;
+  private LocalTime workEndTime;
+  private LocalTime autoCheckoutTime;
+  private UUID updatedBy;
 }

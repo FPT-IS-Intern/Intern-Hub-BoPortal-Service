@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 public class BaseResponse {
 
-    Object response;
-    Object data;
+  Object response;
+  Object data;
 }

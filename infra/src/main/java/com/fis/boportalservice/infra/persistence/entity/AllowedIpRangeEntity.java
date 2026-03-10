@@ -17,31 +17,31 @@ import java.util.UUID;
 @Builder
 public class AllowedIpRangeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(nullable = false, length = 100)
-    private String name;
+  @Column(nullable = false, length = 100)
+  private String name;
 
-    @Column(name = "ip_range", nullable = false, length = 50)
-    private String ipPrefix;
+  @Column(name = "ip_range", nullable = false, length = 50)
+  private String ipPrefix;
 
-    @Column(name = "is_active", nullable = false)
-    @Builder.Default
-    private Boolean isActive = true;
+  @Column(name = "is_active", nullable = false)
+  @Builder.Default
+  private Boolean isActive = true;
 
-    @Column(length = 255)
-    private String description;
+  @Column(length = 255)
+  private String description;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+  @Column(name = "created_at", nullable = false, updatable = false)
+  @CreationTimestamp
+  private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+  @Column(name = "updated_at", nullable = false)
+  @UpdateTimestamp
+  private LocalDateTime updatedAt;
 
-    @Column(name = "branch_id")
-    private UUID branchId;
+  @Column(name = "branch_id")
+  private UUID branchId;
 }

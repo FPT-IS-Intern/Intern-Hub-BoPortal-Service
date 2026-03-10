@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface BranchEntityMapper {
-    Branch toDomain(BranchEntity entity);
+  Branch toDomain(BranchEntity entity);
 
-    BranchEntity toEntity(Branch domain);
+  BranchEntity toEntity(Branch domain);
 }

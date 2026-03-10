@@ -15,46 +15,46 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AttendanceLocationServiceImpl implements AttendanceLocationService {
 
-    private final AttendanceLocationRepository attendanceLocationRepository;
+  private final AttendanceLocationRepository attendanceLocationRepository;
 
-    @Override
-    public List<AttendanceLocation> getAll() {
-        return attendanceLocationRepository.findAll();
-    }
+  @Override
+  public List<AttendanceLocation> getAll() {
+    return attendanceLocationRepository.findAll();
+  }
 
-    @Override
-    public List<AttendanceLocation> getAllActive() {
-        return attendanceLocationRepository.findAllActive();
-    }
+  @Override
+  public List<AttendanceLocation> getAllActive() {
+    return attendanceLocationRepository.findAllActive();
+  }
 
-    @Override
-    public AttendanceLocation getById(UUID id) {
-        return attendanceLocationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Attendance location not found with id: " + id));
-    }
+  @Override
+  public AttendanceLocation getById(UUID id) {
+    return attendanceLocationRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Attendance location not found with id: " + id));
+  }
 
-    @Override
-    public AttendanceLocation create(AttendanceLocation location) {
-        log.info("Creating attendance location: {}", location.getName());
-        return attendanceLocationRepository.save(location);
-    }
+  @Override
+  public AttendanceLocation create(AttendanceLocation location) {
+    log.info("Creating attendance location: {}", location.getName());
+    return attendanceLocationRepository.save(location);
+  }
 
-    @Override
-    public AttendanceLocation update(UUID id, AttendanceLocation location) {
-        log.info("Updating attendance location with id: {}", id);
-        AttendanceLocation existing = getById(id);
-        existing.setName(location.getName());
-        existing.setLatitude(location.getLatitude());
-        existing.setLongitude(location.getLongitude());
-        existing.setRadiusMeters(location.getRadiusMeters());
-        existing.setIsActive(location.getIsActive());
-        existing.setBranchId(location.getBranchId());
-        return attendanceLocationRepository.save(existing);
-    }
+  @Override
+  public AttendanceLocation update(UUID id, AttendanceLocation location) {
+    log.info("Updating attendance location with id: {}", id);
+    AttendanceLocation existing = getById(id);
+    existing.setName(location.getName());
+    existing.setLatitude(location.getLatitude());
+    existing.setLongitude(location.getLongitude());
+    existing.setRadiusMeters(location.getRadiusMeters());
+    existing.setIsActive(location.getIsActive());
+    existing.setBranchId(location.getBranchId());
+    return attendanceLocationRepository.save(existing);
+  }
 
-    @Override
-    public void delete(UUID id) {
-        log.info("Deleting attendance location with id: {}", id);
-        attendanceLocationRepository.deleteById(id);
-    }
+  @Override
+  public void delete(UUID id) {
+    log.info("Deleting attendance location with id: {}", id);
+    attendanceLocationRepository.deleteById(id);
+  }
 }

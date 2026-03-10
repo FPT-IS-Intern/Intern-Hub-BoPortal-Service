@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface BoAdminUserEntityMapper {
-    BoAdminUser toDomain(BoAdminUserEntity entity);
+  BoAdminUser toDomain(BoAdminUserEntity entity);
 
-    BoAdminUserEntity toEntity(BoAdminUser domain);
+  BoAdminUserEntity toEntity(BoAdminUser domain);
 }

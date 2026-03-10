@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface BranchJPARepository extends JpaRepository<BranchEntity, UUID> {
-    List<BranchEntity> findByIsActiveTrue();
+  List<BranchEntity> findByIsActiveTrue();
 }

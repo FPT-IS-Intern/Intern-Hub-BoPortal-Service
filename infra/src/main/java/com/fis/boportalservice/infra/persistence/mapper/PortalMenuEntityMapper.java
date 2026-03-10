@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface PortalMenuEntityMapper {
-    PortalMenu toDomain(PortalMenuEntity entity);
+  PortalMenu toDomain(PortalMenuEntity entity);
 
-    PortalMenuEntity toEntity(PortalMenu domain);
+  PortalMenuEntity toEntity(PortalMenu domain);
 }

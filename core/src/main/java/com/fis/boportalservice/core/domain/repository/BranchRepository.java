@@ -7,13 +7,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface BranchRepository {
-    List<Branch> findAll();
+  List<Branch> findAll();
 
-    List<Branch> findAllActive();
+  List<Branch> findAllActive();
 
-    Optional<Branch> findById(UUID id);
+  Optional<Branch> findById(UUID id);
 
-    Branch save(Branch branch);
+  Branch save(Branch branch);
 
-    void deleteById(UUID id);
+  void deleteById(UUID id);
 }

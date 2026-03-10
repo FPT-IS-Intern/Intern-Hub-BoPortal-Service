@@ -9,9 +9,9 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface PortalMenuApiMapper {
-    PortalMenuResponse toResponse(PortalMenu domain);
+  PortalMenuResponse toResponse(PortalMenu domain);
 
-    PortalMenu toDomain(PortalMenuRequest request);
+  PortalMenu toDomain(PortalMenuRequest request);
 
-    List<PortalMenuResponse> toResponseList(List<PortalMenu> domainList);
+  List<PortalMenuResponse> toResponseList(List<PortalMenu> domainList);
 }

@@ -5,15 +5,15 @@ import jakarta.validation.constraints.NotNull;
 
 public record CreateAuthzResourceRequest(
 
-        @NotBlank(message = "Name is required")
-        String name,
+    @NotBlank(message = "Name is required")
+    String name,
 
-        @NotBlank(message = "Code is required")
-        String code,
+    @NotBlank(message = "Code is required")
+    String code,
 
-        @NotNull(message = "Category ID is required")
-        Long categoryId,
+    @NotNull(message = "Category ID is required")
+    Long categoryId,
 
-        String description
+    String description
 ) {
 }

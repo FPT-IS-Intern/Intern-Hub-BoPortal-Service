@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface BoRefreshTokenEntityMapper {
-    BoRefreshToken toDomain(BoRefreshTokenEntity entity);
+  BoRefreshToken toDomain(BoRefreshTokenEntity entity);
 
-    BoRefreshTokenEntity toEntity(BoRefreshToken domain);
+  BoRefreshTokenEntity toEntity(BoRefreshToken domain);
 }

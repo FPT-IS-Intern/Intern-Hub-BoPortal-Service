@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class BoRefreshTokenRequest {
-    @NotBlank(message = "refreshToken is required")
-    private String refreshToken;
+  @NotBlank(message = "refreshToken is required")
+  private String refreshToken;
 
-    private String deviceId;
+  private String deviceId;
 }

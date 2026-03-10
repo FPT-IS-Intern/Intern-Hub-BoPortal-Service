@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BranchService {
-    List<Branch> getAll();
+  List<Branch> getAll();
 
-    List<Branch> getAllActive();
+  List<Branch> getAllActive();
 
-    Branch getById(UUID id);
+  Branch getById(UUID id);
 
-    Branch create(Branch branch);
+  Branch create(Branch branch);
 
-    Branch update(UUID id, Branch branch);
+  Branch update(UUID id, Branch branch);
 
-    void delete(UUID id);
+  void delete(UUID id);
 }

@@ -1,3 +1,4 @@
 package com.fis.boportalservice.common.dto;
 
-public record FieldError(String field, String message) {}
+public record FieldError(String field, String message) {
+}

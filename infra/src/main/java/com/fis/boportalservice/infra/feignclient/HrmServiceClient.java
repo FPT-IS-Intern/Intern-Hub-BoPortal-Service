@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "hrm-service", url = "${feign.client.config.hrm-service.url:http://hrm-service:8080}")
 public interface HrmServiceClient {
 
-    @GetMapping("/hrm/internal/users/{userId}")
-    ResponseApi<HrmUserResponse> getUserById(@PathVariable("userId") Long userId);
+  @GetMapping("/hrm/internal/users/{userId}")
+  ResponseApi<HrmUserResponse> getUserById(@PathVariable("userId") Long userId);
 }

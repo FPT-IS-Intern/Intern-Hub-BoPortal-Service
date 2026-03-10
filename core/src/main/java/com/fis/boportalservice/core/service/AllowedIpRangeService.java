@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.UUID;
 
 public interface AllowedIpRangeService {
-    List<AllowedIpRange> getAllowedIpRanges();
+  List<AllowedIpRange> getAllowedIpRanges();
 
-    List<AllowedIpRange> getAll();
+  List<AllowedIpRange> getAll();
 
-    AllowedIpRange getById(UUID id);
+  AllowedIpRange getById(UUID id);
 
-    AllowedIpRange create(AllowedIpRange ipRange);
+  AllowedIpRange create(AllowedIpRange ipRange);
 
-    AllowedIpRange update(UUID id, AllowedIpRange ipRange);
+  AllowedIpRange update(UUID id, AllowedIpRange ipRange);
 
-    void delete(UUID id);
+  void delete(UUID id);
 }

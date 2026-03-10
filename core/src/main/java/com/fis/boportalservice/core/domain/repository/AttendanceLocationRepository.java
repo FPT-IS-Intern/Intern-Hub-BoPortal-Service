@@ -7,13 +7,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AttendanceLocationRepository {
-    List<AttendanceLocation> findAll();
+  List<AttendanceLocation> findAll();
 
-    List<AttendanceLocation> findAllActive();
+  List<AttendanceLocation> findAllActive();
 
-    Optional<AttendanceLocation> findById(UUID id);
+  Optional<AttendanceLocation> findById(UUID id);
 
-    AttendanceLocation save(AttendanceLocation location);
+  AttendanceLocation save(AttendanceLocation location);
 
-    void deleteById(UUID id);
+  void deleteById(UUID id);
 }

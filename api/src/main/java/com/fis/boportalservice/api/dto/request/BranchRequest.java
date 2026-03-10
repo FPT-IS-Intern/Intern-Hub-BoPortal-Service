@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BranchRequest {
-    private String name;
-    private String description;
-    private Boolean isActive;
+  private String name;
+  private String description;
+  private Boolean isActive;
 }

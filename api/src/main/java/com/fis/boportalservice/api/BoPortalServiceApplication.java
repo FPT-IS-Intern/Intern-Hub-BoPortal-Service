@@ -1,7 +1,5 @@
 package com.fis.boportalservice.api;
 
-import java.util.TimeZone;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,8 +10,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import javax.annotation.PostConstruct;
+import java.util.TimeZone;
+
 @EnableFeignClients(basePackages = "com.fis.boportalservice.infra")
-@SpringBootApplication(scanBasePackages = { "com.fis.boportalservice" })
+@SpringBootApplication(scanBasePackages = {"com.fis.boportalservice"})
 @EnableJpaRepositories(basePackages = "com.fis.boportalservice.infra")
 @EntityScan(basePackages = "com.fis.boportalservice.infra")
 @ConfigurationPropertiesScan("com.fis.boportalservice")
@@ -21,14 +22,14 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @RequiredArgsConstructor
 public class BoPortalServiceApplication {
 
-    private final Environment env;
+  private final Environment env;
 
-    public static void main(String[] args) {
-        SpringApplication.run(BoPortalServiceApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(BoPortalServiceApplication.class, args);
+  }
 
-    @PostConstruct
-    public void setUp() {
-        TimeZone.setDefault(TimeZone.getTimeZone(env.getProperty("configuration.timezone")));
-    }
+  @PostConstruct
+  public void setUp() {
+    TimeZone.setDefault(TimeZone.getTimeZone(env.getProperty("configuration.timezone")));
+  }
 }

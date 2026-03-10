@@ -22,45 +22,45 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminAttendanceLocationController {
 
-    private final AttendanceLocationService attendanceLocationService;
-    private final AttendanceLocationApiMapper apiMapper;
+  private final AttendanceLocationService attendanceLocationService;
+  private final AttendanceLocationApiMapper apiMapper;
 
-    @GetMapping
-    public ResponseApi<List<AttendanceLocationResponse>> getAll() {
-        log.info("Admin request to get all attendance locations");
-        List<AttendanceLocationResponse> responses = attendanceLocationService.getAll().stream()
-                .map(apiMapper::toResponse)
-                .collect(Collectors.toList());
-        return ResponseApi.success(responses);
-    }
+  @GetMapping
+  public ResponseApi<List<AttendanceLocationResponse>> getAll() {
+    log.info("Admin request to get all attendance locations");
+    List<AttendanceLocationResponse> responses = attendanceLocationService.getAll().stream()
+        .map(apiMapper::toResponse)
+        .collect(Collectors.toList());
+    return ResponseApi.success(responses);
+  }
 
-    @GetMapping("/{id}")
-    public ResponseApi<AttendanceLocationResponse> getById(@PathVariable UUID id) {
-        log.info("Admin request to get attendance location by id: {}", id);
-        return ResponseApi.success(apiMapper.toResponse(attendanceLocationService.getById(id)));
-    }
+  @GetMapping("/{id}")
+  public ResponseApi<AttendanceLocationResponse> getById(@PathVariable UUID id) {
+    log.info("Admin request to get attendance location by id: {}", id);
+    return ResponseApi.success(apiMapper.toResponse(attendanceLocationService.getById(id)));
+  }
 
-    @PostMapping
-    public ResponseApi<AttendanceLocationResponse> create(@RequestBody AttendanceLocationRequest request) {
-        log.info("Admin request to create attendance location: {}", request.getName());
-        AttendanceLocation domain = apiMapper.toDomain(request);
-        AttendanceLocation saved = attendanceLocationService.create(domain);
-        return ResponseApi.success(apiMapper.toResponse(saved));
-    }
+  @PostMapping
+  public ResponseApi<AttendanceLocationResponse> create(@RequestBody AttendanceLocationRequest request) {
+    log.info("Admin request to create attendance location: {}", request.getName());
+    AttendanceLocation domain = apiMapper.toDomain(request);
+    AttendanceLocation saved = attendanceLocationService.create(domain);
+    return ResponseApi.success(apiMapper.toResponse(saved));
+  }
 
-    @PutMapping("/{id}")
-    public ResponseApi<AttendanceLocationResponse> update(@PathVariable UUID id,
-            @RequestBody AttendanceLocationRequest request) {
-        log.info("Admin request to update attendance location: id={}, name={}", id, request.getName());
-        AttendanceLocation domain = apiMapper.toDomain(request);
-        AttendanceLocation updated = attendanceLocationService.update(id, domain);
-        return ResponseApi.success(apiMapper.toResponse(updated));
-    }
+  @PutMapping("/{id}")
+  public ResponseApi<AttendanceLocationResponse> update(@PathVariable UUID id,
+                                                        @RequestBody AttendanceLocationRequest request) {
+    log.info("Admin request to update attendance location: id={}, name={}", id, request.getName());
+    AttendanceLocation domain = apiMapper.toDomain(request);
+    AttendanceLocation updated = attendanceLocationService.update(id, domain);
+    return ResponseApi.success(apiMapper.toResponse(updated));
+  }
 
-    @DeleteMapping("/{id}")
-    public ResponseApi<Void> delete(@PathVariable UUID id) {
-        log.info("Admin request to delete attendance location: {}", id);
-        attendanceLocationService.delete(id);
-        return ResponseApi.success(null);
-    }
+  @DeleteMapping("/{id}")
+  public ResponseApi<Void> delete(@PathVariable UUID id) {
+    log.info("Admin request to delete attendance location: {}", id);
+    attendanceLocationService.delete(id);
+    return ResponseApi.success(null);
+  }
 }

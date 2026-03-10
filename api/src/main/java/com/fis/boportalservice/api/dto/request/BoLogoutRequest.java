@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class BoLogoutRequest {
-    @NotBlank(message = "refreshToken is required")
-    private String refreshToken;
+  @NotBlank(message = "refreshToken is required")
+  private String refreshToken;
 }

@@ -12,20 +12,20 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SystemConfigServiceImpl implements SystemConfigService {
 
-    private final SystemConfigRepository systemConfigRepository;
+  private final SystemConfigRepository systemConfigRepository;
 
-    @Override
-    public SystemConfig getSystemConfig() {
-        return systemConfigRepository.find()
-                .orElseThrow(() -> {
-                    log.error("System configuration not found");
-                    return new RuntimeException("System config not found");
-                });
-    }
+  @Override
+  public SystemConfig getSystemConfig() {
+    return systemConfigRepository.find()
+        .orElseThrow(() -> {
+          log.error("System configuration not found");
+          return new RuntimeException("System config not found");
+        });
+  }
 
-    @Override
-    public SystemConfig updateSystemConfig(SystemConfig config) {
-        log.info("Updating system configuration in repository");
-        return systemConfigRepository.save(config);
-    }
+  @Override
+  public SystemConfig updateSystemConfig(SystemConfig config) {
+    log.info("Updating system configuration in repository");
+    return systemConfigRepository.save(config);
+  }
 }

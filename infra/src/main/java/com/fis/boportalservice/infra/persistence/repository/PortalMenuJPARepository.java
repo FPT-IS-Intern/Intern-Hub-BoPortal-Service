@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface PortalMenuJPARepository extends JpaRepository<PortalMenuEntity, Integer> {
 
-    @Query("SELECT m FROM PortalMenuEntity m WHERE m.status = 'ACTIVE' ORDER BY m.sortOrder ASC")
-    List<PortalMenuEntity> findAllActiveMenus();
+  @Query("SELECT m FROM PortalMenuEntity m WHERE m.status = 'ACTIVE' ORDER BY m.sortOrder ASC")
+  List<PortalMenuEntity> findAllActiveMenus();
 }

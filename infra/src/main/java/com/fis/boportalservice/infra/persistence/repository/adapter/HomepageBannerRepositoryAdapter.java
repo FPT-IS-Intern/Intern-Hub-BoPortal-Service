@@ -18,37 +18,37 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HomepageBannerRepositoryAdapter implements HomepageBannerRepository {
 
-    private final HomepageBannerJPARepository jpaRepository;
-    private final HomepageBannerEntityMapper entityMapper;
+  private final HomepageBannerJPARepository jpaRepository;
+  private final HomepageBannerEntityMapper entityMapper;
 
-    @Override
-    public List<HomepageBanner> findActiveBanners() {
-        return jpaRepository.findActiveBanners(LocalDateTime.now()).stream()
-                .map(entityMapper::toDomain)
-                .collect(Collectors.toList());
-    }
+  @Override
+  public List<HomepageBanner> findActiveBanners() {
+    return jpaRepository.findActiveBanners(LocalDateTime.now()).stream()
+        .map(entityMapper::toDomain)
+        .collect(Collectors.toList());
+  }
 
-    @Override
-    public List<HomepageBanner> findAll() {
-        return jpaRepository.findAll().stream()
-                .map(entityMapper::toDomain)
-                .collect(Collectors.toList());
-    }
+  @Override
+  public List<HomepageBanner> findAll() {
+    return jpaRepository.findAll().stream()
+        .map(entityMapper::toDomain)
+        .collect(Collectors.toList());
+  }
 
-    @Override
-    public Optional<HomepageBanner> findById(UUID id) {
-        return jpaRepository.findById(id).map(entityMapper::toDomain);
-    }
+  @Override
+  public Optional<HomepageBanner> findById(UUID id) {
+    return jpaRepository.findById(id).map(entityMapper::toDomain);
+  }
 
-    @Override
-    public HomepageBanner save(HomepageBanner banner) {
-        HomepageBannerEntity entity = entityMapper.toEntity(banner);
-        HomepageBannerEntity saved = jpaRepository.save(entity);
-        return entityMapper.toDomain(saved);
-    }
+  @Override
+  public HomepageBanner save(HomepageBanner banner) {
+    HomepageBannerEntity entity = entityMapper.toEntity(banner);
+    HomepageBannerEntity saved = jpaRepository.save(entity);
+    return entityMapper.toDomain(saved);
+  }
 
-    @Override
-    public void deleteById(UUID id) {
-        jpaRepository.deleteById(id);
-    }
+  @Override
+  public void deleteById(UUID id) {
+    jpaRepository.deleteById(id);
+  }
 }

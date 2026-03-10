@@ -8,8 +8,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface HomepageBannerApiMapper {
-    HomepageBannerResponse toResponse(HomepageBanner domain);
+  HomepageBannerResponse toResponse(HomepageBanner domain);
 
-    @Mapping(target = "id", ignore = true)
-    HomepageBanner toDomain(HomepageBannerRequest request);
+  @Mapping(target = "id", ignore = true)
+  HomepageBanner toDomain(HomepageBannerRequest request);
 }

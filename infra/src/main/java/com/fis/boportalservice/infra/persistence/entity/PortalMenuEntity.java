@@ -17,47 +17,47 @@ import java.util.UUID;
 @Builder
 public class PortalMenuEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String code;
+  @Column(nullable = false, unique = true, length = 50)
+  private String code;
 
-    @Column(nullable = false, length = 255)
-    private String title;
+  @Column(nullable = false, length = 255)
+  private String title;
 
-    @Column(length = 255)
-    private String path;
+  @Column(length = 255)
+  private String path;
 
-    @Column(length = 100)
-    private String icon;
+  @Column(length = 100)
+  private String icon;
 
-    @Column(name = "parent_id")
-    private Integer parentId;
+  @Column(name = "parent_id")
+  private Integer parentId;
 
-    @Column(name = "permission_code", length = 100)
-    private String permissionCode;
+  @Column(name = "permission_code", length = 100)
+  private String permissionCode;
 
-    @Column(name = "sort_order")
-    @Builder.Default
-    private Integer sortOrder = 0;
+  @Column(name = "sort_order")
+  @Builder.Default
+  private Integer sortOrder = 0;
 
-    @Column(length = 20)
-    @Builder.Default
-    private String status = "ACTIVE";
+  @Column(length = 20)
+  @Builder.Default
+  private String status = "ACTIVE";
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+  @Column(name = "created_at", nullable = false, updatable = false)
+  @CreationTimestamp
+  private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+  @Column(name = "updated_at", nullable = false)
+  @UpdateTimestamp
+  private LocalDateTime updatedAt;
 
-    @Column(name = "created_by")
-    private UUID createdBy;
+  @Column(name = "created_by")
+  private UUID createdBy;
 
-    @Column(name = "updated_by")
-    private UUID updatedBy;
+  @Column(name = "updated_by")
+  private UUID updatedBy;
 }

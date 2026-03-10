@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AuthzRoleDto {
-    private Long id;
-    private String name;
-    private String description;
-    private String status;
+  private Long id;
+  private String name;
+  private String description;
+  private String status;
 }

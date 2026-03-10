@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.UUID;
 
 public interface AttendanceLocationService {
-    List<AttendanceLocation> getAll();
+  List<AttendanceLocation> getAll();
 
-    List<AttendanceLocation> getAllActive();
+  List<AttendanceLocation> getAllActive();
 
-    AttendanceLocation getById(UUID id);
+  AttendanceLocation getById(UUID id);
 
-    AttendanceLocation create(AttendanceLocation location);
+  AttendanceLocation create(AttendanceLocation location);
 
-    AttendanceLocation update(UUID id, AttendanceLocation location);
+  AttendanceLocation update(UUID id, AttendanceLocation location);
 
-    void delete(UUID id);
+  void delete(UUID id);
 }

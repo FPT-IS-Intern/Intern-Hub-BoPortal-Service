@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HrmUserResponse {
-    private Long userId;
-    private String email;
-    private String fullName;
-    private String phoneNumber;
-    private String positionCode;
-    private String role;
-    private String status;
+  private Long userId;
+  private String email;
+  private String fullName;
+  private String phoneNumber;
+  private String positionCode;
+  private String role;
+  private String status;
 }

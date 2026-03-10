@@ -12,8 +12,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BranchResponse {
-    private UUID id;
-    private String name;
-    private String description;
-    private Boolean isActive;
+  private UUID id;
+  private String name;
+  private String description;
+  private Boolean isActive;
 }

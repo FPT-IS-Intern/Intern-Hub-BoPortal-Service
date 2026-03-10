@@ -7,13 +7,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AllowedIpRangeRepository {
-    List<AllowedIpRange> findAllActive();
+  List<AllowedIpRange> findAllActive();
 
-    List<AllowedIpRange> findAll();
+  List<AllowedIpRange> findAll();
 
-    Optional<AllowedIpRange> findById(UUID id);
+  Optional<AllowedIpRange> findById(UUID id);
 
-    AllowedIpRange save(AllowedIpRange ipRange);
+  AllowedIpRange save(AllowedIpRange ipRange);
 
-    void deleteById(UUID id);
+  void deleteById(UUID id);
 }

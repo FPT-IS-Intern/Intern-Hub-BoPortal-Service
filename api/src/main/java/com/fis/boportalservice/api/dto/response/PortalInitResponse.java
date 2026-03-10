@@ -12,6 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PortalInitResponse {
-    private SystemConfigPublicResponse systemConfig;
-    private List<PortalMenuResponse> menus;
+  private SystemConfigPublicResponse systemConfig;
+  private List<PortalMenuResponse> menus;
 }

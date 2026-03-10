@@ -9,18 +9,18 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResponseFeignClient<T> {
-    private RespStatus respStatus;
-    private T data;
-    private T result;
+  private RespStatus respStatus;
+  private T data;
+  private T result;
 
-    @Data
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class RespStatus {
-        private String status;
-        private String code;
+  @Data
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static class RespStatus {
+    private String status;
+    private String code;
 
-        @JsonProperty("text")
-        private String message;
-    }
+    @JsonProperty("text")
+    private String message;
+  }
 }

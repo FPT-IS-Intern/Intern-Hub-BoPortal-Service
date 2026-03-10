@@ -15,57 +15,57 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class HomepageBannerServiceImpl implements HomepageBannerService {
 
-    private final HomepageBannerRepository bannerRepository;
+  private final HomepageBannerRepository bannerRepository;
 
-    @Override
-    public List<HomepageBanner> getActiveBanners() {
-        return bannerRepository.findActiveBanners();
-    }
+  @Override
+  public List<HomepageBanner> getActiveBanners() {
+    return bannerRepository.findActiveBanners();
+  }
 
-    @Override
-    public List<HomepageBanner> getAllBanners() {
-        return bannerRepository.findAll();
-    }
+  @Override
+  public List<HomepageBanner> getAllBanners() {
+    return bannerRepository.findAll();
+  }
 
-    @Override
-    public HomepageBanner getBannerById(UUID id) {
-        return bannerRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Homepage banner not found with id: {}", id);
-                    return new RuntimeException("Banner not found with id: " + id);
-                });
-    }
+  @Override
+  public HomepageBanner getBannerById(UUID id) {
+    return bannerRepository.findById(id)
+        .orElseThrow(() -> {
+          log.error("Homepage banner not found with id: {}", id);
+          return new RuntimeException("Banner not found with id: " + id);
+        });
+  }
 
-    @Override
-    public HomepageBanner createBanner(HomepageBanner banner) {
-        return bannerRepository.save(banner);
-    }
+  @Override
+  public HomepageBanner createBanner(HomepageBanner banner) {
+    return bannerRepository.save(banner);
+  }
 
-    @Override
-    public HomepageBanner updateBanner(UUID id, HomepageBanner banner) {
-        log.info("Updating homepage banner with id: {}", id);
-        HomepageBanner existing = getBannerById(id);
+  @Override
+  public HomepageBanner updateBanner(UUID id, HomepageBanner banner) {
+    log.info("Updating homepage banner with id: {}", id);
+    HomepageBanner existing = getBannerById(id);
 
-        // Update fields
-        existing.setTitle(banner.getTitle());
-        existing.setDescription(banner.getDescription());
-        existing.setDisplayOrder(banner.getDisplayOrder());
-        existing.setIsActive(banner.getIsActive());
-        existing.setDesktopImageUrl(banner.getDesktopImageUrl());
-        existing.setMobileImageUrl(banner.getMobileImageUrl());
-        existing.setImageAltText(banner.getImageAltText());
-        existing.setActionType(banner.getActionType());
-        existing.setActionTarget(banner.getActionTarget());
-        existing.setOpenInNewTab(banner.getOpenInNewTab());
-        existing.setStartDate(banner.getStartDate());
-        existing.setEndDate(banner.getEndDate());
+    // Update fields
+    existing.setTitle(banner.getTitle());
+    existing.setDescription(banner.getDescription());
+    existing.setDisplayOrder(banner.getDisplayOrder());
+    existing.setIsActive(banner.getIsActive());
+    existing.setDesktopImageUrl(banner.getDesktopImageUrl());
+    existing.setMobileImageUrl(banner.getMobileImageUrl());
+    existing.setImageAltText(banner.getImageAltText());
+    existing.setActionType(banner.getActionType());
+    existing.setActionTarget(banner.getActionTarget());
+    existing.setOpenInNewTab(banner.getOpenInNewTab());
+    existing.setStartDate(banner.getStartDate());
+    existing.setEndDate(banner.getEndDate());
 
-        return bannerRepository.save(existing);
-    }
+    return bannerRepository.save(existing);
+  }
 
-    @Override
-    public void deleteBanner(UUID id) {
-        log.info("Deleting homepage banner with id: {}", id);
-        bannerRepository.deleteById(id);
-    }
+  @Override
+  public void deleteBanner(UUID id) {
+    log.info("Deleting homepage banner with id: {}", id);
+    bannerRepository.deleteById(id);
+  }
 }

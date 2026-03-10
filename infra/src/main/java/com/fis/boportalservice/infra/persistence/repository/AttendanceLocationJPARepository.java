@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface AttendanceLocationJPARepository extends JpaRepository<AttendanceLocationEntity, UUID> {
-    List<AttendanceLocationEntity> findByIsActiveTrue();
+  List<AttendanceLocationEntity> findByIsActiveTrue();
 }

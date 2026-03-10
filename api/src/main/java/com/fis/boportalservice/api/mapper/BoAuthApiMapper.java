@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface BoAuthApiMapper {
-    BoAuthSessionResponse toSessionResponse(BoAuthSession session);
+  BoAuthSessionResponse toSessionResponse(BoAuthSession session);
 
-    BoAdminProfileResponse toProfileResponse(BoAdminProfile profile);
+  BoAdminProfileResponse toProfileResponse(BoAdminProfile profile);
 }

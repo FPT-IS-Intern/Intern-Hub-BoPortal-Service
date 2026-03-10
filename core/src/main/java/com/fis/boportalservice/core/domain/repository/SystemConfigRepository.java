@@ -5,7 +5,7 @@ import com.fis.boportalservice.core.domain.model.SystemConfig;
 import java.util.Optional;
 
 public interface SystemConfigRepository {
-    Optional<SystemConfig> find();
+  Optional<SystemConfig> find();
 
-    SystemConfig save(SystemConfig config);
+  SystemConfig save(SystemConfig config);
 }

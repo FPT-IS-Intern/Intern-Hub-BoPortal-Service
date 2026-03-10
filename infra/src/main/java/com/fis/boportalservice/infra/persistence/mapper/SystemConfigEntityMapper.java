@@ -7,7 +7,7 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface SystemConfigEntityMapper {
-    SystemConfig toDomain(SystemConfigEntity entity);
+  SystemConfig toDomain(SystemConfigEntity entity);
 
-    void updateEntity(SystemConfig config, @MappingTarget SystemConfigEntity entity);
+  void updateEntity(SystemConfig config, @MappingTarget SystemConfigEntity entity);
 }

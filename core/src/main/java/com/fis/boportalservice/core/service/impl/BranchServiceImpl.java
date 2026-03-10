@@ -15,46 +15,46 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BranchServiceImpl implements BranchService {
 
-    private final BranchRepository branchRepository;
+  private final BranchRepository branchRepository;
 
-    @Override
-    public List<Branch> getAll() {
-        return branchRepository.findAll();
-    }
+  @Override
+  public List<Branch> getAll() {
+    return branchRepository.findAll();
+  }
 
-    @Override
-    public List<Branch> getAllActive() {
-        return branchRepository.findAllActive();
-    }
+  @Override
+  public List<Branch> getAllActive() {
+    return branchRepository.findAllActive();
+  }
 
-    @Override
-    public Branch getById(UUID id) {
-        return branchRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Branch not found with id: {}", id);
-                    return new RuntimeException("Branch not found with id: " + id);
-                });
-    }
+  @Override
+  public Branch getById(UUID id) {
+    return branchRepository.findById(id)
+        .orElseThrow(() -> {
+          log.error("Branch not found with id: {}", id);
+          return new RuntimeException("Branch not found with id: " + id);
+        });
+  }
 
-    @Override
-    public Branch create(Branch branch) {
-        log.info("Creating branch: {}", branch.getName());
-        return branchRepository.save(branch);
-    }
+  @Override
+  public Branch create(Branch branch) {
+    log.info("Creating branch: {}", branch.getName());
+    return branchRepository.save(branch);
+  }
 
-    @Override
-    public Branch update(UUID id, Branch branch) {
-        log.info("Updating branch with id: {}", id);
-        Branch existing = getById(id);
-        existing.setName(branch.getName());
-        existing.setDescription(branch.getDescription());
-        existing.setIsActive(branch.getIsActive());
-        return branchRepository.save(existing);
-    }
+  @Override
+  public Branch update(UUID id, Branch branch) {
+    log.info("Updating branch with id: {}", id);
+    Branch existing = getById(id);
+    existing.setName(branch.getName());
+    existing.setDescription(branch.getDescription());
+    existing.setIsActive(branch.getIsActive());
+    return branchRepository.save(existing);
+  }
 
-    @Override
-    public void delete(UUID id) {
-        log.info("Deleting branch with id: {}", id);
-        branchRepository.deleteById(id);
-    }
+  @Override
+  public void delete(UUID id) {
+    log.info("Deleting branch with id: {}", id);
+    branchRepository.deleteById(id);
+  }
 }

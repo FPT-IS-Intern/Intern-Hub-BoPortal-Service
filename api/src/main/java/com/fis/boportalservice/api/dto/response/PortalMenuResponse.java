@@ -12,14 +12,14 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PortalMenuResponse {
-    private Integer id;
-    private String code;
-    private String title;
-    private String path;
-    private String icon;
-    private Integer parentId;
-    private String permissionCode;
-    private Integer sortOrder;
-    private String status;
-    private List<PortalMenuResponse> children;
+  private Integer id;
+  private String code;
+  private String title;
+  private String path;
+  private String icon;
+  private Integer parentId;
+  private String permissionCode;
+  private Integer sortOrder;
+  private String status;
+  private List<PortalMenuResponse> children;
 }

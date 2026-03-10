@@ -1,6 +1,9 @@
 package com.fis.boportalservice.core.domain.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
@@ -9,10 +12,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class AllowedIpRange {
-    private UUID id;
-    private String name;
-    private String ipPrefix;
-    private Boolean isActive;
-    private String description;
-    private UUID branchId;
+  private UUID id;
+  private String name;
+  private String ipPrefix;
+  private Boolean isActive;
+  private String description;
+  private UUID branchId;
 }

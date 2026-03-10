@@ -23,68 +23,68 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthzServiceAdapter implements AuthzServicePort {
 
-    private final AuthServiceClient authServiceClient;
+  private final AuthServiceClient authServiceClient;
 
-    @Override
-    public AuthzResource createResource(String name, String code, Long categoryId, String description) {
-        log.info("Calling auth-service to create resource: name={}, code={}, categoryId={}", name, code, categoryId);
-        var request = new AuthzCreateResourceRequest(name, code, categoryId, description);
-        ResponseFeignClient<com.fis.boportalservice.infra.feignclient.dto.AuthzResourceDto> response =
-                authServiceClient.createResource(request);
-        var dto = response.getData() != null ? response.getData() : response.getResult();
-        if (dto == null) {
-            log.warn("No data returned from auth-service createResource");
-            return null;
-        }
-        return AuthzResource.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-                .code(dto.getCode())
-                .description(dto.getDescription())
-                .categoryId(dto.getCategoryId())
-                .build();
+  @Override
+  public AuthzResource createResource(String name, String code, Long categoryId, String description) {
+    log.info("Calling auth-service to create resource: name={}, code={}, categoryId={}", name, code, categoryId);
+    var request = new AuthzCreateResourceRequest(name, code, categoryId, description);
+    ResponseFeignClient<com.fis.boportalservice.infra.feignclient.dto.AuthzResourceDto> response =
+        authServiceClient.createResource(request);
+    var dto = response.getData() != null ? response.getData() : response.getResult();
+    if (dto == null) {
+      log.warn("No data returned from auth-service createResource");
+      return null;
     }
+    return AuthzResource.builder()
+        .id(dto.getId())
+        .name(dto.getName())
+        .code(dto.getCode())
+        .description(dto.getDescription())
+        .categoryId(dto.getCategoryId())
+        .build();
+  }
 
-    @Override
-    public AuthzRole createRole(String name, String description) {
-        log.info("Calling auth-service to create role: name={}", name);
-        var request = new AuthzCreateRoleRequest(name, description);
-        ResponseFeignClient<AuthzRoleDto> response = authServiceClient.createRole(request);
-        var dto = response.getData() != null ? response.getData() : response.getResult();
-        if (dto == null) {
-            log.warn("No data returned from auth-service createRole");
-            return null;
-        }
-        return AuthzRole.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .status(dto.getStatus())
-                .build();
+  @Override
+  public AuthzRole createRole(String name, String description) {
+    log.info("Calling auth-service to create role: name={}", name);
+    var request = new AuthzCreateRoleRequest(name, description);
+    ResponseFeignClient<AuthzRoleDto> response = authServiceClient.createRole(request);
+    var dto = response.getData() != null ? response.getData() : response.getResult();
+    if (dto == null) {
+      log.warn("No data returned from auth-service createRole");
+      return null;
     }
+    return AuthzRole.builder()
+        .id(dto.getId())
+        .name(dto.getName())
+        .description(dto.getDescription())
+        .status(dto.getStatus())
+        .build();
+  }
 
-    @Override
-    public void updateRolePermissions(Long roleId, List<ResourcePermission> resources) {
-        log.info("Calling auth-service to update role permissions: roleId={}", roleId);
-        var requestResources = resources.stream()
-                .map(r -> new AuthzUpdateRolePermissionRequest.ResourcePermission(r.id(), r.permissions()))
-                .collect(Collectors.toList());
-        authServiceClient.updateRolePermissions(roleId, new AuthzUpdateRolePermissionRequest(requestResources));
-    }
+  @Override
+  public void updateRolePermissions(Long roleId, List<ResourcePermission> resources) {
+    log.info("Calling auth-service to update role permissions: roleId={}", roleId);
+    var requestResources = resources.stream()
+        .map(r -> new AuthzUpdateRolePermissionRequest.ResourcePermission(r.id(), r.permissions()))
+        .collect(Collectors.toList());
+    authServiceClient.updateRolePermissions(roleId, new AuthzUpdateRolePermissionRequest(requestResources));
+  }
 
-    @Override
-    public List<AuthzRole> getRoles() {
-        log.info("Calling auth-service to get roles");
-        ResponseFeignClient<List<AuthzRoleDto>> response = authServiceClient.getRoles();
-        List<AuthzRoleDto> dtos = Optional.ofNullable(response.getData())
-                .orElseGet(() -> Optional.ofNullable(response.getResult()).orElse(Collections.emptyList()));
-        return dtos.stream()
-                .map(dto -> AuthzRole.builder()
-                        .id(dto.getId())
-                        .name(dto.getName())
-                        .description(dto.getDescription())
-                        .status(dto.getStatus())
-                        .build())
-                .collect(Collectors.toList());
-    }
+  @Override
+  public List<AuthzRole> getRoles() {
+    log.info("Calling auth-service to get roles");
+    ResponseFeignClient<List<AuthzRoleDto>> response = authServiceClient.getRoles();
+    List<AuthzRoleDto> dtos = Optional.ofNullable(response.getData())
+        .orElseGet(() -> Optional.ofNullable(response.getResult()).orElse(Collections.emptyList()));
+    return dtos.stream()
+        .map(dto -> AuthzRole.builder()
+            .id(dto.getId())
+            .name(dto.getName())
+            .description(dto.getDescription())
+            .status(dto.getStatus())
+            .build())
+        .collect(Collectors.toList());
+  }
 }

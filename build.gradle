@@ -36,7 +36,7 @@ subprojects {
     apply plugin: 'jacoco'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
-    
+
     // Apply modular configurations only to subprojects
     // apply from: "$project.rootDir/spotless.gradle"
 

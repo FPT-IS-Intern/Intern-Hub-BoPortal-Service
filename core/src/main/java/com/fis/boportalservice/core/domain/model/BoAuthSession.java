@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class BoAuthSession {
-    private String accessToken;
-    private String refreshToken;
-    private String tokenType;
-    private long expiresIn;
-    private long refreshExpiresIn;
-    private BoAdminProfile user;
+  private String accessToken;
+  private String refreshToken;
+  private String tokenType;
+  private long expiresIn;
+  private long refreshExpiresIn;
+  private BoAdminProfile user;
 }

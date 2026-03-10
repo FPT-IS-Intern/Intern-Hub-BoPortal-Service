@@ -10,5 +10,5 @@ import java.util.UUID;
 @Repository
 public interface AllowedIpRangeJPARepository extends JpaRepository<AllowedIpRangeEntity, UUID> {
 
-    List<AllowedIpRangeEntity> findByIsActiveTrue();
+  List<AllowedIpRangeEntity> findByIsActiveTrue();
 }
