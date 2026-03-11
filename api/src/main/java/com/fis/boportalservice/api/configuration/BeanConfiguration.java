@@ -62,11 +62,14 @@ public class BeanConfiguration {
     simpleModule.addSerializer(Long.class, new ToStringSerializer());
     simpleModule.addSerializer(Long.TYPE, new ToStringSerializer());
     simpleModule.addSerializer(BigInteger.class, new ToStringSerializer());
-    return new ObjectMapper()
-        .registerModule(simpleModule)
+    // findAndRegisterModules() first, then registerModule() last so our Long→String serializers
+    // are registered after any auto-discovered modules and therefore take final precedence.
+    ObjectMapper mapper = new ObjectMapper()
+        .findAndRegisterModules()
         .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
-        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-        .findAndRegisterModules();
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    mapper.registerModule(simpleModule);
+    return mapper;
   }
 
   @Bean
