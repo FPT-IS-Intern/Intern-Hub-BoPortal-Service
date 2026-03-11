@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AuthzRole {
-  private Long id;
+  private String id;
   private String name;
   private String description;
   private String status;
