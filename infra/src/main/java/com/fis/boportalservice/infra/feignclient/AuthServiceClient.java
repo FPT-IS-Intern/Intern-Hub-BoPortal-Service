@@ -22,7 +22,7 @@ public interface AuthServiceClient {
 
   @PutMapping("/auth/internal/authz/roles/{roleId}/permissions")
   ResponseFeignClient<Void> updateRolePermissions(
-      @PathVariable("roleId") Long roleId,
+      @PathVariable("roleId") String roleId,
       @RequestBody AuthzUpdateRolePermissionRequest request
   );
 
@@ -30,7 +30,7 @@ public interface AuthServiceClient {
   ResponseFeignClient<List<AuthzRoleDto>> getRoles();
 
   @GetMapping("/auth/internal/authz/roles/{roleId}/permissions")
-  ResponseFeignClient<List<AuthzRolePermissionDto>> getRolePermissions(@PathVariable("roleId") Long roleId);
+  ResponseFeignClient<List<AuthzRolePermissionDto>> getRolePermissions(@PathVariable("roleId") String roleId);
 
   @GetMapping("/auth/internal/authz/resources")
   ResponseFeignClient<List<AuthzResourceDto>> getAllResources();

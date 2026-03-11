@@ -16,7 +16,7 @@ public class AuthzUpdateRolePermissionRequest {
   @NoArgsConstructor
   @AllArgsConstructor
   public static class ResourcePermission {
-    private Long id;
+    private String id;
     private List<Integer> permissions;
   }
 }

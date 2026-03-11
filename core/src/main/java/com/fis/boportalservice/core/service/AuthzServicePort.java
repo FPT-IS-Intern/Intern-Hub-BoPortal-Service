@@ -8,18 +8,18 @@ import java.util.List;
 
 public interface AuthzServicePort {
 
-  AuthzResource createResource(String name, String code, Long categoryId, String description);
+  AuthzResource createResource(String name, String code, String categoryId, String description);
 
   AuthzRole createRole(String name, String description);
 
-  void updateRolePermissions(Long roleId, List<ResourcePermission> resources);
+  void updateRolePermissions(String roleId, List<ResourcePermission> resources);
 
   List<AuthzRole> getRoles();
 
-  List<AuthzRolePermission> getRolePermissions(Long roleId);
+  List<AuthzRolePermission> getRolePermissions(String roleId);
 
   List<AuthzResource> getAllResources();
 
-  record ResourcePermission(Long id, List<Integer> permissions) {
+  record ResourcePermission(String id, List<Integer> permissions) {
   }
 }

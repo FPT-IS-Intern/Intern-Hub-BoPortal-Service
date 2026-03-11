@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class AuthzCreateResourceRequest {
   private String name;
   private String code;
-  private Long categoryId;
+  private String categoryId;
   private String description;
 }

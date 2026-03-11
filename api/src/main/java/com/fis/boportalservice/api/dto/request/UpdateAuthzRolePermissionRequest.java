@@ -17,7 +17,7 @@ public record UpdateAuthzRolePermissionRequest(
   public record ResourcePermission(
 
       @NotNull(message = "Resource ID is required")
-      Long id,
+      String id,
 
       @NotNull(message = "Permissions are required")
       @Size(min = 5, max = 5, message = "Permissions must have exactly 5 elements")

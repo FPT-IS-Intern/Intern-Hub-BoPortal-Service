@@ -12,6 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class AuthzRolePermission {
-  private Long resourceId;
+  private String resourceId;
   private List<String> permissions;
 }

@@ -29,7 +29,7 @@ public class AuthzServiceAdapter implements AuthzServicePort {
   private final AuthServiceClient authServiceClient;
 
   @Override
-  public AuthzResource createResource(String name, String code, Long categoryId, String description) {
+  public AuthzResource createResource(String name, String code, String categoryId, String description) {
     log.info("Calling auth-service to create resource: name={}, code={}, categoryId={}", name, code, categoryId);
     var request = new AuthzCreateResourceRequest(name, code, categoryId, description);
     ResponseFeignClient<com.fis.boportalservice.infra.feignclient.dto.AuthzResourceDto> response =
@@ -67,7 +67,7 @@ public class AuthzServiceAdapter implements AuthzServicePort {
   }
 
   @Override
-  public void updateRolePermissions(Long roleId, List<ResourcePermission> resources) {
+  public void updateRolePermissions(String roleId, List<ResourcePermission> resources) {
     log.info("Calling auth-service to update role permissions: roleId={}", roleId);
     var requestResources = resources.stream()
         .map(r -> new AuthzUpdateRolePermissionRequest.ResourcePermission(r.id(), r.permissions()))
@@ -92,7 +92,7 @@ public class AuthzServiceAdapter implements AuthzServicePort {
   }
 
   @Override
-  public List<AuthzRolePermission> getRolePermissions(Long roleId) {
+  public List<AuthzRolePermission> getRolePermissions(String roleId) {
     log.info("Calling auth-service to get role permissions: roleId={}", roleId);
     ResponseFeignClient<List<AuthzRolePermissionDto>> response = authServiceClient.getRolePermissions(roleId);
     List<AuthzRolePermissionDto> dtos = Optional.ofNullable(response.getData())

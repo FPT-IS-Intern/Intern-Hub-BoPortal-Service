@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AuthzResource {
-  private Long id;
+  private String id;
   private String name;
   private String code;
   private String description;
-  private Long categoryId;
+  private String categoryId;
 }

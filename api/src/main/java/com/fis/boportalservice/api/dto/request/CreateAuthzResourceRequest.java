@@ -12,7 +12,7 @@ public record CreateAuthzResourceRequest(
     String code,
 
     @NotNull(message = "Category ID is required")
-    Long categoryId,
+    String categoryId,
 
     String description
 ) {

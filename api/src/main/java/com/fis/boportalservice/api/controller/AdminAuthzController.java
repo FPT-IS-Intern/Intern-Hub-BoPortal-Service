@@ -59,7 +59,7 @@ public class AdminAuthzController {
 
   @PutMapping("/roles/{roleId}/permissions")
   public ResponseApi<Void> updateRolePermissions(
-      @PathVariable Long roleId,
+      @PathVariable String roleId,
       @Valid @RequestBody UpdateAuthzRolePermissionRequest request) {
     log.info("Request to update permissions for roleId={}", roleId);
     List<AuthzServicePort.ResourcePermission> permissions = request.resources().stream()
@@ -79,7 +79,7 @@ public class AdminAuthzController {
   }
 
   @GetMapping("/roles/{roleId}/permissions")
-  public ResponseApi<List<AuthzRolePermissionResponse>> getRolePermissions(@PathVariable Long roleId) {
+  public ResponseApi<List<AuthzRolePermissionResponse>> getRolePermissions(@PathVariable String roleId) {
     log.info("Request to get permissions for roleId={}", roleId);
     List<AuthzRolePermissionResponse> result = authzServicePort.getRolePermissions(roleId).stream()
         .map(p -> new AuthzRolePermissionResponse(

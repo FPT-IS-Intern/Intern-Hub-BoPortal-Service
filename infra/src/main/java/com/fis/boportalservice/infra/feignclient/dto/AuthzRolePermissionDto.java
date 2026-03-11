@@ -17,6 +17,6 @@ public class AuthzRolePermissionDto {
   @NoArgsConstructor
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Resource {
-    private Long id;
+    private String id;
   }
 }
