@@ -63,8 +63,10 @@ public class BeanConfiguration {
     simpleModule.addSerializer(Long.TYPE, new ToStringSerializer());
     simpleModule.addSerializer(BigInteger.class, new ToStringSerializer());
     return new ObjectMapper()
+        .registerModule(simpleModule)
         .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
-        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        .findAndRegisterModules();
   }
 
   @Bean
