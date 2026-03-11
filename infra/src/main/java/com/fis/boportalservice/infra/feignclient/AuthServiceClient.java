@@ -31,4 +31,7 @@ public interface AuthServiceClient {
 
   @GetMapping("/auth/internal/authz/roles/{roleId}/permissions")
   ResponseFeignClient<List<AuthzRolePermissionDto>> getRolePermissions(@PathVariable("roleId") Long roleId);
+
+  @GetMapping("/auth/internal/authz/resources")
+  ResponseFeignClient<List<AuthzResourceDto>> getAllResources();
 }

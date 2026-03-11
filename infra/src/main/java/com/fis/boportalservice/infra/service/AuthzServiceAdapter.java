@@ -8,6 +8,7 @@ import com.fis.boportalservice.infra.feignclient.AuthServiceClient;
 import com.fis.boportalservice.infra.feignclient.ResponseFeignClient;
 import com.fis.boportalservice.infra.feignclient.dto.AuthzCreateResourceRequest;
 import com.fis.boportalservice.infra.feignclient.dto.AuthzCreateRoleRequest;
+import com.fis.boportalservice.infra.feignclient.dto.AuthzResourceDto;
 import com.fis.boportalservice.infra.feignclient.dto.AuthzRoleDto;
 import com.fis.boportalservice.infra.feignclient.dto.AuthzRolePermissionDto;
 import com.fis.boportalservice.infra.feignclient.dto.AuthzUpdateRolePermissionRequest;
@@ -100,6 +101,23 @@ public class AuthzServiceAdapter implements AuthzServicePort {
         .map(dto -> AuthzRolePermission.builder()
             .resourceId(dto.getResource() != null ? dto.getResource().getId() : null)
             .permissions(dto.getPermissions())
+            .build())
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<AuthzResource> getAllResources() {
+    log.info("Calling auth-service to get all resources");
+    ResponseFeignClient<List<AuthzResourceDto>> response = authServiceClient.getAllResources();
+    List<AuthzResourceDto> dtos = Optional.ofNullable(response.getData())
+        .orElseGet(() -> Optional.ofNullable(response.getResult()).orElse(Collections.emptyList()));
+    return dtos.stream()
+        .map(dto -> AuthzResource.builder()
+            .id(dto.getId())
+            .name(dto.getName())
+            .code(dto.getCode())
+            .description(dto.getDescription())
+            .categoryId(dto.getCategoryId())
             .build())
         .collect(Collectors.toList());
   }

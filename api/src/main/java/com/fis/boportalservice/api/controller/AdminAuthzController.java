@@ -40,6 +40,15 @@ public class AdminAuthzController {
     return ResponseApi.success(toResourceResponse(resource));
   }
 
+  @GetMapping("/resources")
+  public ResponseApi<List<AuthzResourceResponse>> getAllResources() {
+    log.info("Request to get all authz resources");
+    List<AuthzResourceResponse> resources = authzServicePort.getAllResources().stream()
+        .map(this::toResourceResponse)
+        .toList();
+    return ResponseApi.success(resources);
+  }
+
   @PostMapping("/roles")
   public ResponseApi<AuthzRoleResponse> createRole(
       @Valid @RequestBody CreateAuthzRoleRequest request) {

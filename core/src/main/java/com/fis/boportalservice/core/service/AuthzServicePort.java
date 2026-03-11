@@ -18,6 +18,8 @@ public interface AuthzServicePort {
 
   List<AuthzRolePermission> getRolePermissions(Long roleId);
 
+  List<AuthzResource> getAllResources();
+
   record ResourcePermission(Long id, List<Integer> permissions) {
   }
 }
