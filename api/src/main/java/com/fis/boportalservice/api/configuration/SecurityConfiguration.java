@@ -2,6 +2,7 @@ package com.fis.boportalservice.api.configuration;
 
 import com.fis.boportalservice.api.configuration.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -14,7 +15,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableMethodSecurity
@@ -22,6 +25,9 @@ import java.util.List;
 public class SecurityConfiguration {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+  @Value("${security.cors.allowed-origin-patterns:http://localhost:4200}")
+  private String corsAllowedOriginPatterns;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) {
@@ -53,7 +59,11 @@ public class SecurityConfiguration {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of("https://admin-internhub-v2.bbtech.io.vn", "https://internhub-v2.bbtech.io.vn", "http://localhost:4200"));
+    List<String> allowedOriginPatterns = Arrays.stream(corsAllowedOriginPatterns.split(","))
+        .map(String::trim)
+        .filter(value -> !value.isEmpty())
+        .collect(Collectors.toList());
+    configuration.setAllowedOriginPatterns(allowedOriginPatterns);
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
     configuration.setAllowedHeaders(List.of("*"));
     configuration.setAllowCredentials(true);
