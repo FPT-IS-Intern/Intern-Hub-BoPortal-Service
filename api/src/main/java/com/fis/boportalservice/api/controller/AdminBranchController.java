@@ -1,17 +1,26 @@
 package com.fis.boportalservice.api.controller;
 
 import com.fis.boportalservice.api.dto.request.BranchRequest;
+import com.fis.boportalservice.api.dto.response.AttendanceLocationResponse;
+import com.fis.boportalservice.api.dto.response.BoPortalAllowedIpRangeResponse;
+import com.fis.boportalservice.api.dto.response.BranchCheckinRulesResponse;
 import com.fis.boportalservice.api.dto.response.BranchResponse;
+import com.fis.boportalservice.api.mapper.AllowedIpRangeApiMapper;
+import com.fis.boportalservice.api.mapper.AttendanceLocationApiMapper;
 import com.fis.boportalservice.api.mapper.BranchApiMapper;
 import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.domain.model.Branch;
+import com.fis.boportalservice.core.service.AllowedIpRangeService;
+import com.fis.boportalservice.core.service.AttendanceLocationService;
 import com.fis.boportalservice.core.service.BranchService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,6 +33,10 @@ public class AdminBranchController {
 
   private final BranchService branchService;
   private final BranchApiMapper apiMapper;
+  private final AllowedIpRangeService allowedIpRangeService;
+  private final AllowedIpRangeApiMapper allowedIpRangeApiMapper;
+  private final AttendanceLocationService attendanceLocationService;
+  private final AttendanceLocationApiMapper attendanceLocationApiMapper;
 
   @GetMapping
   public ResponseApi<List<BranchResponse>> getAll() {
@@ -31,6 +44,33 @@ public class AdminBranchController {
     List<BranchResponse> responses = branchService.getAll().stream()
         .map(apiMapper::toResponse)
         .collect(Collectors.toList());
+    return ResponseApi.success(responses);
+  }
+
+  @GetMapping("/with-checkin-rules")
+  public ResponseApi<List<BranchCheckinRulesResponse>> getAllWithCheckinRules() {
+    log.info("Request to get all branches with check-in rules");
+    Map<UUID, List<BoPortalAllowedIpRangeResponse>> ipRangesByBranch = allowedIpRangeService.getAll().stream()
+        .map(allowedIpRangeApiMapper::toResponse)
+        .filter(response -> response.getBranchId() != null)
+        .collect(Collectors.groupingBy(BoPortalAllowedIpRangeResponse::getBranchId));
+
+    Map<UUID, List<AttendanceLocationResponse>> locationsByBranch = attendanceLocationService.getAll().stream()
+        .map(attendanceLocationApiMapper::toResponse)
+        .filter(response -> response.getBranchId() != null)
+        .collect(Collectors.groupingBy(AttendanceLocationResponse::getBranchId));
+
+    List<BranchCheckinRulesResponse> responses = branchService.getAll().stream()
+        .map(branch -> BranchCheckinRulesResponse.builder()
+            .id(branch.getId())
+            .name(branch.getName())
+            .description(branch.getDescription())
+            .isActive(branch.getIsActive())
+            .allowedIpRanges(ipRangesByBranch.getOrDefault(branch.getId(), Collections.emptyList()))
+            .attendanceLocations(locationsByBranch.getOrDefault(branch.getId(), Collections.emptyList()))
+            .build())
+        .collect(Collectors.toList());
+
     return ResponseApi.success(responses);
   }
 
