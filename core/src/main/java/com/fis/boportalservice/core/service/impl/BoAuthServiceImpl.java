@@ -104,9 +104,12 @@ public class BoAuthServiceImpl implements BoAuthService {
       throw new ClientSideException(ErrorCode.BO_MISSING_ACCESS_TOKEN);
     }
     BoTokenClaims claims = boTokenProvider.parseAccessToken(accessToken);
+    BoAdminUser user = boAdminUserRepository.findById(claims.getUserId())
+        .orElseThrow(() -> new ClientSideException(ErrorCode.BO_USER_NOT_FOUND));
     return BoAdminProfile.builder()
-        .id(claims.getUserId())
-        .username(claims.getUsername())
+        .id(user.getId())
+        .username(user.getUsername())
+        .displayName(user.getDisplayName())
         .roles(claims.getRoles())
         .permissions(claims.getPermissions())
         .build();
