@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -23,9 +24,13 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @RestControllerAdvice
@@ -34,6 +39,9 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
   private final MessageSource messageSource;
   private static final List<String> INTERNAL_SERVER_ERROR_CODES =
       List.of(ErrorCode.SYSTEM_ERROR.getCode());
+  private static final Pattern CONSTRAINT_PATTERN =
+      Pattern.compile("constraint\\s+\\\"([^\\\"]+)\\\"", Pattern.CASE_INSENSITIVE);
+  private static final Map<String, ErrorCode> CONSTRAINT_ERROR_MAP = createConstraintErrorMap();
 
   @ExceptionHandler(ClientSideException.class)
   public ResponseEntity<Object> adviceClientSideException(
@@ -66,7 +74,7 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
       }
     } else {
       code = ErrorCode.BAD_REQUEST.getCode();
-      message = getErrorMessage(null, message, messageArgs, locale);
+      message = getErrorMessage(ErrorCode.BAD_REQUEST, null, messageArgs, locale);
     }
 
     log.error("A server side exception occurred: {}", message);
@@ -120,13 +128,24 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
     return new ResponseEntity<>(ResponseApi.error(code, message), status);
   }
 
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ResponseEntity<Object> handleDataIntegrityViolation(
+      DataIntegrityViolationException exception, WebRequest request, Locale locale) {
+    log.error("A data integrity violation occurred", exception);
+    ErrorCode errorCode = resolveConstraintErrorCode(exception);
+    String message = getErrorMessage(errorCode, null, null, locale);
+    return new ResponseEntity<>(
+        ResponseApi.error(errorCode.getCode(), message),
+        HttpStatus.BAD_REQUEST);
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Object> handleGeneralException(Exception exception, WebRequest request) {
     log.error("A internal exception occurred: {}", exception.getMessage(), exception);
     return new ResponseEntity<>(
         ResponseApi.error(
             ErrorCode.SYSTEM_ERROR.getCode(),
-            getErrorMessage(ErrorCode.SYSTEM_ERROR, exception.getMessage(), null, Locale.getDefault())),
+            getErrorMessage(ErrorCode.SYSTEM_ERROR, null, null, Locale.getDefault())),
         HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
@@ -187,5 +206,40 @@ public class GeneralExceptionAdvisor extends ResponseEntityExceptionHandler {
     } catch (Exception e) {
       return null;
     }
+  }
+
+  private static Map<String, ErrorCode> createConstraintErrorMap() {
+    Map<String, ErrorCode> map = new HashMap<>();
+    map.put("branches_name_key", ErrorCode.BRANCH_NAME_DUPLICATE);
+    map.put("uk_bo_role_code", ErrorCode.BO_ROLE_CODE_DUPLICATE);
+    map.put("uk_bo_permission_code", ErrorCode.BO_PERMISSION_CODE_DUPLICATE);
+    map.put("uk_bo_admin_user_username", ErrorCode.BO_USERNAME_DUPLICATE);
+    map.put("uk_bo_user_role", ErrorCode.BO_USER_ROLE_DUPLICATE);
+    map.put("uk_bo_role_permission", ErrorCode.BO_ROLE_PERMISSION_DUPLICATE);
+    map.put("uk_bo_refresh_token_hash", ErrorCode.BO_REFRESH_TOKEN_DUPLICATE);
+    return map;
+  }
+
+  private ErrorCode resolveConstraintErrorCode(Throwable exception) {
+    String constraint = extractConstraintName(exception);
+    if (constraint == null || constraint.isBlank()) {
+      return ErrorCode.BAD_REQUEST;
+    }
+    return CONSTRAINT_ERROR_MAP.getOrDefault(constraint, ErrorCode.BAD_REQUEST);
+  }
+
+  private String extractConstraintName(Throwable exception) {
+    Throwable current = exception;
+    while (current != null) {
+      String message = current.getMessage();
+      if (message != null) {
+        Matcher matcher = CONSTRAINT_PATTERN.matcher(message);
+        if (matcher.find()) {
+          return matcher.group(1);
+        }
+      }
+      current = current.getCause();
+    }
+    return null;
   }
 }

@@ -26,6 +26,14 @@ public final class ErrorMessageCatalog {
     MESSAGE_KEY_BY_CODE.put(ErrorCode.BO_USER_NOT_FOUND, "error.bo_auth.user_not_found");
     MESSAGE_KEY_BY_CODE.put(ErrorCode.BO_MISSING_ACCESS_TOKEN, "error.bo_auth.missing_access_token");
     MESSAGE_KEY_BY_CODE.put(ErrorCode.BO_TOKEN_PROCESS_FAILED, "error.bo_auth.token_process_failed");
+
+    MESSAGE_KEY_BY_CODE.put(ErrorCode.BRANCH_NAME_DUPLICATE, "error.branch.duplicate_name");
+    MESSAGE_KEY_BY_CODE.put(ErrorCode.BO_ROLE_CODE_DUPLICATE, "error.rbac.role_code_duplicate");
+    MESSAGE_KEY_BY_CODE.put(ErrorCode.BO_PERMISSION_CODE_DUPLICATE, "error.rbac.permission_code_duplicate");
+    MESSAGE_KEY_BY_CODE.put(ErrorCode.BO_USERNAME_DUPLICATE, "error.auth.username_duplicate");
+    MESSAGE_KEY_BY_CODE.put(ErrorCode.BO_USER_ROLE_DUPLICATE, "error.rbac.user_role_duplicate");
+    MESSAGE_KEY_BY_CODE.put(ErrorCode.BO_ROLE_PERMISSION_DUPLICATE, "error.rbac.role_permission_duplicate");
+    MESSAGE_KEY_BY_CODE.put(ErrorCode.BO_REFRESH_TOKEN_DUPLICATE, "error.auth.refresh_token_duplicate");
   }
 
   private ErrorMessageCatalog() {

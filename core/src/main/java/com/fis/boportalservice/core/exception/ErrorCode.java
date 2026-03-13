@@ -25,7 +25,14 @@ public enum ErrorCode {
   BO_REFRESH_TOKEN_USER_MISMATCH("1407", "1407", "AUTH", "Refresh token user mismatch"),
   BO_USER_NOT_FOUND("1408", "1408", "AUTH", "User not found"),
   BO_MISSING_ACCESS_TOKEN("1409", "1409", "AUTH", "Missing access token"),
-  BO_TOKEN_PROCESS_FAILED("1410", "1410", "AUTH", "Cannot process token");
+  BO_TOKEN_PROCESS_FAILED("1410", "1410", "AUTH", "Cannot process token"),
+  BRANCH_NAME_DUPLICATE("2401", "2401", "BRANCH", "Branch name already exists"),
+  BO_ROLE_CODE_DUPLICATE("2402", "2402", "RBAC", "Role code already exists"),
+  BO_PERMISSION_CODE_DUPLICATE("2403", "2403", "RBAC", "Permission code already exists"),
+  BO_USERNAME_DUPLICATE("2404", "2404", "AUTH", "Username already exists"),
+  BO_USER_ROLE_DUPLICATE("2405", "2405", "RBAC", "User already has this role"),
+  BO_ROLE_PERMISSION_DUPLICATE("2406", "2406", "RBAC", "Role already has this permission"),
+  BO_REFRESH_TOKEN_DUPLICATE("2407", "2407", "AUTH", "Refresh token already exists");
 
   private final String code;
   private final String rawCode;
