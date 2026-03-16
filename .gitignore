@@ -29,4 +29,7 @@ gradle-app.setting
 *.md
 /docs
 
+# local scripts
+/scripts
+
 *.env
