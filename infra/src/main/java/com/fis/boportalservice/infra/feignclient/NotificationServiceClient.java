@@ -53,7 +53,7 @@ public interface NotificationServiceClient {
   ResponseApi<Boolean> deleteTemplateDefinition(@PathVariable String code);
 
   @GetMapping("/noti/internal/templates/{code}/history")
-  ResponseApi<List<TemplateResponse>> getTemplateHistory(
+  ResponseApi<List<TemplateHistoryResponse>> getTemplateHistory(
       @PathVariable String code,
       @RequestParam String channel,
       @RequestParam(required = false, name = "lang") String lang);

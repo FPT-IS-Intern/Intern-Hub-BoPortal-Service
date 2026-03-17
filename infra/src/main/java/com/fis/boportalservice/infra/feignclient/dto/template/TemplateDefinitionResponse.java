@@ -6,5 +6,6 @@ import java.util.Map;
 @Data
 public class TemplateDefinitionResponse {
   private String code;
+  private String description;
   private Map<String, Object> paramsSchema;
 }

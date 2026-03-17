@@ -94,7 +94,7 @@ public class AdminTemplateController {
 
   @GetMapping("/{code}/history")
   @Operation(summary = "Get template version history")
-  public ResponseApi<List<TemplateResponse>> getTemplateHistory(
+  public ResponseApi<List<TemplateHistoryResponse>> getTemplateHistory(
       @PathVariable String code,
       @RequestParam String channel,
       @RequestParam(required = false, name = "lang") String lang) {
