@@ -1,13 +1,17 @@
 package com.fis.boportalservice.infra.feignclient;
 
 import com.fis.boportalservice.common.dto.ResponseApi;
+import com.fis.boportalservice.infra.configuration.FeignClientCommonConfiguration;
 import com.fis.boportalservice.infra.feignclient.dto.template.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(name = "notification-service", url = "${feign.client.config.notification-service.url:http://notification-service:8080}")
+@FeignClient(
+    name = "notification-service",
+    url = "${feign.client.config.notification-service.url:http://notification-service:8080}",
+    configuration = FeignClientCommonConfiguration.class)
 public interface NotificationServiceClient {
 
   @GetMapping("/noti/internal/templates")
