@@ -27,6 +27,8 @@ feign:
         url: ${HRM_SERVICE_URL:http://localhost:8080}
       lms-service:
         url: ${LMS_SERVICE_URL:http://localhost:6666}
+      notification-service:
+        url: ${NOTI_SERVICE_URL:http://notification-service:8080}
   jackson:
   liquibase:
     enabled: false
