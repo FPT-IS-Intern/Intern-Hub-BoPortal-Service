@@ -2,7 +2,7 @@ package com.fis.boportalservice.infra.feignclient.dto.template;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 
 @Data
 public class TemplateResponse {
@@ -15,8 +15,8 @@ public class TemplateResponse {
   private String format;
   private Boolean active;
   private Integer templateVersion;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  private Long createdAt;
+  private Long updatedAt;
   private String description;
-  private String paramsSchema;
+  private Map<String, Object> paramsSchema;
 }

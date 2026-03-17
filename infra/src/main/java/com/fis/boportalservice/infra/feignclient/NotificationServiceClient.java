@@ -11,7 +11,8 @@ import java.util.List;
 @FeignClient(
     name = "notification-service",
     url = "${feign.client.config.notification-service.url:http://notification-service:8080}",
-    configuration = FeignClientCommonConfiguration.class)
+    configuration = FeignClientCommonConfiguration.class
+)
 public interface NotificationServiceClient {
 
   @GetMapping("/noti/internal/templates")
