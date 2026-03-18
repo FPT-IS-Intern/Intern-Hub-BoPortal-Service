@@ -16,6 +16,7 @@ dependencies {
     implementation libs.feign.micrometer
 
     implementation libs.springBoot.starter.validation
+    implementation libs.spring.security.crypto
 
     implementation libs.apacheCommons.v313
 

@@ -111,6 +111,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         || antPathMatcher.match("/api/bo-portal/internal/**", path)
         || antPathMatcher.match("/bo-portal/auth/login", path)
         || antPathMatcher.match("/api/bo-portal/auth/login", path)
+        || antPathMatcher.match("/bo-portal/auth/public-key", path)
+        || antPathMatcher.match("/api/bo-portal/auth/public-key", path)
         || antPathMatcher.match("/bo-portal/auth/refresh", path)
         || antPathMatcher.match("/api/bo-portal/auth/refresh", path);
   }

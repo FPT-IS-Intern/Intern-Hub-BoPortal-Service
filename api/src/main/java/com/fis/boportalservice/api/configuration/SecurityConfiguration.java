@@ -29,9 +29,18 @@ public class SecurityConfiguration {
   @Value("${security.cors.allowed-origin-patterns:http://localhost:4200}")
   private String corsAllowedOriginPatterns;
 
+  @Value("${security.require-https:false}")
+  private boolean requireHttps;
+
+  @Value("${security.hsts.enabled:false}")
+  private boolean hstsEnabled;
+
+  @Value("${security.hsts.max-age:31536000}")
+  private long hstsMaxAgeSeconds;
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) {
-    return http.csrf(AbstractHttpConfigurer::disable)
+    HttpSecurity configured = http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .formLogin(AbstractHttpConfigurer::disable)
         .httpBasic(AbstractHttpConfigurer::disable)
@@ -40,6 +49,8 @@ public class SecurityConfiguration {
             .requestMatchers(
                 "/bo-portal/auth/login",
                 "/api/bo-portal/auth/login",
+                "/bo-portal/auth/public-key",
+                "/api/bo-portal/auth/public-key",
                 "/bo-portal/auth/refresh",
                 "/api/bo-portal/auth/refresh",
                 "/bo-portal/internal/**",
@@ -52,8 +63,14 @@ public class SecurityConfiguration {
                 "/webjars/**").permitAll()
             .anyRequest().authenticated())
         .cors(cors -> cors.configurationSource(corsConfigurationSource))
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        .build();
+        .addFilterBefore(new HttpsEnforcementFilter(requireHttps), UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    if (hstsEnabled) {
+      configured = configured.headers(headers -> headers.httpStrictTransportSecurity(
+          hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(hstsMaxAgeSeconds)));
+    }
+
+    return configured.build();
   }
 
   @Bean

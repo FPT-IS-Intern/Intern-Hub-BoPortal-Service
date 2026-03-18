@@ -6,8 +6,9 @@ import com.fis.boportalservice.api.dto.request.BoRefreshTokenRequest;
 import com.fis.boportalservice.api.dto.response.BoAdminProfileResponse;
 import com.fis.boportalservice.api.dto.response.BoAuthSessionResponse;
 import com.fis.boportalservice.api.mapper.BoAuthApiMapper;
+import com.fis.boportalservice.api.security.LoginPasswordResolver;
 import com.fis.boportalservice.common.dto.ResponseApi;
-import com.fis.boportalservice.core.service.BoAuthService;
+import com.fis.boportalservice.core.domain.usecase.BoAuthUsecase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,14 +23,22 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BoAuthController {
 
-  private final BoAuthService boAuthService;
+  private final BoAuthUsecase boAuthUsecase;
   private final BoAuthApiMapper boAuthApiMapper;
+  private final LoginPasswordResolver loginPasswordResolver;
 
   @PostMapping("/login")
   public ResponseApi<BoAuthSessionResponse> login(@Valid @RequestBody BoLoginRequest request) {
-    log.info("BO login request for username={}", request.getUsername());
+    log.info("BO login request");
+    String resolvedUsername = loginPasswordResolver.resolveUsername(request);
+    String resolvedPassword = loginPasswordResolver.resolvePassword(request);
     return ResponseApi.success(boAuthApiMapper.toSessionResponse(
-        boAuthService.login(request.getUsername(), request.getPassword(), request.getDeviceId())));
+        boAuthUsecase.login(resolvedUsername, resolvedPassword, request.deviceId())));
+  }
+
+  @GetMapping("/public-key")
+  public ResponseApi<String> publicKey() {
+    return ResponseApi.success(loginPasswordResolver.getPublicKey());
   }
 
   @PostMapping("/refresh")
@@ -37,13 +46,13 @@ public class BoAuthController {
       @Valid @RequestBody BoRefreshTokenRequest request) {
     log.info("BO refresh token request");
     return ResponseApi.success(boAuthApiMapper.toSessionResponse(
-        boAuthService.refresh(request.getRefreshToken(), request.getDeviceId())));
+        boAuthUsecase.refresh(request.getRefreshToken(), request.getDeviceId())));
   }
 
   @PostMapping("/logout")
   public ResponseApi<Void> logout(@Valid @RequestBody BoLogoutRequest request) {
     log.info("BO logout request");
-    boAuthService.logout(request.getRefreshToken());
+    boAuthUsecase.logout(request.getRefreshToken());
     return ResponseApi.success(null);
   }
 
@@ -52,7 +61,7 @@ public class BoAuthController {
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
     String token = extractBearerToken(authorizationHeader);
     log.info("BO me request");
-    return ResponseApi.success(boAuthApiMapper.toProfileResponse(boAuthService.me(token)));
+    return ResponseApi.success(boAuthApiMapper.toProfileResponse(boAuthUsecase.me(token)));
   }
 
   private String extractBearerToken(String authorizationHeader) {

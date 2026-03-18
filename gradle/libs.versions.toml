@@ -80,6 +80,7 @@ feign-jackson = { module = "io.github.openfeign:feign-jackson", version.ref = "f
 feign-micrometer = { module = "io.github.openfeign:feign-micrometer", version.ref = "feign" }
 
 # Security & JWT
+spring-security-crypto = { module = "org.springframework.security:spring-security-crypto" }
 jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
 jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
 jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }

@@ -1,17 +1,20 @@
-package com.fis.boportalservice.core.service.impl;
+package com.fis.boportalservice.core.domain.usecase.impl;
 
-import com.fis.boportalservice.core.domain.model.*;
+import com.fis.boportalservice.core.domain.model.BoAdminProfile;
+import com.fis.boportalservice.core.domain.model.BoAdminUser;
+import com.fis.boportalservice.core.domain.model.BoAuthSession;
+import com.fis.boportalservice.core.domain.model.BoRefreshToken;
+import com.fis.boportalservice.core.domain.model.BoTokenClaims;
+import com.fis.boportalservice.core.domain.port.PasswordHasher;
 import com.fis.boportalservice.core.domain.repository.BoAdminUserRepository;
 import com.fis.boportalservice.core.domain.repository.BoRefreshTokenRepository;
 import com.fis.boportalservice.core.domain.repository.BoTokenProvider;
+import com.fis.boportalservice.core.domain.usecase.BoAuthUsecase;
 import com.fis.boportalservice.core.exception.ClientSideException;
 import com.fis.boportalservice.core.exception.ErrorCode;
-import com.fis.boportalservice.core.service.BoAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -19,10 +22,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
 @RequiredArgsConstructor
 @Slf4j
-public class BoAuthServiceImpl implements BoAuthService {
+public class BoAuthUsecaseImpl implements BoAuthUsecase {
 
   private static final String ACTIVE_STATUS = "ACTIVE";
   private static final int MAX_FAILED_ATTEMPT = 5;
@@ -30,7 +32,7 @@ public class BoAuthServiceImpl implements BoAuthService {
   private final BoAdminUserRepository boAdminUserRepository;
   private final BoRefreshTokenRepository boRefreshTokenRepository;
   private final BoTokenProvider boTokenProvider;
-  private final BCryptPasswordEncoder passwordEncoder;
+  private final PasswordHasher passwordHasher;
 
   @Override
   public BoAuthSession login(String username, String password, String deviceId) {
@@ -45,7 +47,7 @@ public class BoAuthServiceImpl implements BoAuthService {
       throw new ClientSideException(ErrorCode.BO_ACCOUNT_LOCKED);
     }
 
-    if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+    if (!passwordHasher.matches(password, user.getPasswordHash())) {
       int failedAttempt = user.getFailedAttempt() == null ? 0 : user.getFailedAttempt();
       user.setFailedAttempt(failedAttempt + 1);
       if (user.getFailedAttempt() >= MAX_FAILED_ATTEMPT) {
@@ -73,7 +75,7 @@ public class BoAuthServiceImpl implements BoAuthService {
       throw new ClientSideException(ErrorCode.BO_REFRESH_TOKEN_INVALID);
     }
 
-    if (StringUtils.hasText(deviceId) && StringUtils.hasText(storedToken.getDeviceId())
+    if (StringUtils.isNotBlank(deviceId) && StringUtils.isNotBlank(storedToken.getDeviceId())
         && !deviceId.equals(storedToken.getDeviceId())) {
       throw new ClientSideException(ErrorCode.BO_TOKEN_DEVICE_MISMATCH);
     }
@@ -91,7 +93,7 @@ public class BoAuthServiceImpl implements BoAuthService {
 
   @Override
   public void logout(String refreshToken) {
-    if (!StringUtils.hasText(refreshToken)) {
+    if (StringUtils.isBlank(refreshToken)) {
       return;
     }
     boRefreshTokenRepository.findByTokenHash(hashToken(refreshToken))
@@ -100,7 +102,7 @@ public class BoAuthServiceImpl implements BoAuthService {
 
   @Override
   public BoAdminProfile me(String accessToken) {
-    if (!StringUtils.hasText(accessToken)) {
+    if (StringUtils.isBlank(accessToken)) {
       throw new ClientSideException(ErrorCode.BO_MISSING_ACCESS_TOKEN);
     }
     BoTokenClaims claims = boTokenProvider.parseAccessToken(accessToken);
@@ -173,12 +175,12 @@ public class BoAuthServiceImpl implements BoAuthService {
   }
 
   private List<String> splitCodes(String raw) {
-    if (!StringUtils.hasText(raw)) {
+    if (StringUtils.isBlank(raw)) {
       return Collections.emptyList();
     }
     return Arrays.stream(raw.split(","))
         .map(String::trim)
-        .filter(StringUtils::hasText)
+        .filter(StringUtils::isNotBlank)
         .distinct()
         .collect(Collectors.toList());
   }
