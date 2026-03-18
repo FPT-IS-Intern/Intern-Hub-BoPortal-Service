@@ -4,8 +4,8 @@ import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.infra.configuration.FeignClientCommonConfiguration;
 import com.fis.boportalservice.infra.feignclient.dto.HrmFilterRequest;
 import com.fis.boportalservice.infra.feignclient.dto.HrmFilterResponse;
+import com.fis.boportalservice.infra.feignclient.dto.HrmPageResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmUserResponse;
-import com.intern.hub.library.common.dto.PaginatedData;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +25,7 @@ public interface HrmServiceClient {
   ResponseApi<HrmUserResponse> getUserById(@PathVariable("userId") Long userId);
 
   @PostMapping("/hrm/internal/users/internal/filter")
-  ResponseApi<PaginatedData<HrmFilterResponse>> filterUsers(
+  ResponseApi<HrmPageResponse<HrmFilterResponse>> filterUsers(
       @RequestBody HrmFilterRequest request,
       @RequestParam("page") int page,
       @RequestParam("size") int size
