@@ -34,4 +34,10 @@ public interface AuthServiceClient {
 
   @GetMapping("/auth/internal/authz/resources")
   ResponseFeignClient<List<AuthzResourceDto>> getAllResources();
+
+  @PutMapping("/auth/internal/identity/lock/{id}")
+  ResponseFeignClient<Void> lockIdentity(@PathVariable("id") Long userId);
+
+  @PutMapping("/auth/internal/identity/unlock/{id}")
+  ResponseFeignClient<Void> unlockIdentity(@PathVariable("id") Long userId);
 }

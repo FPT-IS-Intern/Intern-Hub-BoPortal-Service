@@ -17,6 +17,7 @@ dependencies {
 
     implementation libs.springBoot.starter.validation
     implementation libs.spring.security.crypto
+    implementation libs.servlet.api
 
     implementation libs.apacheCommons.v313
 
