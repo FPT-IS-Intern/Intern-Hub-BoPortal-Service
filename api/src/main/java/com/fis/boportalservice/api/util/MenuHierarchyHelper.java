@@ -25,9 +25,9 @@ public class MenuHierarchyHelper {
     List<PortalMenuResponse> rootMenus = new ArrayList<>();
 
     for (PortalMenuResponse menu : flatMenus) {
-      if (menu.getParentId() == null || !menuMap.containsKey(menu.getParentId())) {
+      if (menu.getParentId() == null) {
         rootMenus.add(menu);
-      } else {
+      } else if (menuMap.containsKey(menu.getParentId())) {
         PortalMenuResponse parent = menuMap.get(menu.getParentId());
         if (parent.getChildren() == null) {
           parent.setChildren(new ArrayList<>());

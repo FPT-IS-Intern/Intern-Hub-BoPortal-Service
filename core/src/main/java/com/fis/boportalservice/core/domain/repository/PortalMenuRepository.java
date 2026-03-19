@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface PortalMenuRepository {
   List<PortalMenu> findActiveMenus();
 
+  List<PortalMenu> findActiveMenusByRoles(List<String> roleCodes);
+
   List<PortalMenu> findAll();
 
   Optional<PortalMenu> findById(Integer id);

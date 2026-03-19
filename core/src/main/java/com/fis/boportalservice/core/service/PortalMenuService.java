@@ -5,7 +5,7 @@ import com.fis.boportalservice.core.domain.model.PortalMenu;
 import java.util.List;
 
 public interface PortalMenuService {
-  List<PortalMenu> getAvailableMenus(List<String> userPermissions);
+  List<PortalMenu> getAvailableMenus(List<String> userRoles);
 
   List<PortalMenu> getAllMenus();
 

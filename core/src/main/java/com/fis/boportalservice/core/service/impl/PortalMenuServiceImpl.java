@@ -6,9 +6,12 @@ import com.fis.boportalservice.core.service.PortalMenuService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -19,18 +22,18 @@ public class PortalMenuServiceImpl implements PortalMenuService {
   private final PortalMenuRepository menuRepository;
 
   @Override
-  public List<PortalMenu> getAvailableMenus(List<String> userPermissions) {
-    List<PortalMenu> activeMenus = menuRepository.findActiveMenus();
-
-    if (userPermissions == null || userPermissions.isEmpty()) {
-      return activeMenus.stream()
-          .filter(m -> !StringUtils.hasText(m.getPermissionCode()))
-          .collect(Collectors.toList());
+  public List<PortalMenu> getAvailableMenus(List<String> userRoles) {
+    List<PortalMenu> activeMenus = menuRepository.findActiveMenusByRoles(userRoles);
+    if (activeMenus.isEmpty()) {
+      return activeMenus;
     }
 
+    Map<Integer, PortalMenu> menuById = activeMenus.stream()
+        .collect(Collectors.toMap(PortalMenu::getId, menu -> menu, (left, right) -> left, HashMap::new));
+    Set<Integer> visibleIds = new HashSet<>(menuById.keySet());
+
     return activeMenus.stream()
-        .filter(m -> !StringUtils.hasText(m.getPermissionCode())
-            || userPermissions.contains(m.getPermissionCode()))
+        .filter(menu -> hasVisibleParentChain(menu, menuById, visibleIds))
         .collect(Collectors.toList());
   }
 
@@ -64,7 +67,7 @@ public class PortalMenuServiceImpl implements PortalMenuService {
     existing.setPath(menu.getPath());
     existing.setIcon(menu.getIcon());
     existing.setParentId(menu.getParentId());
-    existing.setPermissionCode(menu.getPermissionCode());
+    existing.setRoleCodes(menu.getRoleCodes());
     existing.setSortOrder(menu.getSortOrder());
     existing.setStatus(menu.getStatus());
 
@@ -75,5 +78,17 @@ public class PortalMenuServiceImpl implements PortalMenuService {
   public void deleteMenu(Integer id) {
     log.info("Deleting portal menu with id: {}", id);
     menuRepository.deleteById(id);
+  }
+
+  private boolean hasVisibleParentChain(PortalMenu menu, Map<Integer, PortalMenu> menuById, Set<Integer> visibleIds) {
+    Integer parentId = menu.getParentId();
+    if (parentId == null) {
+      return true;
+    }
+    if (!visibleIds.contains(parentId)) {
+      return false;
+    }
+    PortalMenu parent = menuById.get(parentId);
+    return parent == null || hasVisibleParentChain(parent, menuById, visibleIds);
   }
 }

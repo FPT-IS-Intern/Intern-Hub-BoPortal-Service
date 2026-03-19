@@ -18,7 +18,7 @@ public class PortalMenuResponse {
   private String path;
   private String icon;
   private Integer parentId;
-  private String permissionCode;
+  private List<String> roleCodes;
   private Integer sortOrder;
   private String status;
   private List<PortalMenuResponse> children;
