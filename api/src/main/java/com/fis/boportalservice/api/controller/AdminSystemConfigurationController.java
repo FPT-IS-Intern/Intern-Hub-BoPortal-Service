@@ -3,8 +3,9 @@ package com.fis.boportalservice.api.controller;
 import com.fis.boportalservice.api.dto.request.SecurityConfigRequest;
 import com.fis.boportalservice.api.dto.request.SystemConfigRequest;
 import com.fis.boportalservice.api.dto.response.SecurityConfigResponse;
-import com.fis.boportalservice.api.dto.response.SystemConfigInternalResponse;
 import com.fis.boportalservice.api.dto.response.SystemConfigurationResponse;
+import com.fis.boportalservice.api.dto.response.SystemConfigPublicResponse;
+import com.fis.boportalservice.api.dto.response.SystemConfigWorkingTimeResponse;
 import com.fis.boportalservice.api.mapper.SecurityConfigApiMapper;
 import com.fis.boportalservice.api.mapper.SystemConfigApiMapper;
 import com.fis.boportalservice.common.dto.ResponseApi;
@@ -36,23 +37,29 @@ public class AdminSystemConfigurationController {
   @GetMapping
   public ResponseApi<SystemConfigurationResponse> getSystemConfiguration() {
     log.info("Request to get system and security configuration");
-    SystemConfigInternalResponse systemConfig = systemConfigApiMapper
-            .toInternalResponse(systemConfigService.getSystemConfig());
+    SystemConfig systemConfig = systemConfigService.getSystemConfig();
+    SystemConfigPublicResponse uiClientConfig = systemConfigApiMapper.toPublicResponse(systemConfig);
+    SystemConfigWorkingTimeResponse workingTimeConfig = systemConfigApiMapper.toWorkingTimeResponse(systemConfig);
     SecurityConfigResponse securityConfig = securityConfigApiMapper
             .toResponse(securityConfigService.getSecurityConfig());
     return ResponseApi.success(SystemConfigurationResponse.builder()
-            .systemConfig(systemConfig)
+            .uiClientConfig(uiClientConfig)
+            .workingTimeConfig(workingTimeConfig)
             .securityConfig(securityConfig)
             .build());
   }
 
   @PutMapping("/system")
-  public ResponseApi<SystemConfigInternalResponse> updateSystemConfig(@RequestBody SystemConfigRequest request) {
+  public ResponseApi<SystemConfigurationResponse> updateSystemConfig(@RequestBody SystemConfigRequest request) {
     log.info("Request to update system configuration: {}", request);
     SystemConfig domain = systemConfigApiMapper.toDomain(request);
     SystemConfig updated = systemConfigService.updateSystemConfig(domain);
     log.info("System configuration updated successfully");
-    return ResponseApi.success(systemConfigApiMapper.toInternalResponse(updated));
+    return ResponseApi.success(SystemConfigurationResponse.builder()
+            .uiClientConfig(systemConfigApiMapper.toPublicResponse(updated))
+            .workingTimeConfig(systemConfigApiMapper.toWorkingTimeResponse(updated))
+            .securityConfig(securityConfigApiMapper.toResponse(securityConfigService.getSecurityConfig()))
+            .build());
   }
 
   @PutMapping("/security")

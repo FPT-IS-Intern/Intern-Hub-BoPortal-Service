@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class SystemConfigurationResponse {
-  private SystemConfigInternalResponse systemConfig;
+  private SystemConfigPublicResponse uiClientConfig;
+  private SystemConfigWorkingTimeResponse workingTimeConfig;
   private SecurityConfigResponse securityConfig;
 }

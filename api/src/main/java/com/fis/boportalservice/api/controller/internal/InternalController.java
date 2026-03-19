@@ -81,16 +81,16 @@ public class InternalController {
 
   // ─── System Configuration ─────────────────────────────────────────────────
 
-  @GetMapping("/system-config")
-  public ResponseApi<SystemConfigInternalResponse> getSystemConfig() {
-    log.info("Internal request to get full system configuration");
-    return ResponseApi.success(systemConfigApiMapper.toInternalResponse(systemConfigService.getSystemConfig()));
+  @GetMapping("/ui-client-config")
+  public ResponseApi<SystemConfigPublicResponse> getUiClientConfig() {
+    log.info("Internal request to get UI client configuration");
+    return ResponseApi.success(systemConfigApiMapper.toPublicResponse(systemConfigService.getSystemConfig()));
   }
 
-  @GetMapping("/system-config/public")
-  public ResponseApi<SystemConfigPublicResponse> getPublicSystemConfig() {
-    log.info("Internal request to get public system configuration");
-    return ResponseApi.success(systemConfigApiMapper.toPublicResponse(systemConfigService.getSystemConfig()));
+  @GetMapping("/working-time-config")
+  public ResponseApi<SystemConfigWorkingTimeResponse> getWorkingTimeConfig() {
+    log.info("Internal request to get working time configuration");
+    return ResponseApi.success(systemConfigApiMapper.toWorkingTimeResponse(systemConfigService.getSystemConfig()));
   }
 
   // ─── Portal Init ──────────────────────────────────────────────────────────
