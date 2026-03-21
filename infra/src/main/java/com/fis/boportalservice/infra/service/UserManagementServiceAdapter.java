@@ -62,10 +62,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
       return null;
     }
 
-    AuthzRoleDto role = extractFirstRole(authServiceClient.getUserRoles(userId));
-    if (role == null) {
-      role = extractPayload(authServiceClient.getRoleByUserId(userId));
-    }
+    AuthzRoleDto role = extractPayload(authServiceClient.getRoleByUserId(userId));
     AuthIdentityStatusDto identityStatus = extractPayload(authServiceClient.getIdentityStatus(userId));
     return toDetail(user, role, identityStatus);
   }
@@ -160,9 +157,9 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   @Override
   public UserRoleResult getUserRoles(Long userId) {
-    List<AuthzRoleDto> roles = Optional.ofNullable(extractPayload(authServiceClient.getUserRoles(userId)))
-        .orElse(Collections.emptyList());
-    return new UserRoleResult(userId, roles.stream().map(this::toUserRole).toList());
+    AuthzRoleDto role = extractPayload(authServiceClient.getRoleByUserId(userId));
+    List<UserRole> roles = role == null ? Collections.emptyList() : List.of(toUserRole(role));
+    return new UserRoleResult(userId, roles);
   }
 
   @Override
@@ -252,14 +249,6 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   private String valueOrFallback(String value, String fallback) {
     return value != null && !value.isBlank() ? value : fallback;
-  }
-
-  private AuthzRoleDto extractFirstRole(ResponseFeignClient<List<AuthzRoleDto>> response) {
-    List<AuthzRoleDto> roles = extractPayload(response);
-    if (roles == null || roles.isEmpty()) {
-      return null;
-    }
-    return roles.get(0);
   }
 
   private <T> T extractPayload(ResponseFeignClient<T> response) {
