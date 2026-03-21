@@ -4,16 +4,24 @@ import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.service.UserManagementServicePort;
 import com.fis.boportalservice.infra.feignclient.AuthServiceClient;
 import com.fis.boportalservice.infra.feignclient.HrmServiceClient;
+import com.fis.boportalservice.infra.feignclient.ResponseFeignClient;
+import com.fis.boportalservice.infra.feignclient.dto.AuthAssignRoleRequest;
+import com.fis.boportalservice.infra.feignclient.dto.AuthIdentityStatusDto;
+import com.fis.boportalservice.infra.feignclient.dto.AuthzRoleDto;
 import com.fis.boportalservice.infra.feignclient.dto.HrmFilterRequest;
 import com.fis.boportalservice.infra.feignclient.dto.HrmFilterResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmPageResponse;
+import com.fis.boportalservice.infra.feignclient.dto.HrmPositionResponse;
+import com.fis.boportalservice.infra.feignclient.dto.HrmUpdateProfileRequest;
 import com.fis.boportalservice.infra.feignclient.dto.HrmUserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -47,11 +55,41 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   @Override
   public UserDetail getUserById(Long userId) {
-    ResponseApi<HrmUserResponse> response = hrmServiceClient.getUserById(userId);
-    return Optional.ofNullable(response)
+    HrmUserResponse user = Optional.ofNullable(hrmServiceClient.getUserAdminProfile(userId))
         .map(ResponseApi::data)
-        .map(this::toDetail)
-        .orElse(null);
+        .orElseGet(() -> Optional.ofNullable(hrmServiceClient.getUserById(userId)).map(ResponseApi::data).orElse(null));
+    if (user == null) {
+      return null;
+    }
+
+    AuthzRoleDto role = extractFirstRole(authServiceClient.getUserRoles(userId));
+    if (role == null) {
+      role = extractPayload(authServiceClient.getRoleByUserId(userId));
+    }
+    AuthIdentityStatusDto identityStatus = extractPayload(authServiceClient.getIdentityStatus(userId));
+    return toDetail(user, role, identityStatus);
+  }
+
+  @Override
+  public UserMetaOptions getMetaOptions() {
+    List<String> roles = Optional.ofNullable(extractPayload(authServiceClient.getRoles()))
+        .orElse(Collections.emptyList())
+        .stream()
+        .map(AuthzRoleDto::getName)
+        .filter(name -> name != null && !name.isBlank())
+        .sorted(String::compareToIgnoreCase)
+        .toList();
+
+    List<String> positions = Optional.ofNullable(hrmServiceClient.getPositions())
+        .map(ResponseApi::data)
+        .orElse(Collections.emptyList())
+        .stream()
+        .map(HrmPositionResponse::getName)
+        .filter(name -> name != null && !name.isBlank())
+        .sorted(String::compareToIgnoreCase)
+        .toList();
+
+    return new UserMetaOptions(roles, positions, Collections.emptyList());
   }
 
   @Override
@@ -66,6 +104,85 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
     return getUserById(userId);
   }
 
+  @Override
+  public UserDetail approveUser(Long userId) {
+    hrmServiceClient.approveUser(userId);
+    return getUserById(userId);
+  }
+
+  @Override
+  public UserDetail rejectUser(Long userId, String reason) {
+    hrmServiceClient.rejectUser(userId);
+    return getUserById(userId);
+  }
+
+  @Override
+  public UserDetail suspendUser(Long userId, String reason) {
+    hrmServiceClient.suspendUser(userId);
+    return getUserById(userId);
+  }
+
+  @Override
+  public UserDetail reactivateUser(Long userId) {
+    hrmServiceClient.unlockUser(userId);
+    return getUserById(userId);
+  }
+
+  @Override
+  public UserDetail resetPassword(Long userId) {
+    authServiceClient.resetPassword(userId);
+    return getUserById(userId);
+  }
+
+  @Override
+  public UserDetail updateProfile(Long userId, UserProfileUpdateCommand command) {
+    HrmUserResponse current = Optional.ofNullable(hrmServiceClient.getUserAdminProfile(userId))
+        .map(ResponseApi::data)
+        .orElseGet(() -> Optional.ofNullable(hrmServiceClient.getUserById(userId)).map(ResponseApi::data).orElse(null));
+
+    if (current == null) {
+      return null;
+    }
+
+    hrmServiceClient.updateUserProfile(userId, new HrmUpdateProfileRequest(
+        valueOrFallback(command.fullName(), current.getFullName()),
+        current.getEmail(),
+        current.getDateOfBirth() != null ? current.getDateOfBirth() : LocalDate.of(2000, 1, 1),
+        valueOrFallback(current.getIdNumber(), current.getIdNumber()),
+        valueOrFallback(current.getAddress(), current.getAddress()),
+        valueOrFallback(command.phoneNumber(), current.getPhoneNumber()),
+        resolvePositionId(command.positionCode(), current.getPositionCode()),
+        valueOrFallback(current.getSysStatus(), "APPROVED")
+    ));
+
+    return getUserById(userId);
+  }
+
+  @Override
+  public UserRoleResult getUserRoles(Long userId) {
+    List<AuthzRoleDto> roles = Optional.ofNullable(extractPayload(authServiceClient.getUserRoles(userId)))
+        .orElse(Collections.emptyList());
+    return new UserRoleResult(userId, roles.stream().map(this::toUserRole).toList());
+  }
+
+  @Override
+  public UserRoleResult assignRole(Long userId, String roleId) {
+    if (roleId != null && !roleId.isBlank()) {
+      authServiceClient.assignRoleToUser(userId, new AuthAssignRoleRequest(Long.parseLong(roleId)));
+    }
+    return getUserRoles(userId);
+  }
+
+  @Override
+  public List<UserHistoryItem> getActivityHistory(Long userId) {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<UserHistoryItem> getLoginHistory(Long userId) {
+    return Collections.emptyList();
+  }
+
   private UserListItem toListItem(HrmFilterResponse item) {
     return new UserListItem(
         item.getNo(),
@@ -75,19 +192,80 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         item.getSysStatus(),
         item.getEmail(),
         item.getRole(),
-        item.getPosition()
+        item.getPosition(),
+        null,
+        false
     );
   }
 
-  private UserDetail toDetail(HrmUserResponse item) {
+  private UserDetail toDetail(HrmUserResponse item, AuthzRoleDto role, AuthIdentityStatusDto identityStatus) {
     return new UserDetail(
         item.getUserId(),
         item.getEmail(),
         item.getFullName(),
         item.getPhoneNumber(),
+        item.getAvatarUrl(),
         item.getPositionCode(),
-        item.getRole(),
-        item.getStatus()
+        role != null ? role.getName() : null,
+        item.getSysStatus(),
+        identityStatus != null ? identityStatus.getStatus() : null,
+        item.getDepartment(),
+        "APPROVED".equalsIgnoreCase(item.getSysStatus()),
+        false
     );
+  }
+
+  private UserRole toUserRole(AuthzRoleDto role) {
+    return new UserRole(
+        role.getId(),
+        role.getName(),
+        role.getName(),
+        role.getDescription()
+    );
+  }
+
+  private Long resolvePositionId(String requestedPosition, String fallbackPosition) {
+    String target = requestedPosition != null && !requestedPosition.isBlank() ? requestedPosition : fallbackPosition;
+    if (target == null || target.isBlank()) {
+      return null;
+    }
+
+    List<HrmPositionResponse> positions = Optional.ofNullable(hrmServiceClient.getPositions())
+        .map(ResponseApi::data)
+        .orElse(Collections.emptyList());
+
+    try {
+      long parsedId = Long.parseLong(target);
+      return positions.stream()
+          .filter(position -> Objects.equals(position.getPositionId(), parsedId))
+          .map(HrmPositionResponse::getPositionId)
+          .findFirst()
+          .orElse(parsedId);
+    } catch (NumberFormatException ignored) {
+      return positions.stream()
+          .filter(position -> target.equalsIgnoreCase(position.getName()))
+          .map(HrmPositionResponse::getPositionId)
+          .findFirst()
+          .orElse(null);
+    }
+  }
+
+  private String valueOrFallback(String value, String fallback) {
+    return value != null && !value.isBlank() ? value : fallback;
+  }
+
+  private AuthzRoleDto extractFirstRole(ResponseFeignClient<List<AuthzRoleDto>> response) {
+    List<AuthzRoleDto> roles = extractPayload(response);
+    if (roles == null || roles.isEmpty()) {
+      return null;
+    }
+    return roles.get(0);
+  }
+
+  private <T> T extractPayload(ResponseFeignClient<T> response) {
+    if (response == null) {
+      return null;
+    }
+    return response.getData() != null ? response.getData() : response.getResult();
   }
 }

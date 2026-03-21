@@ -6,6 +6,7 @@ public record UserFilterRequest(
     String keyword,
     List<String> sysStatuses,
     List<String> roles,
-    List<String> positions
+    List<String> positions,
+    List<String> departments
 ) {
 }

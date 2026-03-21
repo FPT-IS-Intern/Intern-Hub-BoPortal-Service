@@ -8,6 +8,8 @@ public record UserListItemResponse(
     String sysStatus,
     String email,
     String role,
-    String position
+    String position,
+    String department,
+    Boolean deleted
 ) {
 }

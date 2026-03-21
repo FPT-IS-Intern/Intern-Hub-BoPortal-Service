@@ -1,26 +1,128 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
+<Configuration status="WARN" monitorInterval="${env:LOG4J2_MONITOR_INTERVAL:-30}">
     <Properties>
-        <Property name="LOG_PATTERN">
-            %d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}%style{[${spring:spring.application.name}]}{blue}%style{[X-Request-Id:%X{RequestId}][userId:%X{clientNo}]}{yellow
-            bold}%highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=red, ERROR=red, WARN=yellow, INFO=green, DEBUG=green,
-            TRACE=green}[%15.15t]%style{%-40.40C{1.}}{cyan} %style{%-30.30M} :%m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}
-        </Property>
+        <Property name="APP_NAME">${spring:spring.application.name:-app}</Property>
+        <Property name="LOG_DIR">${env:LOG_DIR:-logs}</Property>
+        <Property name="LOG_FORMAT">${env:LOG_FORMAT:-text}</Property>
+
+        <Property name="LOG_FILE_NAME">${env:LOG_FILE_NAME:-${APP_NAME}}</Property>
+        <Property name="LOG_FILE">${LOG_DIR}/${LOG_FILE_NAME}.log</Property>
+        <Property name="LOG_FILE_PATTERN">${LOG_DIR}/${LOG_FILE_NAME}-%d{yyyy-MM-dd}-%i.log.gz</Property>
+
+        <Property name="LOG_ERROR_FILE">${LOG_DIR}/${LOG_FILE_NAME}-error.log</Property>
+        <Property name="LOG_ERROR_FILE_PATTERN">${LOG_DIR}/${LOG_FILE_NAME}-error-%d{yyyy-MM-dd}-%i.log.gz</Property>
+
+        <Property name="LOG_ROLL_SIZE">${env:LOG_ROLL_SIZE:-100MB}</Property>
+        <Property name="LOG_MAX_FILES">${env:LOG_MAX_FILES:-10}</Property>
+        <Property name="LOG_MAX_AGE">${env:LOG_MAX_AGE:-30d}</Property>
+
+        <Property name="LOG_PATTERN">%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}%style{[${APP_NAME}]}{blue}%style{[requestId:%X{RequestId}][traceId:%X{traceId}][userId:%X{clientNo}]}{yellow bold}%highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=red, ERROR=red, WARN=yellow, INFO=green, DEBUG=green, TRACE=green}[%15.15t]%style{%-40.40C{1.}}{cyan} %style{%-30.30M} :%m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</Property>
     </Properties>
 
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT" follow="true">
-            <PatternLayout disableAnsi="false" pattern="${LOG_PATTERN}"/>
-        </Console>
+        <!-- Console (text/json) -->
+        <Routing name="Console" ignoreExceptions="false">
+            <Routes pattern="${LOG_FORMAT}">
+                <Route key="json">
+                    <Console name="ConsoleJson" target="SYSTEM_OUT" follow="true">
+                        <JsonLayout compact="true" eventEol="true" properties="true" stacktraceAsString="true"/>
+                    </Console>
+                </Route>
+                <Route key="text">
+                    <Console name="ConsoleText" target="SYSTEM_OUT" follow="true">
+                        <PatternLayout disableAnsi="false" pattern="${LOG_PATTERN}"/>
+                    </Console>
+                </Route>
+            </Routes>
+        </Routing>
+
+        <!-- Application file (text/json) -->
+        <Routing name="AppFile" ignoreExceptions="false">
+            <Routes pattern="${LOG_FORMAT}">
+                <Route key="json">
+                    <RollingFile name="AppFileJson" fileName="${LOG_FILE}" filePattern="${LOG_FILE_PATTERN}" createOnDemand="true">
+                        <JsonLayout compact="true" eventEol="true" properties="true" stacktraceAsString="true"/>
+                        <Policies>
+                            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                            <SizeBasedTriggeringPolicy size="${LOG_ROLL_SIZE}"/>
+                        </Policies>
+                        <DefaultRolloverStrategy max="${LOG_MAX_FILES}">
+                            <Delete basePath="${LOG_DIR}" maxDepth="1">
+                                <IfFileName glob="${LOG_FILE_NAME}-*.log.gz"/>
+                                <IfLastModified age="${LOG_MAX_AGE}"/>
+                            </Delete>
+                        </DefaultRolloverStrategy>
+                    </RollingFile>
+                </Route>
+                <Route key="text">
+                    <RollingFile name="AppFileText" fileName="${LOG_FILE}" filePattern="${LOG_FILE_PATTERN}" createOnDemand="true">
+                        <PatternLayout disableAnsi="false" pattern="${LOG_PATTERN}"/>
+                        <Policies>
+                            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                            <SizeBasedTriggeringPolicy size="${LOG_ROLL_SIZE}"/>
+                        </Policies>
+                        <DefaultRolloverStrategy max="${LOG_MAX_FILES}">
+                            <Delete basePath="${LOG_DIR}" maxDepth="1">
+                                <IfFileName glob="${LOG_FILE_NAME}-*.log.gz"/>
+                                <IfLastModified age="${LOG_MAX_AGE}"/>
+                            </Delete>
+                        </DefaultRolloverStrategy>
+                    </RollingFile>
+                </Route>
+            </Routes>
+        </Routing>
+
+        <!-- Error-only file (text/json) -->
+        <Routing name="ErrorFile" ignoreExceptions="false">
+            <Routes pattern="${LOG_FORMAT}">
+                <Route key="json">
+                    <RollingFile name="ErrorFileJson" fileName="${LOG_ERROR_FILE}" filePattern="${LOG_ERROR_FILE_PATTERN}" createOnDemand="true">
+                        <Filters>
+                            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+                        </Filters>
+                        <JsonLayout compact="true" eventEol="true" properties="true" stacktraceAsString="true"/>
+                        <Policies>
+                            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                            <SizeBasedTriggeringPolicy size="${LOG_ROLL_SIZE}"/>
+                        </Policies>
+                        <DefaultRolloverStrategy max="${LOG_MAX_FILES}">
+                            <Delete basePath="${LOG_DIR}" maxDepth="1">
+                                <IfFileName glob="${LOG_FILE_NAME}-error-*.log.gz"/>
+                                <IfLastModified age="${LOG_MAX_AGE}"/>
+                            </Delete>
+                        </DefaultRolloverStrategy>
+                    </RollingFile>
+                </Route>
+                <Route key="text">
+                    <RollingFile name="ErrorFileText" fileName="${LOG_ERROR_FILE}" filePattern="${LOG_ERROR_FILE_PATTERN}" createOnDemand="true">
+                        <Filters>
+                            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+                        </Filters>
+                        <PatternLayout disableAnsi="false" pattern="${LOG_PATTERN}"/>
+                        <Policies>
+                            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                            <SizeBasedTriggeringPolicy size="${LOG_ROLL_SIZE}"/>
+                        </Policies>
+                        <DefaultRolloverStrategy max="${LOG_MAX_FILES}">
+                            <Delete basePath="${LOG_DIR}" maxDepth="1">
+                                <IfFileName glob="${LOG_FILE_NAME}-error-*.log.gz"/>
+                                <IfLastModified age="${LOG_MAX_AGE}"/>
+                            </Delete>
+                        </DefaultRolloverStrategy>
+                    </RollingFile>
+                </Route>
+            </Routes>
+        </Routing>
     </Appenders>
 
     <Loggers>
-        <Root additivity="false" level="INFO">
+        <!-- Fallback when no SpringProfile matches -->
+        <Root additivity="false" level="${env:LOG_LEVEL_ROOT:-INFO}">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
 
-    <SpringProfile name="local">
+    <SpringProfile name="local,dev">
         <Loggers>
             <Logger name="org.springframework.web" additivity="false" level="TRACE">
                 <AppenderRef ref="Console"/>
@@ -31,10 +133,19 @@
             <Logger name="org.springframework.cloud.openfeign" additivity="false" level="TRACE">
                 <AppenderRef ref="Console"/>
             </Logger>
-            <Root additivity="false" level="INFO">
+            <Root additivity="false" level="${env:LOG_LEVEL_ROOT:-INFO}">
                 <AppenderRef ref="Console"/>
             </Root>
         </Loggers>
     </SpringProfile>
-
+    <SpringProfile name="staging,prod">
+        <Loggers>
+            <Root additivity="false" level="${env:LOG_LEVEL_ROOT:-INFO}">
+                <AppenderRef ref="Console"/>
+            </Root>
+        </Loggers>
+    </SpringProfile>
 </Configuration>
+
+
+

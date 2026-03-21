@@ -35,9 +35,24 @@ public interface AuthServiceClient {
   @GetMapping("/auth/internal/authz/resources")
   ResponseFeignClient<List<AuthzResourceDto>> getAllResources();
 
+  @GetMapping("/auth/internal/authz/roles/by-user/{userId}")
+  ResponseFeignClient<AuthzRoleDto> getRoleByUserId(@PathVariable("userId") Long userId);
+
+  @GetMapping("/auth/authz/users/{userId}/roles")
+  ResponseFeignClient<List<AuthzRoleDto>> getUserRoles(@PathVariable("userId") Long userId);
+
+  @PostMapping("/auth/authz/users/{userId}/role")
+  ResponseFeignClient<Void> assignRoleToUser(@PathVariable("userId") Long userId, @RequestBody AuthAssignRoleRequest request);
+
+  @GetMapping("/auth/internal/identity/status/{userId}")
+  ResponseFeignClient<AuthIdentityStatusDto> getIdentityStatus(@PathVariable("userId") Long userId);
+
   @PutMapping("/auth/internal/identity/lock/{id}")
   ResponseFeignClient<Void> lockIdentity(@PathVariable("id") Long userId);
 
   @PutMapping("/auth/internal/identity/unlock/{id}")
   ResponseFeignClient<Void> unlockIdentity(@PathVariable("id") Long userId);
+
+  @PostMapping("/bo-portal/users/{userId}/reset-password")
+  ResponseFeignClient<Object> resetPassword(@PathVariable("userId") Long userId);
 }

@@ -54,7 +54,7 @@ public class AdminAuthzController {
       @Valid @RequestBody CreateAuthzRoleRequest request) {
     log.info("Request to create authz role: name={}", request.name());
     AuthzRole role = authzServicePort.createRole(request.name(), request.description());
-    return ResponseApi.success(new AuthzRoleResponse(role.getId(), role.getName(), role.getDescription(), role.getStatus()));
+    return ResponseApi.success(toRoleResponse(role));
   }
 
   @PutMapping("/roles/{roleId}/permissions")
@@ -73,7 +73,7 @@ public class AdminAuthzController {
   public ResponseApi<List<AuthzRoleResponse>> getRoles() {
     log.info("Request to get all authz roles");
     List<AuthzRoleResponse> roles = authzServicePort.getRoles().stream()
-        .map(r -> new AuthzRoleResponse(r.getId(), r.getName(), r.getDescription(), r.getStatus()))
+        .map(this::toRoleResponse)
         .toList();
     return ResponseApi.success(roles);
   }
@@ -98,6 +98,17 @@ public class AdminAuthzController {
         resource.getCode(),
         resource.getDescription(),
         resource.getCategoryId()
+    );
+  }
+
+  private AuthzRoleResponse toRoleResponse(AuthzRole role) {
+    if (role == null) return null;
+    return new AuthzRoleResponse(
+        role.getId(),
+        role.getName(),
+        role.getName(),
+        role.getDescription(),
+        role.getStatus()
     );
   }
 }

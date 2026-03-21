@@ -44,11 +44,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
 
     // Generate a RequestId for logging
-    String requestId = request.getHeader("X-Request-Id");
+    String requestId = request.getHeader(ResponseApi.X_REQUEST_ID);
+    if (!StringUtils.hasText(requestId)) {
+      // Some clients use a different casing; headers are case-insensitive but keep this as a fallback.
+      requestId = request.getHeader("X-Request-Id");
+    }
     if (!StringUtils.hasText(requestId)) {
       requestId = UUID.randomUUID().toString();
     }
+    response.setHeader(ResponseApi.X_REQUEST_ID, requestId);
+
+    // Keep both "RequestId" (existing Log4j2 pattern) and "X-Request-ID" (ResponseApi meta) in MDC.
     MDC.put("RequestId", requestId);
+    MDC.put(ResponseApi.X_REQUEST_ID, requestId);
+    MDC.put("traceId", requestId);
 
     try {
       if (isBypassPath(request)) {
@@ -69,6 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (claims != null && claims.getUserId() != null) {
           MDC.put("clientNo", claims.getUserId().toString());
+          MDC.put("userId", claims.getUserId().toString());
 
           UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(claims,
               null, null);

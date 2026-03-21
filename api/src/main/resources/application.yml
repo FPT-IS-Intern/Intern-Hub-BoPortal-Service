@@ -78,10 +78,12 @@ management:
           - prometheus
           - health
           - metrics
+          - loggers
       path-mapping:
         health: /actuator/health
         prometheus: /actuator/prometheus
         metrics: /actuator/metrics
+        loggers: /actuator/loggers
   endpoint:
     prometheus:
       enabled: true
@@ -93,6 +95,8 @@ management:
       readinessState:
         enabled: true
       show-components: always
+    loggers:
+      enabled: true
   metrics:
     distribution:
       percentiles-histogram:
