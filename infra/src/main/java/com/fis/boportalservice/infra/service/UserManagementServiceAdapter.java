@@ -55,9 +55,9 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   @Override
   public UserDetail getUserById(Long userId) {
-    HrmUserResponse user = Optional.ofNullable(hrmServiceClient.getUserAdminProfile(userId))
+    HrmUserResponse user = Optional.ofNullable(hrmServiceClient.getUserById(userId))
         .map(ResponseApi::data)
-        .orElseGet(() -> Optional.ofNullable(hrmServiceClient.getUserById(userId)).map(ResponseApi::data).orElse(null));
+        .orElse(null);
     if (user == null) {
       return null;
     }
@@ -136,9 +136,9 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   @Override
   public UserDetail updateProfile(Long userId, UserProfileUpdateCommand command) {
-    HrmUserResponse current = Optional.ofNullable(hrmServiceClient.getUserAdminProfile(userId))
+    HrmUserResponse current = Optional.ofNullable(hrmServiceClient.getUserById(userId))
         .map(ResponseApi::data)
-        .orElseGet(() -> Optional.ofNullable(hrmServiceClient.getUserById(userId)).map(ResponseApi::data).orElse(null));
+        .orElse(null);
 
     if (current == null) {
       return null;
