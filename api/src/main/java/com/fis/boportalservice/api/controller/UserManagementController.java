@@ -72,7 +72,7 @@ public class UserManagementController {
         result.items().stream()
             .map(item -> new UserListItemResponse(
                 item.no(),
-                item.userId(),
+                String.valueOf(item.userId()),
                 item.avatarUrl(),
                 item.fullName(),
                 item.sysStatus(),
@@ -208,7 +208,7 @@ public class UserManagementController {
   public ResponseApi<List<UserHistoryResponse>> getActivityHistory(@PathVariable Long userId) {
     log.info("event=USER_ACTIVITY_HISTORY_REQUEST targetUserId={}", userId);
     return ResponseApi.success(userManagementServicePort.getActivityHistory(userId).stream()
-        .map(item -> new UserHistoryResponse(item.id(), item.title(), item.description(), item.createdAt(), item.actor()))
+        .map(item -> new UserHistoryResponse(String.valueOf(item.id()), item.title(), item.description(), item.createdAt(), item.actor()))
         .toList());
   }
 
@@ -216,7 +216,7 @@ public class UserManagementController {
   public ResponseApi<List<UserHistoryResponse>> getLoginHistory(@PathVariable Long userId) {
     log.info("event=USER_LOGIN_HISTORY_REQUEST targetUserId={}", userId);
     return ResponseApi.success(userManagementServicePort.getLoginHistory(userId).stream()
-        .map(item -> new UserHistoryResponse(item.id(), item.title(), item.description(), item.createdAt(), item.actor()))
+        .map(item -> new UserHistoryResponse(String.valueOf(item.id()), item.title(), item.description(), item.createdAt(), item.actor()))
         .toList());
   }
 
@@ -225,7 +225,7 @@ public class UserManagementController {
       return null;
     }
     return new UserDetailResponse(
-        user.userId(),
+        String.valueOf(user.userId()),
         user.email(),
         user.fullName(),
         user.phoneNumber(),
@@ -245,10 +245,11 @@ public class UserManagementController {
       return null;
     }
     return new UserRoleResponse(
-        result.userId(),
+        String.valueOf(result.userId()),
         result.roles().stream()
             .map(role -> new AuthzRoleResponse(role.id(), role.code(), role.name(), role.description(), null))
             .toList()
     );
   }
 }
+

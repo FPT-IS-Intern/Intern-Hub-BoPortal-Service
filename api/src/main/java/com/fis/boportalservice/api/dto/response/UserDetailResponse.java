@@ -1,7 +1,7 @@
 package com.fis.boportalservice.api.dto.response;
 
 public record UserDetailResponse(
-    Long userId,
+    String userId,
     String email,
     String fullName,
     String phoneNumber,
@@ -15,3 +15,4 @@ public record UserDetailResponse(
     Boolean deleted
 ) {
 }
+

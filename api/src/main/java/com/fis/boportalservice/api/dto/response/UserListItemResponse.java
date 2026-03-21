@@ -2,7 +2,7 @@ package com.fis.boportalservice.api.dto.response;
 
 public record UserListItemResponse(
     Integer no,
-    Long userId,
+    String userId,
     String avatarUrl,
     String fullName,
     String sysStatus,
@@ -13,3 +13,4 @@ public record UserListItemResponse(
     Boolean deleted
 ) {
 }
+
