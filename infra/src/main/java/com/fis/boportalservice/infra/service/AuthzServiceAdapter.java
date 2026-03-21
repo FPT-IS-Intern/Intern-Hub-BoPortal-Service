@@ -30,7 +30,7 @@ public class AuthzServiceAdapter implements AuthzServicePort {
 
   @Override
   public AuthzResource createResource(String name, String code, String categoryId, String description) {
-    log.info("Calling auth-service to create resource: name={}, code={}, categoryId={}", name, code, categoryId);
+    log.info("event=AUTH_SERVICE_RESOURCE_CREATE_REQUEST name={} code={} categoryId={}", name, code, categoryId);
     var request = new AuthzCreateResourceRequest(name, code, categoryId, description);
     ResponseFeignClient<com.fis.boportalservice.infra.feignclient.dto.AuthzResourceDto> response =
         authServiceClient.createResource(request);
@@ -50,7 +50,7 @@ public class AuthzServiceAdapter implements AuthzServicePort {
 
   @Override
   public AuthzRole createRole(String name, String description) {
-    log.info("Calling auth-service to create role: name={}", name);
+    log.info("event=AUTH_SERVICE_ROLE_CREATE_REQUEST name={}", name);
     var request = new AuthzCreateRoleRequest(name, description);
     ResponseFeignClient<AuthzRoleDto> response = authServiceClient.createRole(request);
     var dto = response.getData() != null ? response.getData() : response.getResult();
@@ -68,7 +68,7 @@ public class AuthzServiceAdapter implements AuthzServicePort {
 
   @Override
   public void updateRolePermissions(String roleId, List<ResourcePermission> resources) {
-    log.info("Calling auth-service to update role permissions: roleId={}", roleId);
+    log.info("event=AUTH_SERVICE_ROLE_PERMISSION_UPDATE_REQUEST roleId={}", roleId);
     var requestResources = resources.stream()
         .map(r -> new AuthzUpdateRolePermissionRequest.ResourcePermission(r.id(), r.permissions()))
         .collect(Collectors.toList());
@@ -77,7 +77,7 @@ public class AuthzServiceAdapter implements AuthzServicePort {
 
   @Override
   public List<AuthzRole> getRoles() {
-    log.info("Calling auth-service to get roles");
+    log.info("event=AUTH_SERVICE_ROLE_LIST_REQUEST");
     ResponseFeignClient<List<AuthzRoleDto>> response = authServiceClient.getRoles();
     List<AuthzRoleDto> dtos = Optional.ofNullable(response.getData())
         .orElseGet(() -> Optional.ofNullable(response.getResult()).orElse(Collections.emptyList()));
@@ -93,7 +93,7 @@ public class AuthzServiceAdapter implements AuthzServicePort {
 
   @Override
   public List<AuthzRolePermission> getRolePermissions(String roleId) {
-    log.info("Calling auth-service to get role permissions: roleId={}", roleId);
+    log.info("event=AUTH_SERVICE_ROLE_PERMISSION_LIST_REQUEST roleId={}", roleId);
     ResponseFeignClient<List<AuthzRolePermissionDto>> response = authServiceClient.getRolePermissions(roleId);
     List<AuthzRolePermissionDto> dtos = Optional.ofNullable(response.getData())
         .orElseGet(() -> Optional.ofNullable(response.getResult()).orElse(Collections.emptyList()));
@@ -107,7 +107,7 @@ public class AuthzServiceAdapter implements AuthzServicePort {
 
   @Override
   public List<AuthzResource> getAllResources() {
-    log.info("Calling auth-service to get all resources");
+    log.info("event=AUTH_SERVICE_RESOURCE_LIST_REQUEST");
     ResponseFeignClient<List<AuthzResourceDto>> response = authServiceClient.getAllResources();
     List<AuthzResourceDto> dtos = Optional.ofNullable(response.getData())
         .orElseGet(() -> Optional.ofNullable(response.getResult()).orElse(Collections.emptyList()));
@@ -122,3 +122,4 @@ public class AuthzServiceAdapter implements AuthzServicePort {
         .collect(Collectors.toList());
   }
 }
+

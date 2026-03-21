@@ -27,7 +27,7 @@ public class AdminAllowedIpRangeController {
 
   @GetMapping
   public ResponseApi<List<BoPortalAllowedIpRangeResponse>> getAll() {
-    log.info("Request to get all allowed IP ranges");
+    log.info("event=ALLOWED_IP_RANGE_LIST_REQUEST");
     List<BoPortalAllowedIpRangeResponse> responses = allowedIpRangeService.getAll().stream()
         .map(apiMapper::toResponse)
         .collect(Collectors.toList());
@@ -36,13 +36,13 @@ public class AdminAllowedIpRangeController {
 
   @GetMapping("/{id}")
   public ResponseApi<BoPortalAllowedIpRangeResponse> getById(@PathVariable UUID id) {
-    log.info("Request to get allowed IP range by id: {}", id);
+    log.info("event=ALLOWED_IP_RANGE_DETAIL_REQUEST id={}", id);
     return ResponseApi.success(apiMapper.toResponse(allowedIpRangeService.getById(id)));
   }
 
   @PostMapping
   public ResponseApi<BoPortalAllowedIpRangeResponse> create(@RequestBody AllowedIpRangeRequest request) {
-    log.info("Request to create allowed IP range: {}", request.getName());
+    log.info("event=ALLOWED_IP_RANGE_CREATE_REQUEST name={}", request.getName());
     AllowedIpRange domain = apiMapper.toDomain(request);
     AllowedIpRange saved = allowedIpRangeService.create(domain);
     return ResponseApi.success(apiMapper.toResponse(saved));
@@ -51,7 +51,7 @@ public class AdminAllowedIpRangeController {
   @PutMapping("/{id}")
   public ResponseApi<BoPortalAllowedIpRangeResponse> update(@PathVariable UUID id,
                                                             @RequestBody AllowedIpRangeRequest request) {
-    log.info("Request to update allowed IP range: id={}, name={}", id, request.getName());
+    log.info("event=ALLOWED_IP_RANGE_UPDATE_REQUEST id={} name={}", id, request.getName());
     AllowedIpRange domain = apiMapper.toDomain(request);
     AllowedIpRange updated = allowedIpRangeService.update(id, domain);
     return ResponseApi.success(apiMapper.toResponse(updated));
@@ -59,8 +59,9 @@ public class AdminAllowedIpRangeController {
 
   @DeleteMapping("/{id}")
   public ResponseApi<Void> delete(@PathVariable UUID id) {
-    log.info("Request to delete allowed IP range: {}", id);
+    log.info("event=ALLOWED_IP_RANGE_DELETE_REQUEST id={}", id);
     allowedIpRangeService.delete(id);
     return ResponseApi.success(null);
   }
 }
+

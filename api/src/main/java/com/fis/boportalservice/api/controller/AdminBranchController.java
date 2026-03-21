@@ -40,7 +40,7 @@ public class AdminBranchController {
 
   @GetMapping
   public ResponseApi<List<BranchResponse>> getAll() {
-    log.info("Request to get all branches");
+    log.info("event=BRANCH_LIST_REQUEST");
     List<BranchResponse> responses = branchService.getAll().stream()
         .map(apiMapper::toResponse)
         .collect(Collectors.toList());
@@ -49,7 +49,7 @@ public class AdminBranchController {
 
   @GetMapping("/with-checkin-rules")
   public ResponseApi<List<BranchCheckinRulesResponse>> getAllWithCheckinRules() {
-    log.info("Request to get all branches with check-in rules");
+    log.info("event=BRANCH_WITH_CHECKIN_RULE_LIST_REQUEST");
     Map<UUID, List<BoPortalAllowedIpRangeResponse>> ipRangesByBranch = allowedIpRangeService.getAll().stream()
         .map(allowedIpRangeApiMapper::toResponse)
         .filter(response -> response.getBranchId() != null)
@@ -76,13 +76,13 @@ public class AdminBranchController {
 
   @GetMapping("/{id}")
   public ResponseApi<BranchResponse> getById(@PathVariable UUID id) {
-    log.info("Request to get branch by id: {}", id);
+    log.info("event=BRANCH_DETAIL_REQUEST id={}", id);
     return ResponseApi.success(apiMapper.toResponse(branchService.getById(id)));
   }
 
   @PostMapping
   public ResponseApi<BranchResponse> create(@RequestBody BranchRequest request) {
-    log.info("Request to create branch: {}", request.getName());
+    log.info("event=BRANCH_CREATE_REQUEST name={}", request.getName());
     Branch domain = apiMapper.toDomain(request);
     Branch saved = branchService.create(domain);
     return ResponseApi.success(apiMapper.toResponse(saved));
@@ -91,7 +91,7 @@ public class AdminBranchController {
   @PutMapping("/{id}")
   public ResponseApi<BranchResponse> update(@PathVariable UUID id,
                                             @RequestBody BranchRequest request) {
-    log.info("Request to update branch: id={}, name={}", id, request.getName());
+    log.info("event=BRANCH_UPDATE_REQUEST id={} name={}", id, request.getName());
     Branch domain = apiMapper.toDomain(request);
     Branch updated = branchService.update(id, domain);
     return ResponseApi.success(apiMapper.toResponse(updated));
@@ -99,8 +99,9 @@ public class AdminBranchController {
 
   @DeleteMapping("/{id}")
   public ResponseApi<Void> delete(@PathVariable UUID id) {
-    log.info("Request to delete branch: {}", id);
+    log.info("event=BRANCH_DELETE_REQUEST id={}", id);
     branchService.delete(id);
     return ResponseApi.success(null);
   }
 }
+

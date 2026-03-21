@@ -25,7 +25,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
 
   @Override
   public SystemConfig updateSystemConfig(SystemConfig config) {
-    log.info("Updating system configuration in repository");
+    log.info("event=SYSTEM_CONFIGURATION_PERSIST_UPDATE");
     return systemConfigRepository.save(config);
   }
 }

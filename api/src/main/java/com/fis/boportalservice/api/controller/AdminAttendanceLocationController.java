@@ -27,7 +27,7 @@ public class AdminAttendanceLocationController {
 
   @GetMapping
   public ResponseApi<List<AttendanceLocationResponse>> getAll() {
-    log.info("Admin request to get all attendance locations");
+    log.info("event=ATTENDANCE_LOCATION_LIST_REQUEST");
     List<AttendanceLocationResponse> responses = attendanceLocationService.getAll().stream()
         .map(apiMapper::toResponse)
         .collect(Collectors.toList());
@@ -36,13 +36,13 @@ public class AdminAttendanceLocationController {
 
   @GetMapping("/{id}")
   public ResponseApi<AttendanceLocationResponse> getById(@PathVariable UUID id) {
-    log.info("Admin request to get attendance location by id: {}", id);
+    log.info("event=ATTENDANCE_LOCATION_DETAIL_REQUEST id={}", id);
     return ResponseApi.success(apiMapper.toResponse(attendanceLocationService.getById(id)));
   }
 
   @PostMapping
   public ResponseApi<AttendanceLocationResponse> create(@RequestBody AttendanceLocationRequest request) {
-    log.info("Admin request to create attendance location: {}", request.getName());
+    log.info("event=ATTENDANCE_LOCATION_CREATE_REQUEST name={}", request.getName());
     AttendanceLocation domain = apiMapper.toDomain(request);
     AttendanceLocation saved = attendanceLocationService.create(domain);
     return ResponseApi.success(apiMapper.toResponse(saved));
@@ -51,7 +51,7 @@ public class AdminAttendanceLocationController {
   @PutMapping("/{id}")
   public ResponseApi<AttendanceLocationResponse> update(@PathVariable UUID id,
                                                         @RequestBody AttendanceLocationRequest request) {
-    log.info("Admin request to update attendance location: id={}, name={}", id, request.getName());
+    log.info("event=ATTENDANCE_LOCATION_UPDATE_REQUEST id={} name={}", id, request.getName());
     AttendanceLocation domain = apiMapper.toDomain(request);
     AttendanceLocation updated = attendanceLocationService.update(id, domain);
     return ResponseApi.success(apiMapper.toResponse(updated));
@@ -59,8 +59,9 @@ public class AdminAttendanceLocationController {
 
   @DeleteMapping("/{id}")
   public ResponseApi<Void> delete(@PathVariable UUID id) {
-    log.info("Admin request to delete attendance location: {}", id);
+    log.info("event=ATTENDANCE_LOCATION_DELETE_REQUEST id={}", id);
     attendanceLocationService.delete(id);
     return ResponseApi.success(null);
   }
 }
+

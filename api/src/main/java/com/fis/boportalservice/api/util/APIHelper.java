@@ -23,7 +23,7 @@ public class APIHelper {
     if (status.is4xxClientError()) {
       return ErrorCode.BAD_REQUEST;
     }
-    log.info("API - Mapped HttpStatus for Feign Exception {} ", status);
+    log.info("event=FEIGN_HTTP_STATUS_MAPPED status={}", status);
     return ErrorCode.RESPONSE_ERROR;
   }
 }

@@ -23,7 +23,7 @@ public class AsyncTaskConfig {
 
   @Bean(name = "asyncTask")
   Executor asyncTask() {
-    log.info("System runs asynchronous task");
+    log.info("event=ASYNC_TASK_EXECUTION_START");
     ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
     pool.setCorePoolSize(corePoolSize);
     pool.setMaxPoolSize(maxPoolSize);

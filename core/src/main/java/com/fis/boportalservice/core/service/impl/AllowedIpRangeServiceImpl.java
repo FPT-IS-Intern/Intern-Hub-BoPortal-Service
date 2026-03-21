@@ -43,7 +43,7 @@ public class AllowedIpRangeServiceImpl implements AllowedIpRangeService {
 
   @Override
   public AllowedIpRange update(UUID id, AllowedIpRange ipRange) {
-    log.info("Updating allowed IP range with id: {}", id);
+    log.info("event=ALLOWED_IP_RANGE_PERSIST_UPDATE id={}", id);
     AllowedIpRange existing = getById(id);
     existing.setName(ipRange.getName());
     existing.setIpPrefix(ipRange.getIpPrefix());
@@ -54,7 +54,8 @@ public class AllowedIpRangeServiceImpl implements AllowedIpRangeService {
 
   @Override
   public void delete(UUID id) {
-    log.info("Deleting allowed IP range with id: {}", id);
+    log.info("event=ALLOWED_IP_RANGE_PERSIST_DELETE id={}", id);
     allowedIpRangeRepository.deleteById(id);
   }
 }
+

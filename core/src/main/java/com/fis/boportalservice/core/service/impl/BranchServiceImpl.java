@@ -38,13 +38,13 @@ public class BranchServiceImpl implements BranchService {
 
   @Override
   public Branch create(Branch branch) {
-    log.info("Creating branch: {}", branch.getName());
+    log.info("event=BRANCH_PERSIST_CREATE name={}", branch.getName());
     return branchRepository.save(branch);
   }
 
   @Override
   public Branch update(UUID id, Branch branch) {
-    log.info("Updating branch with id: {}", id);
+    log.info("event=BRANCH_PERSIST_UPDATE id={}", id);
     Branch existing = getById(id);
     existing.setName(branch.getName());
     existing.setDescription(branch.getDescription());
@@ -54,7 +54,8 @@ public class BranchServiceImpl implements BranchService {
 
   @Override
   public void delete(UUID id) {
-    log.info("Deleting branch with id: {}", id);
+    log.info("event=BRANCH_PERSIST_DELETE id={}", id);
     branchRepository.deleteById(id);
   }
 }
+

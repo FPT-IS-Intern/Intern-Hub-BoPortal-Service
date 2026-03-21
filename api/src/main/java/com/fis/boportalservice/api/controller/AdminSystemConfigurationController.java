@@ -36,7 +36,7 @@ public class AdminSystemConfigurationController {
 
   @GetMapping
   public ResponseApi<SystemConfigurationResponse> getSystemConfiguration() {
-    log.info("Request to get system and security configuration");
+    log.info("event=SYSTEM_CONFIGURATION_READ_REQUEST");
     SystemConfig systemConfig = systemConfigService.getSystemConfig();
     SystemConfigPublicResponse uiClientConfig = systemConfigApiMapper.toPublicResponse(systemConfig);
     SystemConfigWorkingTimeResponse workingTimeConfig = systemConfigApiMapper.toWorkingTimeResponse(systemConfig);
@@ -51,10 +51,10 @@ public class AdminSystemConfigurationController {
 
   @PutMapping("/system")
   public ResponseApi<SystemConfigurationResponse> updateSystemConfig(@RequestBody SystemConfigRequest request) {
-    log.info("Request to update system configuration: {}", request);
+    log.info("event=SYSTEM_CONFIGURATION_UPDATE_REQUEST request={}", request);
     SystemConfig domain = systemConfigApiMapper.toDomain(request);
     SystemConfig updated = systemConfigService.updateSystemConfig(domain);
-    log.info("System configuration updated successfully");
+    log.info("event=SYSTEM_CONFIGURATION_UPDATE_SUCCESS");
     return ResponseApi.success(SystemConfigurationResponse.builder()
             .uiClientConfig(systemConfigApiMapper.toPublicResponse(updated))
             .workingTimeConfig(systemConfigApiMapper.toWorkingTimeResponse(updated))
@@ -64,10 +64,11 @@ public class AdminSystemConfigurationController {
 
   @PutMapping("/security")
   public ResponseApi<SecurityConfigResponse> updateSecurityConfig(@RequestBody SecurityConfigRequest request) {
-    log.info("Request to update security configuration: {}", request);
+    log.info("event=SECURITY_CONFIGURATION_UPDATE_REQUEST request={}", request);
     SecurityConfig domain = securityConfigApiMapper.toDomain(request);
     SecurityConfig updated = securityConfigService.updateSecurityConfig(domain);
-    log.info("Security configuration updated successfully");
+    log.info("event=SECURITY_CONFIGURATION_UPDATE_SUCCESS");
     return ResponseApi.success(securityConfigApiMapper.toResponse(updated));
   }
 }
+

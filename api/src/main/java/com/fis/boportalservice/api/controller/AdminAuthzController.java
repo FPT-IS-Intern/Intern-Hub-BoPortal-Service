@@ -30,7 +30,7 @@ public class AdminAuthzController {
   @PostMapping("/resources")
   public ResponseApi<AuthzResourceResponse> createResource(
       @Valid @RequestBody CreateAuthzResourceRequest request) {
-    log.info("Request to create authz resource: name={}, code={}", request.name(), request.code());
+    log.info("event=AUTHZ_RESOURCE_CREATE_REQUEST name={} code={}", request.name(), request.code());
     AuthzResource resource = authzServicePort.createResource(
         request.name(),
         request.code(),
@@ -42,7 +42,7 @@ public class AdminAuthzController {
 
   @GetMapping("/resources")
   public ResponseApi<List<AuthzResourceResponse>> getAllResources() {
-    log.info("Request to get all authz resources");
+    log.info("event=AUTHZ_RESOURCE_LIST_REQUEST");
     List<AuthzResourceResponse> resources = authzServicePort.getAllResources().stream()
         .map(this::toResourceResponse)
         .toList();
@@ -52,7 +52,7 @@ public class AdminAuthzController {
   @PostMapping("/roles")
   public ResponseApi<AuthzRoleResponse> createRole(
       @Valid @RequestBody CreateAuthzRoleRequest request) {
-    log.info("Request to create authz role: name={}", request.name());
+    log.info("event=AUTHZ_ROLE_CREATE_REQUEST name={}", request.name());
     AuthzRole role = authzServicePort.createRole(request.name(), request.description());
     return ResponseApi.success(toRoleResponse(role));
   }
@@ -61,7 +61,7 @@ public class AdminAuthzController {
   public ResponseApi<Void> updateRolePermissions(
       @PathVariable String roleId,
       @Valid @RequestBody UpdateAuthzRolePermissionRequest request) {
-    log.info("Request to update permissions for roleId={}", roleId);
+    log.info("event=AUTHZ_ROLE_PERMISSION_UPDATE_REQUEST roleId={}", roleId);
     List<AuthzServicePort.ResourcePermission> permissions = request.resources().stream()
         .map(r -> new AuthzServicePort.ResourcePermission(r.id(), r.permissions()))
         .toList();
@@ -71,7 +71,7 @@ public class AdminAuthzController {
 
   @GetMapping("/roles")
   public ResponseApi<List<AuthzRoleResponse>> getRoles() {
-    log.info("Request to get all authz roles");
+    log.info("event=AUTHZ_ROLE_LIST_REQUEST");
     List<AuthzRoleResponse> roles = authzServicePort.getRoles().stream()
         .map(this::toRoleResponse)
         .toList();
@@ -80,7 +80,7 @@ public class AdminAuthzController {
 
   @GetMapping("/roles/{roleId}/permissions")
   public ResponseApi<List<AuthzRolePermissionResponse>> getRolePermissions(@PathVariable String roleId) {
-    log.info("Request to get permissions for roleId={}", roleId);
+    log.info("event=AUTHZ_ROLE_PERMISSION_LIST_REQUEST roleId={}", roleId);
     List<AuthzRolePermissionResponse> result = authzServicePort.getRolePermissions(roleId).stream()
         .map(p -> new AuthzRolePermissionResponse(
             new AuthzRolePermissionResponse.Resource(p.getResourceId()),
@@ -112,3 +112,4 @@ public class AdminAuthzController {
     );
   }
 }
+

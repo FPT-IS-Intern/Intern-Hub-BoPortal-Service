@@ -35,13 +35,13 @@ public class AttendanceLocationServiceImpl implements AttendanceLocationService 
 
   @Override
   public AttendanceLocation create(AttendanceLocation location) {
-    log.info("Creating attendance location: {}", location.getName());
+    log.info("event=ATTENDANCE_LOCATION_PERSIST_CREATE name={}", location.getName());
     return attendanceLocationRepository.save(location);
   }
 
   @Override
   public AttendanceLocation update(UUID id, AttendanceLocation location) {
-    log.info("Updating attendance location with id: {}", id);
+    log.info("event=ATTENDANCE_LOCATION_PERSIST_UPDATE id={}", id);
     AttendanceLocation existing = getById(id);
     existing.setName(location.getName());
     existing.setLatitude(location.getLatitude());
@@ -54,7 +54,8 @@ public class AttendanceLocationServiceImpl implements AttendanceLocationService 
 
   @Override
   public void delete(UUID id) {
-    log.info("Deleting attendance location with id: {}", id);
+    log.info("event=ATTENDANCE_LOCATION_PERSIST_DELETE id={}", id);
     attendanceLocationRepository.deleteById(id);
   }
 }
+

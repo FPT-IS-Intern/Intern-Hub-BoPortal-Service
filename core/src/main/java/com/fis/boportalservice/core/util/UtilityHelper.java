@@ -41,18 +41,8 @@ public class UtilityHelper {
     return output.toString();
   }
 
-  //    public static <T> T deepClone(ObjectMapper objectMapper, T object, Class<T> clazz) {
-  //        try {
-  //            return objectMapper.readValue(objectMapper.writeValueAsString(object), clazz);
-  //        } catch (Exception e) {
-  //            throw new ServerSideException(
-  //                    ErrorCode.RESPONSE_ERROR.getCode(), "Error occurred when deep cloning
-  // object", e);
-  //        }
-  //    }
-
   public static String signNo(String userId, String message) {
-    log.info("[signNo] Start signing message with userId: {}, message: {}", userId, message);
+    log.info("event=SIGN_NO_REQUEST userId={} message={}", userId, message);
     byte[] hmacSha256 = null;
     if (userId != null) {
       message = userId + message;
@@ -70,28 +60,4 @@ public class UtilityHelper {
     }
     return Base64.getEncoder().encodeToString(hmacSha256);
   }
-
-  //    public static void verifySignNo(String clientNo, String signNo, String... additionalFields)
-  // {
-  //        if (UtilityHelper.isInvalidSignNo(clientNo, signNo, additionalFields)) {
-  //            log.error("Business - Invalid request data");
-  //            throw new ClientSideException(ErrorCode.BAD_REQUEST.getCode(), "Invalid request
-  // data");
-  //        }
-  //    }
-
-  //    private static boolean isInvalidSignNo(
-  //            String clientNo, String signNo, String... additionalFields) {
-  //        StringBuilder data = new StringBuilder();
-  //
-  //        for (String field : additionalFields) {
-  //            if (StringUtils.isBlank(field)) {
-  //                return true;
-  //            }
-  //            data.append(field);
-  //        }
-  //
-  //        String expectedSign = UtilityHelper.signNo(clientNo, data.toString());
-  //        return !StringUtils.equals(expectedSign, signNo);
-  //    }
 }

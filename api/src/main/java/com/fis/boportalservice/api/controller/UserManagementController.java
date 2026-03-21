@@ -45,6 +45,17 @@ public class UserManagementController {
       @RequestParam(defaultValue = "10") int size
   ) {
     UserFilterRequest filterRequest = request != null ? request : new UserFilterRequest(null, null, null, null, null);
+    log.info(
+        "event=USER_SEARCH_REQUEST page={} size={} keyword={} statuses={} roles={} positions={} departments={}",
+        page,
+        size,
+        filterRequest.keyword(),
+        filterRequest.sysStatuses(),
+        filterRequest.roles(),
+        filterRequest.positions(),
+        filterRequest.departments()
+    );
+
     var result = userManagementServicePort.filterUsers(
         new UserManagementServicePort.UserFilterCriteria(
             filterRequest.keyword(),
@@ -75,60 +86,97 @@ public class UserManagementController {
         result.totalItems(),
         result.totalPages()
     );
+
+    log.info(
+        "event=USER_SEARCH_SUCCESS page={} size={} totalItems={} totalPages={} returnedItems={}",
+        page,
+        size,
+        response.totalItems(),
+        response.totalPages(),
+        response.items().size()
+    );
     return ResponseApi.success(response);
   }
 
   @GetMapping("/meta")
   public ResponseApi<UserMetaResponse> getMetaOptions() {
+    log.info("event=USER_META_REQUEST");
     var meta = userManagementServicePort.getMetaOptions();
+    log.info(
+        "event=USER_META_SUCCESS roleOptions={} positionOptions={} departmentOptions={}",
+        meta.roles().size(),
+        meta.positions().size(),
+        meta.departments().size()
+    );
     return ResponseApi.success(new UserMetaResponse(meta.roles(), meta.positions(), meta.departments()));
   }
 
   @GetMapping("/{userId}")
   public ResponseApi<UserDetailResponse> getUserById(@PathVariable Long userId) {
-    log.info("Request to get user detail: userId={}", userId);
-    return ResponseApi.success(toDetailResponse(userManagementServicePort.getUserById(userId)));
+    log.info("event=USER_DETAIL_REQUEST targetUserId={}", userId);
+    UserDetailResponse response = toDetailResponse(userManagementServicePort.getUserById(userId));
+    log.info(
+        "event=USER_DETAIL_SUCCESS targetUserId={} found={} status={} loginStatus={}",
+        userId,
+        response != null,
+        response != null ? response.status() : null,
+        response != null ? response.loginStatus() : null
+    );
+    return ResponseApi.success(response);
   }
 
   @PutMapping("/{userId}/lock")
   public ResponseApi<UserDetailResponse> lockUser(@PathVariable Long userId) {
-    log.info("Request to lock user: userId={}", userId);
+    log.info("event=USER_LOCK_REQUEST targetUserId={}", userId);
     return ResponseApi.success(toDetailResponse(userManagementServicePort.lockUser(userId)));
   }
 
   @PutMapping("/{userId}/unlock")
   public ResponseApi<UserDetailResponse> unlockUser(@PathVariable Long userId) {
-    log.info("Request to unlock user: userId={}", userId);
+    log.info("event=USER_UNLOCK_REQUEST targetUserId={}", userId);
     return ResponseApi.success(toDetailResponse(userManagementServicePort.unlockUser(userId)));
   }
 
   @PutMapping("/{userId}/approve")
   public ResponseApi<UserDetailResponse> approveUser(@PathVariable Long userId) {
+    log.info("event=USER_APPROVE_REQUEST targetUserId={}", userId);
     return ResponseApi.success(toDetailResponse(userManagementServicePort.approveUser(userId)));
   }
 
   @PutMapping("/{userId}/reject")
   public ResponseApi<UserDetailResponse> rejectUser(@PathVariable Long userId, @RequestBody(required = false) UserRejectRequest request) {
+    log.info("event=USER_REJECT_REQUEST targetUserId={} reason={}", userId, request != null ? request.reason() : null);
     return ResponseApi.success(toDetailResponse(userManagementServicePort.rejectUser(userId, request != null ? request.reason() : null)));
   }
 
   @PutMapping("/{userId}/suspend")
   public ResponseApi<UserDetailResponse> suspendUser(@PathVariable Long userId, @RequestBody(required = false) UserSuspendRequest request) {
+    log.info("event=USER_SUSPEND_REQUEST targetUserId={} reason={}", userId, request != null ? request.reason() : null);
     return ResponseApi.success(toDetailResponse(userManagementServicePort.suspendUser(userId, request != null ? request.reason() : null)));
   }
 
   @PutMapping("/{userId}/reactivate")
   public ResponseApi<UserDetailResponse> reactivateUser(@PathVariable Long userId) {
+    log.info("event=USER_REACTIVATE_REQUEST targetUserId={}", userId);
     return ResponseApi.success(toDetailResponse(userManagementServicePort.reactivateUser(userId)));
   }
 
   @PostMapping("/{userId}/reset-password")
   public ResponseApi<UserDetailResponse> resetPassword(@PathVariable Long userId) {
+    log.info("event=USER_RESET_PASSWORD_REQUEST targetUserId={}", userId);
     return ResponseApi.success(toDetailResponse(userManagementServicePort.resetPassword(userId)));
   }
 
   @PatchMapping("/{userId}/profile")
   public ResponseApi<UserDetailResponse> updateProfile(@PathVariable Long userId, @RequestBody UserProfileUpdateRequest request) {
+    log.info(
+        "event=USER_PROFILE_UPDATE_REQUEST targetUserId={} fullName={} phoneNumber={} positionCode={} department={}",
+        userId,
+        request.fullName(),
+        request.phoneNumber(),
+        request.positionCode(),
+        request.department()
+    );
     return ResponseApi.success(toDetailResponse(userManagementServicePort.updateProfile(
         userId,
         new UserManagementServicePort.UserProfileUpdateCommand(
@@ -142,16 +190,23 @@ public class UserManagementController {
 
   @GetMapping("/{userId}/role")
   public ResponseApi<UserRoleResponse> getUserRoles(@PathVariable Long userId) {
-    return ResponseApi.success(toRoleResponse(userManagementServicePort.getUserRoles(userId)));
+    log.info("event=USER_ROLE_READ_REQUEST targetUserId={}", userId);
+    UserRoleResponse response = toRoleResponse(userManagementServicePort.getUserRoles(userId));
+    log.info("event=USER_ROLE_READ_SUCCESS targetUserId={} roleCount={}", userId, response != null ? response.roles().size() : 0);
+    return ResponseApi.success(response);
   }
 
   @PutMapping("/{userId}/role")
   public ResponseApi<UserRoleResponse> assignRole(@PathVariable Long userId, @RequestBody AssignUserRoleRequest request) {
-    return ResponseApi.success(toRoleResponse(userManagementServicePort.assignRole(userId, request.roleId())));
+    log.info("event=USER_ROLE_ASSIGN_REQUEST targetUserId={} roleId={}", userId, request.roleId());
+    UserRoleResponse response = toRoleResponse(userManagementServicePort.assignRole(userId, request.roleId()));
+    log.info("event=USER_ROLE_ASSIGN_SUCCESS targetUserId={} roleCount={}", userId, response != null ? response.roles().size() : 0);
+    return ResponseApi.success(response);
   }
 
   @GetMapping("/{userId}/activity-history")
   public ResponseApi<List<UserHistoryResponse>> getActivityHistory(@PathVariable Long userId) {
+    log.info("event=USER_ACTIVITY_HISTORY_REQUEST targetUserId={}", userId);
     return ResponseApi.success(userManagementServicePort.getActivityHistory(userId).stream()
         .map(item -> new UserHistoryResponse(item.id(), item.title(), item.description(), item.createdAt(), item.actor()))
         .toList());
@@ -159,6 +214,7 @@ public class UserManagementController {
 
   @GetMapping("/{userId}/login-history")
   public ResponseApi<List<UserHistoryResponse>> getLoginHistory(@PathVariable Long userId) {
+    log.info("event=USER_LOGIN_HISTORY_REQUEST targetUserId={}", userId);
     return ResponseApi.success(userManagementServicePort.getLoginHistory(userId).stream()
         .map(item -> new UserHistoryResponse(item.id(), item.title(), item.description(), item.createdAt(), item.actor()))
         .toList());

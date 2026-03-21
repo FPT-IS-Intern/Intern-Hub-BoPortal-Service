@@ -25,7 +25,7 @@ public class SecurityConfigServiceImpl implements SecurityConfigService {
 
   @Override
   public SecurityConfig updateSecurityConfig(SecurityConfig config) {
-    log.info("Updating security configuration in repository");
+    log.info("event=SECURITY_CONFIGURATION_PERSIST_UPDATE");
     return securityConfigRepository.save(config);
   }
 }

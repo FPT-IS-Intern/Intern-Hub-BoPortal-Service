@@ -34,7 +34,7 @@ public class AdminTemplateController {
       @RequestParam(required = false) Boolean active,
       @RequestParam(defaultValue = "0") @Min(0) int page,
       @RequestParam(defaultValue = "20") @Min(1) @Max(200) int size) {
-    log.info("Request to list templates: code={}, channel={}, locale={}, active={}, page={}, size={}",
+    log.info("event=TEMPLATE_LIST_REQUEST code={} channel={} locale={} active={} page={} size={}",
         code, channel, locale, active, page, size);
     return notificationServiceClient.listTemplates(code, channel, locale, active, page, size);
   }
@@ -47,7 +47,7 @@ public class AdminTemplateController {
       @RequestParam(required = false, name = "lang") String lang,
       @RequestParam(defaultValue = "0") @Min(0) int page,
       @RequestParam(defaultValue = "20") @Min(1) @Max(200) int size) {
-    log.info("Request to list template summaries: code={}, channel={}, lang={}, page={}, size={}",
+    log.info("event=TEMPLATE_SUMMARY_LIST_REQUEST code={} channel={} lang={} page={} size={}",
         code, channel, lang, page, size);
     return notificationServiceClient.listTemplateSummaries(code, channel, lang, page, size);
   }
@@ -57,14 +57,14 @@ public class AdminTemplateController {
   public ResponseApi<TemplateChannelAvailabilityResponse> getTemplateChannels(
       @PathVariable String code,
       @RequestParam(required = false, name = "lang") String lang) {
-    log.info("Request to get template channels: code={}, lang={}", code, lang);
+    log.info("event=TEMPLATE_CHANNEL_LIST_REQUEST code={} lang={}", code, lang);
     return notificationServiceClient.getTemplateChannels(code, lang);
   }
 
   @GetMapping("/{code}/definition")
   @Operation(summary = "Get template definition by code")
   public ResponseApi<TemplateDefinitionResponse> getTemplateDefinition(@PathVariable String code) {
-    log.info("Request to get template definition: code={}", code);
+    log.info("event=TEMPLATE_DEFINITION_DETAIL_REQUEST code={}", code);
     return notificationServiceClient.getTemplateDefinition(code);
   }
 
@@ -72,7 +72,7 @@ public class AdminTemplateController {
   @Operation(summary = "Create template definition")
   public ResponseApi<TemplateDefinitionResponse> createTemplateDefinition(
       @Valid @RequestBody TemplateDefinitionCreateRequest request) {
-    log.info("Request to create template definition: {}", request);
+    log.info("event=TEMPLATE_DEFINITION_CREATE_REQUEST request={}", request);
     return notificationServiceClient.createTemplateDefinition(request);
   }
 
@@ -81,14 +81,14 @@ public class AdminTemplateController {
   public ResponseApi<TemplateDefinitionResponse> updateTemplateDefinition(
       @PathVariable String code,
       @Valid @RequestBody TemplateDefinitionUpdateRequest request) {
-    log.info("Request to update template definition: code={}, request={}", code, request);
+    log.info("event=TEMPLATE_DEFINITION_UPDATE_REQUEST code={} request={}", code, request);
     return notificationServiceClient.updateTemplateDefinition(code, request);
   }
 
   @DeleteMapping("/definition/{code}")
   @Operation(summary = "Delete template definition by code")
   public ResponseApi<Boolean> deleteTemplateDefinition(@PathVariable String code) {
-    log.info("Request to delete template definition: code={}", code);
+    log.info("event=TEMPLATE_DEFINITION_DELETE_REQUEST code={}", code);
     return notificationServiceClient.deleteTemplateDefinition(code);
   }
 
@@ -98,7 +98,7 @@ public class AdminTemplateController {
       @PathVariable String code,
       @RequestParam String channel,
       @RequestParam(required = false, name = "lang") String lang) {
-    log.info("Request to get template history: code={}, channel={}, lang={}", code, channel, lang);
+    log.info("event=TEMPLATE_HISTORY_REQUEST code={} channel={} lang={}", code, channel, lang);
     return notificationServiceClient.getTemplateHistory(code, channel, lang);
   }
 
@@ -107,14 +107,14 @@ public class AdminTemplateController {
   public ResponseApi<TemplateResponse> restoreTemplate(
       @PathVariable String code,
       @Valid @RequestBody TemplateRestoreRequest request) {
-    log.info("Request to restore template: code={}, request={}", code, request);
+    log.info("event=TEMPLATE_RESTORE_REQUEST code={} request={}", code, request);
     return notificationServiceClient.restoreTemplate(code, request);
   }
 
   @PostMapping
   @Operation(summary = "Create template")
   public ResponseApi<TemplateResponse> createTemplate(@Valid @RequestBody TemplateUpsertRequest request) {
-    log.info("Request to create template: {}", request);
+    log.info("event=TEMPLATE_CREATE_REQUEST request={}", request);
     return notificationServiceClient.createTemplate(request);
   }
 
@@ -123,7 +123,8 @@ public class AdminTemplateController {
   public ResponseApi<TemplateResponse> updateTemplate(
       @PathVariable Long id,
       @Valid @RequestBody TemplateUpsertRequest request) {
-    log.info("Request to update template: id={}, request={}", id, request);
+    log.info("event=TEMPLATE_UPDATE_REQUEST id={} request={}", id, request);
     return notificationServiceClient.updateTemplate(id, request);
   }
 }
+

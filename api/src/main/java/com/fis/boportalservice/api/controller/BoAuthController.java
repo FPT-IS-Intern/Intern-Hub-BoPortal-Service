@@ -29,7 +29,7 @@ public class BoAuthController {
 
   @PostMapping("/login")
   public ResponseApi<BoAuthSessionResponse> login(@Valid @RequestBody BoLoginRequest request) {
-    log.info("BO login request");
+    log.info("event=BO_LOGIN_REQUEST");
     String resolvedUsername = loginPasswordResolver.resolveUsername(request);
     String resolvedPassword = loginPasswordResolver.resolvePassword(request);
     return ResponseApi.success(boAuthApiMapper.toSessionResponse(
@@ -44,14 +44,14 @@ public class BoAuthController {
   @PostMapping("/refresh")
   public ResponseApi<BoAuthSessionResponse> refresh(
       @Valid @RequestBody BoRefreshTokenRequest request) {
-    log.info("BO refresh token request");
+    log.info("event=BO_REFRESH_TOKEN_REQUEST");
     return ResponseApi.success(boAuthApiMapper.toSessionResponse(
         boAuthUsecase.refresh(request.getRefreshToken(), request.getDeviceId())));
   }
 
   @PostMapping("/logout")
   public ResponseApi<Void> logout(@Valid @RequestBody BoLogoutRequest request) {
-    log.info("BO logout request");
+    log.info("event=BO_LOGOUT_REQUEST");
     boAuthUsecase.logout(request.getRefreshToken());
     return ResponseApi.success(null);
   }
@@ -60,7 +60,7 @@ public class BoAuthController {
   public ResponseApi<BoAdminProfileResponse> me(
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
     String token = extractBearerToken(authorizationHeader);
-    log.info("BO me request");
+    log.info("event=BO_ME_REQUEST");
     return ResponseApi.success(boAuthApiMapper.toProfileResponse(boAuthUsecase.me(token)));
   }
 
@@ -72,3 +72,4 @@ public class BoAuthController {
     return authorizationHeader.substring("Bearer ".length());
   }
 }
+

@@ -43,7 +43,7 @@ public class HomepageBannerServiceImpl implements HomepageBannerService {
 
   @Override
   public HomepageBanner updateBanner(UUID id, HomepageBanner banner) {
-    log.info("Updating homepage banner with id: {}", id);
+    log.info("event=HOMEPAGE_BANNER_PERSIST_UPDATE id={}", id);
     HomepageBanner existing = getBannerById(id);
 
     // Update fields
@@ -65,7 +65,8 @@ public class HomepageBannerServiceImpl implements HomepageBannerService {
 
   @Override
   public void deleteBanner(UUID id) {
-    log.info("Deleting homepage banner with id: {}", id);
+    log.info("event=HOMEPAGE_BANNER_PERSIST_DELETE id={}", id);
     bannerRepository.deleteById(id);
   }
 }
+

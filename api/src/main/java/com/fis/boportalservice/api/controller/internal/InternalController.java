@@ -51,7 +51,7 @@ public class InternalController {
 
   @GetMapping("/allowed-ip-ranges")
   public ResponseApi<List<BoPortalAllowedIpRangeResponse>> getAllowedIpRanges() {
-    log.info("Internal request to get all allowed IP ranges");
+    log.info("event=INTERNAL_ALLOWED_IP_RANGE_LIST_REQUEST");
     List<BoPortalAllowedIpRangeResponse> responses = allowedIpRangeService.getAllowedIpRanges()
         .stream()
         .map(allowedIpRangeApiMapper::toResponse)
@@ -61,7 +61,7 @@ public class InternalController {
 
   @GetMapping("/attendance-locations")
   public ResponseApi<List<AttendanceLocationResponse>> getActiveLocations() {
-    log.info("Internal request to get all active attendance locations");
+    log.info("event=INTERNAL_ATTENDANCE_LOCATION_LIST_REQUEST");
     List<AttendanceLocationResponse> responses = attendanceLocationService.getAllActive()
         .stream()
         .map(attendanceLocationApiMapper::toResponse)
@@ -71,7 +71,7 @@ public class InternalController {
 
   @GetMapping("/banners")
   public ResponseApi<List<HomepageBannerResponse>> getActiveBanners() {
-    log.info("Internal request to get active homepage banners");
+    log.info("event=INTERNAL_HOMEPAGE_BANNER_LIST_REQUEST");
     List<HomepageBannerResponse> responses = bannerService.getActiveBanners().stream()
         .map(homepageBannerApiMapper::toResponse)
         .collect(Collectors.toList());
@@ -80,13 +80,13 @@ public class InternalController {
 
   @GetMapping("/ui-client-config")
   public ResponseApi<SystemConfigPublicResponse> getUiClientConfig() {
-    log.info("Internal request to get UI client configuration");
+    log.info("event=INTERNAL_UI_CLIENT_CONFIG_REQUEST");
     return ResponseApi.success(systemConfigApiMapper.toPublicResponse(systemConfigService.getSystemConfig()));
   }
 
   @GetMapping("/working-time-config")
   public ResponseApi<SystemConfigWorkingTimeResponse> getWorkingTimeConfig() {
-    log.info("Internal request to get working time configuration");
+    log.info("event=INTERNAL_WORKING_TIME_CONFIG_REQUEST");
     return ResponseApi.success(systemConfigApiMapper.toWorkingTimeResponse(systemConfigService.getSystemConfig()));
   }
 
@@ -95,7 +95,7 @@ public class InternalController {
       @RequestBody(required = false) SidebarMenuRequest request
   ) {
     List<String> userRoles = request == null ? List.of() : request.resolveRoles();
-    log.info("Internal request to get sidebar menus for roles: {}", userRoles);
+    log.info("event=INTERNAL_SIDEBAR_MENU_REQUEST roles={}", userRoles);
 
     List<PortalMenuResponse> flatMenus = menuApiMapper
         .toResponseList(menuService.getAvailableMenus(userRoles));
@@ -103,3 +103,4 @@ public class InternalController {
     return ResponseApi.success(MenuHierarchyHelper.buildMenuHierarchy(flatMenus));
   }
 }
+

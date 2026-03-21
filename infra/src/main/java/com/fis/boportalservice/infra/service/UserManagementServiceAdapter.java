@@ -41,11 +41,30 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
     request.setRoles(normalizeFilters(criteria.roles()));
     request.setPositions(normalizeFilters(criteria.positions()));
 
+    log.info(
+        "event=HRM_FILTER_USERS_REQUEST page={} size={} keyword={} statuses={} roles={} positions={}",
+        page,
+        size,
+        request.getKeyword(),
+        request.getSysStatuses(),
+        request.getRoles(),
+        request.getPositions()
+    );
+
     ResponseApi<HrmPageResponse<HrmFilterResponse>> response = hrmServiceClient.filterUsers(request, page, size);
     HrmPageResponse<HrmFilterResponse> payload = response != null ? response.data() : null;
     List<HrmFilterResponse> items = payload != null && payload.getItems() != null
         ? payload.getItems()
         : Collections.emptyList();
+
+    log.info(
+        "event=HRM_FILTER_USERS_SUCCESS page={} size={} totalItems={} totalPages={} returnedItems={}",
+        page,
+        size,
+        payload != null ? payload.getTotalItems() : 0,
+        payload != null ? payload.getTotalPages() : 0,
+        items.size()
+    );
 
     return new UserPageResult(
         items.stream().map(this::toListItem).toList(),
@@ -56,20 +75,33 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   @Override
   public UserDetail getUserById(Long userId) {
+    log.info("event=HRM_USER_DETAIL_REQUEST targetUserId={}", userId);
     HrmUserResponse user = Optional.ofNullable(hrmServiceClient.getUserById(userId))
         .map(ResponseApi::data)
         .orElse(null);
     if (user == null) {
+      log.warn("event=HRM_USER_DETAIL_EMPTY targetUserId={}", userId);
       return null;
     }
 
+    log.info("event=AUTH_ROLE_LOOKUP_REQUEST targetUserId={}", userId);
     AuthzRoleDto role = extractPayload(authServiceClient.getRoleByUserId(userId));
+    log.info("event=AUTH_IDENTITY_STATUS_REQUEST targetUserId={}", userId);
     AuthIdentityStatusDto identityStatus = extractPayload(authServiceClient.getIdentityStatus(userId));
+
+    log.info(
+        "event=USER_DETAIL_COMPOSED targetUserId={} businessStatus={} loginStatus={} role={}",
+        userId,
+        user.getSysStatus(),
+        identityStatus != null ? identityStatus.getStatus() : null,
+        role != null ? role.getName() : null
+    );
     return toDetail(user, role, identityStatus);
   }
 
   @Override
   public UserMetaOptions getMetaOptions() {
+    log.info("event=HRM_META_POSITIONS_REQUEST");
     List<HrmPositionResponse> hrmPositions = Optional.ofNullable(hrmServiceClient.getPositions())
         .map(ResponseApi::data)
         .orElse(Collections.emptyList());
@@ -90,58 +122,81 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         .sorted(String::compareToIgnoreCase)
         .toList();
 
+    log.info(
+        "event=USER_META_COMPUTED rawPositions={} roleOptions={} positionOptions={}",
+        hrmPositions.size(),
+        roles.size(),
+        positions.size()
+    );
     return new UserMetaOptions(roles, positions, Collections.emptyList());
   }
 
   @Override
   public UserDetail lockUser(Long userId) {
+    log.info("event=AUTH_LOCK_REQUEST targetUserId={}", userId);
     authServiceClient.lockIdentity(userId);
     return getUserById(userId);
   }
 
   @Override
   public UserDetail unlockUser(Long userId) {
+    log.info("event=AUTH_UNLOCK_REQUEST targetUserId={}", userId);
     authServiceClient.unlockIdentity(userId);
     return getUserById(userId);
   }
 
   @Override
   public UserDetail approveUser(Long userId) {
+    log.info("event=HRM_APPROVE_REQUEST targetUserId={}", userId);
     hrmServiceClient.approveUser(userId);
     return getUserById(userId);
   }
 
   @Override
   public UserDetail rejectUser(Long userId, String reason) {
+    log.info("event=HRM_REJECT_REQUEST targetUserId={} reason={}", userId, reason);
     hrmServiceClient.rejectUser(userId);
     return getUserById(userId);
   }
 
   @Override
   public UserDetail suspendUser(Long userId, String reason) {
+    log.info("event=HRM_SUSPEND_REQUEST targetUserId={} reason={}", userId, reason);
     hrmServiceClient.suspendUser(userId);
     return getUserById(userId);
   }
 
   @Override
   public UserDetail reactivateUser(Long userId) {
+    log.info("event=HRM_REACTIVATE_REQUEST targetUserId={}", userId);
     hrmServiceClient.unlockUser(userId);
     return getUserById(userId);
   }
 
   @Override
   public UserDetail resetPassword(Long userId) {
+    log.info("event=AUTH_RESET_PASSWORD_REQUEST targetUserId={}", userId);
     authServiceClient.resetPassword(userId);
     return getUserById(userId);
   }
 
   @Override
   public UserDetail updateProfile(Long userId, UserProfileUpdateCommand command) {
+    log.info(
+        "event=HRM_PROFILE_UPDATE_REQUEST targetUserId={} fullName={} phoneNumber={} positionCode={} department={}",
+        userId,
+        command.fullName(),
+        command.phoneNumber(),
+        command.positionCode(),
+        command.department()
+    );
+
     HrmUserResponse current = Optional.ofNullable(hrmServiceClient.getUserById(userId))
         .map(ResponseApi::data)
         .orElse(null);
 
     if (current == null) {
+      log.warn("event=HRM_PROFILE_UPDATE_ABORTED targetUserId={} reason=current-profile-not-found", userId);
       return null;
     }
 
@@ -156,31 +211,38 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         valueOrFallback(current.getSysStatus(), "APPROVED")
     ));
 
+    log.info("event=HRM_PROFILE_UPDATE_SUCCESS targetUserId={}", userId);
     return getUserById(userId);
   }
 
   @Override
   public UserRoleResult getUserRoles(Long userId) {
+    log.info("event=AUTH_ROLE_READ_REQUEST targetUserId={}", userId);
     AuthzRoleDto role = extractPayload(authServiceClient.getRoleByUserId(userId));
     List<UserRole> roles = role == null ? Collections.emptyList() : List.of(toUserRole(role));
+    log.info("event=AUTH_ROLE_READ_SUCCESS targetUserId={} roleCount={}", userId, roles.size());
     return new UserRoleResult(userId, roles);
   }
 
   @Override
   public UserRoleResult assignRole(Long userId, String roleId) {
+    log.info("event=AUTH_ROLE_ASSIGN_REQUEST targetUserId={} roleId={}", userId, roleId);
     if (roleId != null && !roleId.isBlank()) {
       authServiceClient.assignRoleToUser(userId, new AuthAssignRoleRequest(Long.parseLong(roleId)));
     }
+    log.info("event=AUTH_ROLE_ASSIGN_SUCCESS targetUserId={} roleId={}", userId, roleId);
     return getUserRoles(userId);
   }
 
   @Override
   public List<UserHistoryItem> getActivityHistory(Long userId) {
+    log.info("event=USER_ACTIVITY_HISTORY_EMPTY targetUserId={} source=audit-service-not-ready", userId);
     return Collections.emptyList();
   }
 
   @Override
   public List<UserHistoryItem> getLoginHistory(Long userId) {
+    log.info("event=USER_LOGIN_HISTORY_EMPTY targetUserId={} source=audit-service-not-ready", userId);
     return Collections.emptyList();
   }
 

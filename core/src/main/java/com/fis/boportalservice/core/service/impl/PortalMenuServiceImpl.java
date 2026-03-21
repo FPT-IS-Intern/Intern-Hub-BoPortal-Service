@@ -53,13 +53,13 @@ public class PortalMenuServiceImpl implements PortalMenuService {
 
   @Override
   public PortalMenu createMenu(PortalMenu menu) {
-    log.info("Creating new portal menu: {}", menu.getCode());
+    log.info("event=PORTAL_MENU_PERSIST_CREATE code={}", menu.getCode());
     return menuRepository.save(menu);
   }
 
   @Override
   public PortalMenu updateMenu(Integer id, PortalMenu menu) {
-    log.info("Updating portal menu with id: {}", id);
+    log.info("event=PORTAL_MENU_PERSIST_UPDATE id={}", id);
     PortalMenu existing = getMenuById(id);
 
     existing.setCode(menu.getCode());
@@ -76,7 +76,7 @@ public class PortalMenuServiceImpl implements PortalMenuService {
 
   @Override
   public void deleteMenu(Integer id) {
-    log.info("Deleting portal menu with id: {}", id);
+    log.info("event=PORTAL_MENU_PERSIST_DELETE id={}", id);
     menuRepository.deleteById(id);
   }
 
@@ -92,3 +92,4 @@ public class PortalMenuServiceImpl implements PortalMenuService {
     return parent == null || hasVisibleParentChain(parent, menuById, visibleIds);
   }
 }
+

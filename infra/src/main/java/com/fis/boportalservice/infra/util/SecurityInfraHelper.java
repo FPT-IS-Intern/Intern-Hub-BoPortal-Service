@@ -40,12 +40,12 @@ public class SecurityInfraHelper {
     String key;
     try {
       // Try to get default private key
-      log.info("Infra - [loadPrivateKey] - Try load private key by path (default)");
+      log.info("event=PRIVATE_KEY_LOAD_DEFAULT_PATH_REQUEST");
       Resource resource = new ClassPathResource(privateKey);
       InputStream is = resource.getInputStream();
       key = cleanPrivateKey(new String(is.readAllBytes(), StandardCharsets.UTF_8));
     } catch (IOException e) {
-      log.info("Infra - [loadPrivateKey] - Load private key from ArgoCD");
+      log.info("event=PRIVATE_KEY_LOAD_ARGOCD_REQUEST");
       key = cleanPrivateKey(privateKey);
     }
     try {
@@ -66,13 +66,13 @@ public class SecurityInfraHelper {
     String key;
     try {
       // Try to get default public key
-      log.info("Infra - [loadPublicKey] - Try load public key by path (default)");
+      log.info("event=PUBLIC_KEY_LOAD_DEFAULT_PATH_REQUEST");
       Resource resource = new ClassPathResource(publicKey);
       key =
           cleanPublicKey(
               new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
     } catch (IOException e) {
-      log.info("Infra - [loadPublicKey] - Load public key from ArgoCD");
+      log.info("event=PUBLIC_KEY_LOAD_ARGOCD_REQUEST");
       key = cleanPublicKey(publicKey);
     }
 
@@ -91,7 +91,7 @@ public class SecurityInfraHelper {
       Signature sig = Signature.getInstance(SecurityConstant.SIGNATURE_ALGORITHM_SHA512);
       sig.initSign(privateKey);
       sig.update(data.getBytes());
-      log.info("Infra - [signatureData] - Data signing successful");
+      log.info("event=DATA_SIGNATURE_SUCCESS");
       return Base64.getEncoder().encodeToString(sig.sign());
     } catch (Exception e) {
       throw new ServerSideException(ErrorCode.RESPONSE_ERROR.getCode(), e.getMessage());
@@ -104,7 +104,7 @@ public class SecurityInfraHelper {
       signature.initVerify(publicKey);
       signature.update(data.getBytes(StandardCharsets.UTF_8));
       boolean verifyResult = signature.verify(Base64.getDecoder().decode(base64Signature));
-      log.info("Infra - [verifySignature] - Verify Signature result: {}", verifyResult);
+      log.info("event=SIGNATURE_VERIFY_RESULT result={}", verifyResult);
       return verifyResult;
     } catch (Exception e) {
       throw new ServerSideException(ErrorCode.RESPONSE_ERROR.getCode(), e.getMessage());
@@ -123,3 +123,4 @@ public class SecurityInfraHelper {
         .replaceAll("\\s", "");
   }
 }
+
