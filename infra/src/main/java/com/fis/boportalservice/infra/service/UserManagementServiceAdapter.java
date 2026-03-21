@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -37,8 +38,8 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
     HrmFilterRequest request = new HrmFilterRequest();
     request.setKeyword(criteria.keyword());
     request.setSysStatuses(criteria.sysStatuses());
-    request.setRoles(criteria.roles());
-    request.setPositions(criteria.positions());
+    request.setRoles(normalizeFilters(criteria.roles()));
+    request.setPositions(normalizeFilters(criteria.positions()));
 
     ResponseApi<HrmPageResponse<HrmFilterResponse>> response = hrmServiceClient.filterUsers(request, page, size);
     HrmPageResponse<HrmFilterResponse> payload = response != null ? response.data() : null;
@@ -69,20 +70,23 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   @Override
   public UserMetaOptions getMetaOptions() {
-    List<String> roles = Optional.ofNullable(extractPayload(authServiceClient.getRoles()))
-        .orElse(Collections.emptyList())
-        .stream()
-        .map(AuthzRoleDto::getName)
+    List<HrmPositionResponse> hrmPositions = Optional.ofNullable(hrmServiceClient.getPositions())
+        .map(ResponseApi::data)
+        .orElse(Collections.emptyList());
+
+    List<String> roles = hrmPositions.stream()
+        .map(HrmPositionResponse::getName)
+        .map(this::extractDisplayRole)
         .filter(name -> name != null && !name.isBlank())
+        .distinct()
         .sorted(String::compareToIgnoreCase)
         .toList();
 
-    List<String> positions = Optional.ofNullable(hrmServiceClient.getPositions())
-        .map(ResponseApi::data)
-        .orElse(Collections.emptyList())
-        .stream()
+    List<String> positions = hrmPositions.stream()
         .map(HrmPositionResponse::getName)
+        .map(this::extractDisplayPosition)
         .filter(name -> name != null && !name.isBlank())
+        .distinct()
         .sorted(String::compareToIgnoreCase)
         .toList();
 
@@ -245,6 +249,60 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
           .findFirst()
           .orElse(null);
     }
+  }
+
+  private List<String> normalizeFilters(List<String> values) {
+    if (values == null) {
+      return null;
+    }
+    return values.stream()
+        .filter(value -> value != null && !value.isBlank())
+        .map(value -> value.trim().toUpperCase(Locale.ROOT))
+        .toList();
+  }
+
+  private String extractDisplayRole(String rawName) {
+    if (rawName == null || rawName.isBlank()) {
+      return null;
+    }
+
+    String normalized = rawName.trim();
+    String[] parts = normalized.split("\\s+");
+    if (parts.length >= 2) {
+      return parts[0].toUpperCase(Locale.ROOT);
+    }
+
+    String upperName = normalized.toUpperCase(Locale.ROOT);
+    if (upperName.startsWith("INTERN") && upperName.length() > 6) {
+      return "INTERN";
+    }
+    if (upperName.startsWith("STAFF") && upperName.length() > 5) {
+      return "STAFF";
+    }
+
+    return upperName;
+  }
+
+  private String extractDisplayPosition(String rawName) {
+    if (rawName == null || rawName.isBlank()) {
+      return null;
+    }
+
+    String normalized = rawName.trim();
+    String[] parts = normalized.split("\\s+");
+    if (parts.length >= 2) {
+      return String.join(" ", java.util.Arrays.copyOfRange(parts, 1, parts.length)).toUpperCase(Locale.ROOT);
+    }
+
+    String upperName = normalized.toUpperCase(Locale.ROOT);
+    if (upperName.startsWith("INTERN") && upperName.length() > 6) {
+      return upperName.substring(6).trim();
+    }
+    if (upperName.startsWith("STAFF") && upperName.length() > 5) {
+      return upperName.substring(5).trim();
+    }
+
+    return null;
   }
 
   private String valueOrFallback(String value, String fallback) {
