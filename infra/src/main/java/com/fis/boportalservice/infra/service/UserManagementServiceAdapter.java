@@ -104,18 +104,32 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   @Override
   public UserMetaOptions getMetaOptions() {
+    log.info("event=AUTH_META_ROLES_REQUEST");
+    List<AuthzRoleDto> authRoles = Optional.ofNullable(authServiceClient.getRoles())
+        .map(this::extractPayload)
+        .orElse(Collections.emptyList());
+
     log.info("event=HRM_META_POSITIONS_REQUEST");
     List<HrmPositionResponse> hrmPositions = Optional.ofNullable(hrmServiceClient.getPositions())
         .map(ResponseApi::data)
         .orElse(Collections.emptyList());
 
-    List<String> roles = hrmPositions.stream()
-        .map(HrmPositionResponse::getName)
-        .map(this::extractDisplayRole)
+    List<String> roles = authRoles.stream()
+        .map(AuthzRoleDto::getName)
         .filter(name -> name != null && !name.isBlank())
         .distinct()
         .sorted(String::compareToIgnoreCase)
         .toList();
+
+    if (roles.isEmpty()) {
+      roles = hrmPositions.stream()
+          .map(HrmPositionResponse::getName)
+          .map(this::extractDisplayRole)
+          .filter(name -> name != null && !name.isBlank())
+          .distinct()
+          .sorted(String::compareToIgnoreCase)
+          .toList();
+    }
 
     List<String> positions = hrmPositions.stream()
         .map(HrmPositionResponse::getName)
@@ -126,7 +140,8 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         .toList();
 
     log.info(
-        "event=USER_META_COMPUTED rawPositions={} roleOptions={} positionOptions={}",
+        "event=USER_META_COMPUTED authRoles={} rawPositions={} roleOptions={} positionOptions={}",
+        authRoles.size(),
         hrmPositions.size(),
         roles.size(),
         positions.size()
