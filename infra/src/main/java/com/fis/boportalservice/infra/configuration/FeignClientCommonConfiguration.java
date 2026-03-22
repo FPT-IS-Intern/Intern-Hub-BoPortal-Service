@@ -1,6 +1,8 @@
 package com.fis.boportalservice.infra.configuration;
 
+import feign.Client;
 import feign.Logger;
+import feign.okhttp.OkHttpClient;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +32,11 @@ public class FeignClientCommonConfiguration {
         requestTemplate.header("Authorization", authorization);
       }
     };
+  }
+
+  @Bean
+  public Client feignClient() {
+    return new OkHttpClient();
   }
 
   @Bean
