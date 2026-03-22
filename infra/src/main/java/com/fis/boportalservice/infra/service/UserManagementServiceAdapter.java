@@ -67,7 +67,10 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
     );
 
     return new UserPageResult(
-        items.stream().map(this::toListItem).toList(),
+        items.stream()
+            .map(this::toListItem)
+            .map(this::applySystemRole)
+            .toList(),
         payload != null ? payload.getTotalItems() : 0L,
         payload != null ? payload.getTotalPages() : 0
     );
@@ -258,6 +261,31 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         item.getPosition(),
         null,
         false
+    );
+  }
+
+  private UserListItem applySystemRole(UserListItem item) {
+    if (item == null || item.userId() == null) {
+      return item;
+    }
+
+    AuthzRoleDto role = extractPayload(authServiceClient.getRoleByUserId(item.userId()));
+    if (role == null || role.getName() == null || role.getName().isBlank()) {
+      return item;
+    }
+
+    return new UserListItem(
+        item.no(),
+        item.userId(),
+        item.avatarUrl(),
+        item.fullName(),
+        item.sysStatus(),
+        item.email(),ok
+
+        role.getName(),
+        item.position(),
+        item.department(),
+        item.deleted()
     );
   }
 
