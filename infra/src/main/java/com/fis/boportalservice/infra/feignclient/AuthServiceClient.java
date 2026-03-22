@@ -41,7 +41,7 @@ public interface AuthServiceClient {
   @GetMapping("/auth/authz/users/{userId}/roles")
   ResponseFeignClient<List<AuthzRoleDto>> getUserRoles(@PathVariable("userId") Long userId);
 
-  @PostMapping("/auth/authz/users/{userId}/role")
+  @PostMapping("/auth/internal/authz/users/{userId}/role")
   ResponseFeignClient<Void> assignRoleToUser(@PathVariable("userId") Long userId, @RequestBody AuthAssignRoleRequest request);
 
   @GetMapping("/auth/internal/identity/status/{userId}")
