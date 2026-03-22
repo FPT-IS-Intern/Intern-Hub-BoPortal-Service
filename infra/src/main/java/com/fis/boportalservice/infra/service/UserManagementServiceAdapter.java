@@ -19,11 +19,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -38,7 +41,8 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
     HrmFilterRequest request = new HrmFilterRequest();
     request.setKeyword(criteria.keyword());
     request.setSysStatuses(criteria.sysStatuses());
-    request.setRoles(normalizeFilters(criteria.roles()));
+    List<String> normalizedRoles = normalizeFilters(criteria.roles());
+    request.setRoles(null);
     request.setPositions(normalizeFilters(criteria.positions()));
 
     log.info(
@@ -47,9 +51,22 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         size,
         request.getKeyword(),
         request.getSysStatuses(),
-        request.getRoles(),
+        normalizedRoles,
         request.getPositions()
     );
+
+    if (hasValues(normalizedRoles)) {
+      Set<String> allowedUserIds = resolveUserIdsByRoles(normalizedRoles);
+      log.info(
+          "event=AUTH_ROLE_FILTER_RESOLVED requestedRoles={} allowedUserCount={}",
+          normalizedRoles,
+          allowedUserIds.size()
+      );
+      if (allowedUserIds.isEmpty()) {
+        return new UserPageResult(Collections.emptyList(), 0L, 0);
+      }
+      return filterUsersBySystemRole(request, page, size, allowedUserIds);
+    }
 
     ResponseApi<HrmPageResponse<HrmFilterResponse>> response = hrmServiceClient.filterUsers(request, page, size);
     HrmPageResponse<HrmFilterResponse> payload = response != null ? response.data() : null;
@@ -364,6 +381,83 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         .filter(value -> value != null && !value.isBlank())
         .map(value -> value.trim().toUpperCase(Locale.ROOT))
         .toList();
+  }
+
+  private boolean hasValues(List<String> values) {
+    return values != null && !values.isEmpty();
+  }
+
+  private Set<String> resolveUserIdsByRoles(List<String> requestedRoles) {
+    List<AuthzRoleDto> authRoles = Optional.ofNullable(authServiceClient.getRoles())
+        .map(this::extractPayload)
+        .orElse(Collections.emptyList());
+
+    Set<String> normalizedRequestedRoles = new LinkedHashSet<>(requestedRoles);
+    Set<String> userIds = new LinkedHashSet<>();
+
+    authRoles.stream()
+        .filter(role -> role != null && role.getId() != null && role.getName() != null)
+        .filter(role -> normalizedRequestedRoles.contains(role.getName().trim().toUpperCase(Locale.ROOT)))
+        .forEach(role -> {
+          List<String> attachedUsers = Optional.ofNullable(authServiceClient.getUsersByRoleId(String.valueOf(role.getId())))
+              .map(this::extractPayload)
+              .orElse(Collections.emptyList());
+          attachedUsers.stream()
+              .filter(userId -> userId != null && !userId.isBlank())
+              .forEach(userIds::add);
+        });
+
+    return userIds;
+  }
+
+  private UserPageResult filterUsersBySystemRole(HrmFilterRequest request, int page, int size, Set<String> allowedUserIds) {
+    long startIndex = (long) page * size;
+    long endExclusive = startIndex + size;
+    long totalFilteredItems = 0L;
+    List<HrmFilterResponse> pagedItems = new ArrayList<>();
+    int totalPages = 0;
+
+    for (int currentPage = 0; ; currentPage++) {
+      ResponseApi<HrmPageResponse<HrmFilterResponse>> response = hrmServiceClient.filterUsers(request, currentPage, size);
+      HrmPageResponse<HrmFilterResponse> payload = response != null ? response.data() : null;
+      List<HrmFilterResponse> items = payload != null && payload.getItems() != null
+          ? payload.getItems()
+          : Collections.emptyList();
+      totalPages = payload != null ? payload.getTotalPages() : 0;
+
+      for (HrmFilterResponse item : items) {
+        if (!allowedUserIds.contains(String.valueOf(item.getUserId()))) {
+          continue;
+        }
+        if (totalFilteredItems >= startIndex && totalFilteredItems < endExclusive) {
+          pagedItems.add(item);
+        }
+        totalFilteredItems++;
+      }
+
+      if (payload == null || currentPage + 1 >= totalPages) {
+        break;
+      }
+    }
+
+    int filteredTotalPages = size > 0 ? (int) Math.ceil((double) totalFilteredItems / size) : 0;
+    log.info(
+        "event=HRM_FILTER_USERS_SUCCESS page={} size={} totalItems={} totalPages={} returnedItems={} mode=role-aware",
+        page,
+        size,
+        totalFilteredItems,
+        filteredTotalPages,
+        pagedItems.size()
+    );
+
+    return new UserPageResult(
+        pagedItems.stream()
+            .map(this::toListItem)
+            .map(this::applySystemRole)
+            .toList(),
+        totalFilteredItems,
+        filteredTotalPages
+    );
   }
 
   private String extractDisplayRole(String rawName) {
