@@ -56,6 +56,6 @@ public interface HrmServiceClient {
   @PutMapping("/hrm/users/suspension/{userId}")
   ResponseApi<HrmUserResponse> suspendUser(@PathVariable("userId") Long userId);
 
-  @PatchMapping(value = "/hrm/users/profile/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(value = "/hrm/internal/users/{userId}/profile", consumes = MediaType.APPLICATION_JSON_VALUE)
   ResponseApi<Object> updateUserProfile(@PathVariable("userId") Long userId, @RequestBody HrmUpdateProfileRequest request);
 }
