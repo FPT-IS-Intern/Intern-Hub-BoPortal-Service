@@ -280,7 +280,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         item.avatarUrl(),
         item.fullName(),
         item.sysStatus(),
-        item.email(),ok
+        item.email(),
 
         role.getName(),
         item.position(),
