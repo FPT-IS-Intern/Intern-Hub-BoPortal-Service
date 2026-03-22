@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 
 @FeignClient(
     name = "hrm-service",
@@ -57,6 +56,6 @@ public interface HrmServiceClient {
   @PutMapping("/hrm/users/suspension/{userId}")
   ResponseApi<HrmUserResponse> suspendUser(@PathVariable("userId") Long userId);
 
-  @PatchMapping(value = "/hrm/users/profile/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  ResponseApi<Object> updateUserProfile(@PathVariable("userId") Long userId, @RequestPart("userInfo") HrmUpdateProfileRequest request);
+  @PatchMapping(value = "/hrm/users/profile/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+  ResponseApi<Object> updateUserProfile(@PathVariable("userId") Long userId, @RequestBody HrmUpdateProfileRequest request);
 }
