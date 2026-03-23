@@ -24,6 +24,7 @@ public interface AuditServiceClient {
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate endDate,
             @RequestParam(value = "day", required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate day,
             @RequestParam(value = "action", required = false) String action,
+            @RequestParam(value = "actorIds", required = false) java.util.List<String> actorIds,
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "size", required = false) Integer size,
             @RequestParam(value = "sortBy", required = false) String sortBy,

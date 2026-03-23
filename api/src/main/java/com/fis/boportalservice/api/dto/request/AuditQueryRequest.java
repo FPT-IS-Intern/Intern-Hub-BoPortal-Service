@@ -29,6 +29,8 @@ public class AuditQueryRequest {
 
   private String action;
 
+  private java.util.List<String> actorIds;
+
   @Builder.Default
   private Integer page = 0;
 

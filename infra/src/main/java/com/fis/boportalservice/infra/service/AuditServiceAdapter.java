@@ -30,6 +30,7 @@ public class AuditServiceAdapter implements AuditServicePort {
       LocalDate endDate,
       LocalDate day,
       String action,
+      List<String> actorIds,
       int page,
       int size,
       String sortBy,
@@ -37,7 +38,7 @@ public class AuditServiceAdapter implements AuditServicePort {
   ) {
     log.info("event=AUDIT_SERVICE_QUERY_REQUEST page={} size={} action={}", page, size, action);
     AuditPageDto dto = extractPayload(
-        auditServiceClient.queryAudits(startDate, endDate, day, action, page, size, sortBy, sortDirection)
+        auditServiceClient.queryAudits(startDate, endDate, day, action, actorIds, page, size, sortBy, sortDirection)
     );
     if (dto == null) {
       log.warn("No data returned from audit-service queryAudits");

@@ -43,6 +43,7 @@ public class AdminAuditController {
         request.getEndDate(),
         request.getDay(),
         request.getAction(),
+        request.getActorIds(),
         request.getPage() != null ? request.getPage() : 0,
         request.getSize() != null ? request.getSize() : 20,
         request.getSortBy(),

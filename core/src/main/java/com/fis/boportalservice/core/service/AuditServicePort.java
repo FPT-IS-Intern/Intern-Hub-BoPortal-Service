@@ -12,6 +12,7 @@ public interface AuditServicePort {
       LocalDate endDate,
       LocalDate day,
       String action,
+      java.util.List<String> actorIds,
       int page,
       int size,
       String sortBy,
