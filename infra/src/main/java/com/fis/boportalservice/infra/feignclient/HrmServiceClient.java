@@ -41,21 +41,6 @@ public interface HrmServiceClient {
       @RequestParam("size") int size
   );
 
-  @PutMapping("/hrm/internal/users/{userId}/lock")
-  ResponseApi<HrmUserResponse> lockUser(@PathVariable("userId") Long userId);
-
-  @PutMapping("/hrm/internal/users/{userId}/unlock")
-  ResponseApi<HrmUserResponse> unlockUser(@PathVariable("userId") Long userId);
-
-  @PutMapping("/hrm/users/approval/{userId}")
-  ResponseApi<Object> approveUser(@PathVariable("userId") Long userId);
-
-  @PutMapping("/hrm/users/rejection/{userId}")
-  ResponseApi<Object> rejectUser(@PathVariable("userId") Long userId);
-
-  @PutMapping("/hrm/internal/users/suspension/{userId}")
-  ResponseApi<HrmUserResponse> suspendUser(@PathVariable("userId") Long userId);
-
   @PatchMapping(value = "/hrm/internal/users/{userId}/profile", consumes = MediaType.APPLICATION_JSON_VALUE)
   ResponseApi<Object> updateUserProfile(@PathVariable("userId") Long userId, @RequestBody HrmUpdateProfileRequest request);
 }

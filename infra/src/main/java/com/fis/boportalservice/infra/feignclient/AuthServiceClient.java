@@ -47,6 +47,12 @@ public interface AuthServiceClient {
   @PostMapping("/auth/internal/authz/users/{userId}/role")
   ResponseFeignClient<Void> assignRoleToUser(@PathVariable("userId") Long userId, @RequestBody AuthAssignRoleRequest request);
 
+  @PutMapping("/auth/internal/identity/sys-status/{userId}")
+  ResponseFeignClient<Void> updateIdentitySysStatus(
+      @PathVariable("userId") Long userId,
+      @RequestBody AuthUpdateIdentitySysStatusRequest request
+  );
+
   @GetMapping("/auth/internal/identity/status/{userId}")
   ResponseFeignClient<AuthIdentityStatusDto> getIdentityStatus(@PathVariable("userId") Long userId);
 

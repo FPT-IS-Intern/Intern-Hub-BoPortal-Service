@@ -7,6 +7,7 @@ import com.fis.boportalservice.infra.feignclient.HrmServiceClient;
 import com.fis.boportalservice.infra.feignclient.ResponseFeignClient;
 import com.fis.boportalservice.infra.feignclient.dto.AuthAssignRoleRequest;
 import com.fis.boportalservice.infra.feignclient.dto.AuthIdentityStatusDto;
+import com.fis.boportalservice.infra.feignclient.dto.AuthUpdateIdentitySysStatusRequest;
 import com.fis.boportalservice.infra.feignclient.dto.AuthzRoleDto;
 import com.fis.boportalservice.infra.feignclient.dto.HrmFilterRequest;
 import com.fis.boportalservice.infra.feignclient.dto.HrmFilterResponse;
@@ -143,43 +144,43 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   @Override
   public UserDetail lockUser(Long userId) {
-    log.info("event=AUTH_LOCK_REQUEST targetUserId={}", userId);
-    authServiceClient.lockIdentity(userId);
+    log.info("event=AUTH_LOCK_REQUEST targetUserId={} sysStatus=SUSPENDED", userId);
+    updateAuthIdentitySysStatus(userId, "SUSPENDED");
     return reloadUserDetail(userId);
   }
 
   @Override
   public UserDetail unlockUser(Long userId) {
-    log.info("event=AUTH_UNLOCK_REQUEST targetUserId={}", userId);
-    authServiceClient.unlockIdentity(userId);
+    log.info("event=AUTH_UNLOCK_REQUEST targetUserId={} sysStatus=ACTIVE", userId);
+    updateAuthIdentitySysStatus(userId, "ACTIVE");
     return reloadUserDetail(userId);
   }
 
   @Override
   public UserDetail approveUser(Long userId) {
-    log.info("event=HRM_APPROVE_REQUEST targetUserId={}", userId);
-    hrmServiceClient.approveUser(userId);
+    log.info("event=AUTH_APPROVE_REQUEST targetUserId={} sysStatus=ACTIVE", userId);
+    updateAuthIdentitySysStatus(userId, "ACTIVE");
     return reloadUserDetail(userId);
   }
 
   @Override
   public UserDetail rejectUser(Long userId, String reason) {
-    log.info("event=HRM_REJECT_REQUEST targetUserId={} reason={}", userId, reason);
-    hrmServiceClient.rejectUser(userId);
+    log.info("event=AUTH_REJECT_REQUEST targetUserId={} reason={} sysStatus=INACTIVE", userId, reason);
+    updateAuthIdentitySysStatus(userId, "INACTIVE");
     return reloadUserDetail(userId);
   }
 
   @Override
   public UserDetail suspendUser(Long userId, String reason) {
-    log.info("event=HRM_SUSPEND_REQUEST targetUserId={} reason={}", userId, reason);
-    hrmServiceClient.suspendUser(userId);
+    log.info("event=AUTH_SUSPEND_REQUEST targetUserId={} reason={} sysStatus=SUSPENDED", userId, reason);
+    updateAuthIdentitySysStatus(userId, "SUSPENDED");
     return reloadUserDetail(userId);
   }
 
   @Override
   public UserDetail reactivateUser(Long userId) {
-    log.info("event=HRM_REACTIVATE_REQUEST targetUserId={}", userId);
-    hrmServiceClient.unlockUser(userId);
+    log.info("event=AUTH_REACTIVATE_REQUEST targetUserId={} sysStatus=ACTIVE", userId);
+    updateAuthIdentitySysStatus(userId, "ACTIVE");
     return reloadUserDetail(userId);
   }
 
@@ -260,7 +261,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         item.getUserId(),
         item.getAvatarUrl(),
         item.getFullName(),
-        item.getSysStatus(),
+        null,
         item.getEmail(),
         item.getRole(),
         item.getPosition(),
@@ -287,7 +288,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         base.userId(),
         base.avatarUrl(),
         base.fullName(),
-        identityStatus != null ? identityStatus : base.sysStatus(),
+        identityStatus,
         base.email(),
         role != null && hasText(role.getName()) ? role.getName() : base.role(),
         base.position(),
@@ -322,6 +323,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
   }
 
   private UserDetail toDetail(HrmUserResponse item, AuthzRoleDto role, AuthIdentityStatusDto identityStatus) {
+    String authSysStatus = identityStatus != null ? identityStatus.getSysStatus() : null;
     return new UserDetail(
         item.getUserId(),
         item.getEmail(),
@@ -330,8 +332,8 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         item.getAvatarUrl(),
         item.getPositionCode(),
         role != null ? role.getName() : null,
-        item.getSysStatus(),
-        identityStatus != null ? identityStatus.getSysStatus() : null,
+        authSysStatus,
+        authSysStatus,
         item.getDepartment(),
         "APPROVED".equalsIgnoreCase(item.getSysStatus()),
         false
@@ -564,6 +566,10 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   private AuthzRoleDto getUserRole(Long userId) {
     return extractPayload(authServiceClient.getRoleByUserId(userId));
+  }
+
+  private void updateAuthIdentitySysStatus(Long userId, String sysStatus) {
+    authServiceClient.updateIdentitySysStatus(userId, new AuthUpdateIdentitySysStatusRequest(sysStatus));
   }
 
   private AuthzRoleDto getUserRoleCached(Long userId, Map<Long, AuthzRoleDto> roleCache) {
