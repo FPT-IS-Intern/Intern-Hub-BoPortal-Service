@@ -36,6 +36,8 @@ feign:
         url: ${LMS_SERVICE_URL:http://localhost:6666}
       notification-service:
         url: ${NOTI_SERVICE_URL:http://notification-service:8080}
+      audit-service:
+        url: ${AUDIT_SERVICE_URL:http://audit-service:8080}
   jackson:
   liquibase:
     enabled: false
