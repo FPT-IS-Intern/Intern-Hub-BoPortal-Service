@@ -53,7 +53,7 @@ public interface HrmServiceClient {
   @PutMapping("/hrm/users/rejection/{userId}")
   ResponseApi<Object> rejectUser(@PathVariable("userId") Long userId);
 
-  @PutMapping("/hrm/users/suspension/{userId}")
+  @PutMapping("/hrm/internal/users/suspension/{userId}")
   ResponseApi<HrmUserResponse> suspendUser(@PathVariable("userId") Long userId);
 
   @PatchMapping(value = "/hrm/internal/users/{userId}/profile", consumes = MediaType.APPLICATION_JSON_VALUE)
