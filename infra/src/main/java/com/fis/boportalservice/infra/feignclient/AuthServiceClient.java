@@ -50,6 +50,9 @@ public interface AuthServiceClient {
   @GetMapping("/auth/internal/identity/status/{userId}")
   ResponseFeignClient<AuthIdentityStatusDto> getIdentityStatus(@PathVariable("userId") Long userId);
 
+  @PostMapping("/auth/internal/identity/statuses")
+  ResponseFeignClient<List<AuthIdentityStatusDto>> getIdentityStatuses(@RequestBody List<Long> userIds);
+
   @PutMapping("/auth/internal/identity/lock/{id}")
   ResponseFeignClient<Void> lockIdentity(@PathVariable("id") Long userId);
 

@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class AuthIdentityStatusDto {
   private Long userId;
-  private String status;
+  private String sysStatus;
 }

@@ -21,9 +21,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +41,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
   @Override
   public UserPageResult filterUsers(UserFilterCriteria criteria, int page, int size) {
     HrmFilterRequest request = toHrmFilterRequest(criteria);
+    List<String> normalizedStatuses = normalizeFilters(criteria.sysStatuses());
     List<String> normalizedRoles = normalizeFilters(criteria.roles());
 
     log.info(
@@ -46,22 +49,23 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         page,
         size,
         request.getKeyword(),
-        request.getSysStatuses(),
+        normalizedStatuses,
         normalizedRoles,
         request.getPositions()
     );
 
-    if (hasValues(normalizedRoles)) {
-      Set<String> allowedUserIds = resolveUserIdsByRoles(normalizedRoles);
+    if (hasValues(normalizedRoles) || hasValues(normalizedStatuses)) {
+      Set<String> allowedUserIds = hasValues(normalizedRoles) ? resolveUserIdsByRoles(normalizedRoles) : null;
       log.info(
-          "event=AUTH_ROLE_FILTER_RESOLVED requestedRoles={} allowedUserCount={}",
+          "event=AUTH_FILTER_RESOLVED requestedRoles={} requestedStatuses={} allowedUserCount={}",
           normalizedRoles,
-          allowedUserIds.size()
+          normalizedStatuses,
+          allowedUserIds != null ? allowedUserIds.size() : null
       );
-      if (allowedUserIds.isEmpty()) {
+      if (allowedUserIds != null && allowedUserIds.isEmpty()) {
         return new UserPageResult(Collections.emptyList(), 0L, 0);
       }
-      return filterUsersBySystemRole(request, page, size, allowedUserIds);
+      return filterUsersByAuthCriteria(request, page, size, allowedUserIds, normalizedStatuses);
     }
 
     HrmPageResponse<HrmFilterResponse> payload = fetchUsers(request, page, size);
@@ -86,7 +90,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         "event=USER_DETAIL_COMPOSED targetUserId={} businessStatus={} loginStatus={} role={}",
         userId,
         user.getSysStatus(),
-        identityStatus != null ? identityStatus.getStatus() : null,
+        identityStatus != null ? identityStatus.getSysStatus() : null,
         role != null ? role.getName() : null
     );
     return toDetail(user, role, identityStatus);
@@ -265,6 +269,33 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
     );
   }
 
+  private UserListItem enrichUserListItem(
+      HrmFilterResponse item,
+      Map<Long, AuthzRoleDto> roleCache,
+      Map<Long, String> identityStatusCache
+  ) {
+    UserListItem base = toListItem(item);
+    if (base == null || base.userId() == null) {
+      return base;
+    }
+
+    AuthzRoleDto role = getUserRoleCached(base.userId(), roleCache);
+    String identityStatus = getIdentityStatusCached(base.userId(), identityStatusCache);
+
+    return new UserListItem(
+        base.no(),
+        base.userId(),
+        base.avatarUrl(),
+        base.fullName(),
+        identityStatus != null ? identityStatus : base.sysStatus(),
+        base.email(),
+        role != null && hasText(role.getName()) ? role.getName() : base.role(),
+        base.position(),
+        base.department(),
+        base.deleted()
+    );
+  }
+
   private UserListItem applySystemRole(UserListItem item) {
     if (item == null || item.userId() == null) {
       return item;
@@ -300,7 +331,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         item.getPositionCode(),
         role != null ? role.getName() : null,
         item.getSysStatus(),
-        identityStatus != null ? identityStatus.getStatus() : null,
+        identityStatus != null ? identityStatus.getSysStatus() : null,
         item.getDepartment(),
         "APPROVED".equalsIgnoreCase(item.getSysStatus()),
         false
@@ -377,20 +408,32 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
     return userIds;
   }
 
-  private UserPageResult filterUsersBySystemRole(HrmFilterRequest request, int page, int size, Set<String> allowedUserIds) {
+  private UserPageResult filterUsersByAuthCriteria(
+      HrmFilterRequest request,
+      int page,
+      int size,
+      Set<String> allowedUserIds,
+      List<String> requestedStatuses
+  ) {
     long startIndex = (long) page * size;
     long endExclusive = startIndex + size;
     long totalFilteredItems = 0L;
     List<HrmFilterResponse> pagedItems = new ArrayList<>();
     int totalPages = 0;
+    Map<Long, String> identityStatusCache = new HashMap<>();
+    Map<Long, AuthzRoleDto> roleCache = new HashMap<>();
 
     for (int currentPage = 0; ; currentPage++) {
       HrmPageResponse<HrmFilterResponse> payload = fetchUsers(request, currentPage, size);
       List<HrmFilterResponse> items = getItems(payload);
       totalPages = payload != null ? payload.getTotalPages() : 0;
+      identityStatusCache.putAll(loadIdentityStatuses(items));
 
       for (HrmFilterResponse item : items) {
-        if (!allowedUserIds.contains(String.valueOf(item.getUserId()))) {
+        if (!matchesRoleFilter(item, allowedUserIds)) {
+          continue;
+        }
+        if (!matchesIdentityStatusFilter(item, requestedStatuses, identityStatusCache)) {
           continue;
         }
         if (totalFilteredItems >= startIndex && totalFilteredItems < endExclusive) {
@@ -406,7 +449,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
     int filteredTotalPages = size > 0 ? (int) Math.ceil((double) totalFilteredItems / size) : 0;
     log.info(
-        "event=HRM_FILTER_USERS_SUCCESS page={} size={} totalItems={} totalPages={} returnedItems={} mode=role-aware",
+        "event=HRM_FILTER_USERS_SUCCESS page={} size={} totalItems={} totalPages={} returnedItems={} mode=auth-aware",
         page,
         size,
         totalFilteredItems,
@@ -416,8 +459,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
     return new UserPageResult(
         pagedItems.stream()
-            .map(this::toListItem)
-            .map(this::applySystemRole)
+            .map(item -> enrichUserListItem(item, roleCache, identityStatusCache))
             .toList(),
         totalFilteredItems,
         filteredTotalPages
@@ -479,7 +521,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
   private HrmFilterRequest toHrmFilterRequest(UserFilterCriteria criteria) {
     HrmFilterRequest request = new HrmFilterRequest();
     request.setKeyword(criteria.keyword());
-    request.setSysStatuses(criteria.sysStatuses());
+    request.setSysStatuses(null);
     request.setRoles(null);
     request.setPositions(normalizeFilters(criteria.positions()));
     return request;
@@ -495,6 +537,8 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   private UserPageResult toUserPageResult(HrmPageResponse<HrmFilterResponse> payload, int page, int size) {
     List<HrmFilterResponse> items = getItems(payload);
+    Map<Long, AuthzRoleDto> roleCache = new HashMap<>();
+    Map<Long, String> identityStatusCache = loadIdentityStatuses(items);
 
     log.info(
         "event=HRM_FILTER_USERS_SUCCESS page={} size={} totalItems={} totalPages={} returnedItems={}",
@@ -507,8 +551,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
     return new UserPageResult(
         items.stream()
-            .map(this::toListItem)
-            .map(this::applySystemRole)
+            .map(item -> enrichUserListItem(item, roleCache, identityStatusCache))
             .toList(),
         payload != null ? payload.getTotalItems() : 0L,
         payload != null ? payload.getTotalPages() : 0
@@ -521,6 +564,73 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   private AuthzRoleDto getUserRole(Long userId) {
     return extractPayload(authServiceClient.getRoleByUserId(userId));
+  }
+
+  private AuthzRoleDto getUserRoleCached(Long userId, Map<Long, AuthzRoleDto> roleCache) {
+    if (userId == null) {
+      return null;
+    }
+    return roleCache.computeIfAbsent(userId, this::getUserRole);
+  }
+
+  private String getIdentityStatus(Long userId) {
+    AuthIdentityStatusDto dto = extractPayload(authServiceClient.getIdentityStatus(userId));
+    return dto != null ? dto.getSysStatus() : null;
+  }
+
+  private String getIdentityStatusCached(Long userId, Map<Long, String> identityStatusCache) {
+    if (userId == null) {
+      return null;
+    }
+    return identityStatusCache.computeIfAbsent(userId, this::getIdentityStatus);
+  }
+
+  private boolean matchesRoleFilter(HrmFilterResponse item, Set<String> allowedUserIds) {
+    if (allowedUserIds == null) {
+      return true;
+    }
+    return item != null && item.getUserId() != null && allowedUserIds.contains(String.valueOf(item.getUserId()));
+  }
+
+  private boolean matchesIdentityStatusFilter(
+      HrmFilterResponse item,
+      List<String> requestedStatuses,
+      Map<Long, String> identityStatusCache
+  ) {
+    if (!hasValues(requestedStatuses)) {
+      return true;
+    }
+    if (item == null || item.getUserId() == null) {
+      return false;
+    }
+
+    String identityStatus = getIdentityStatusCached(item.getUserId(), identityStatusCache);
+    return hasText(identityStatus) && requestedStatuses.contains(identityStatus.trim().toUpperCase(Locale.ROOT));
+  }
+
+  private Map<Long, String> loadIdentityStatuses(List<HrmFilterResponse> items) {
+    List<Long> userIds = items.stream()
+        .map(HrmFilterResponse::getUserId)
+        .filter(Objects::nonNull)
+        .distinct()
+        .toList();
+
+    if (userIds.isEmpty()) {
+      return new HashMap<>();
+    }
+
+    List<AuthIdentityStatusDto> statuses = Optional.ofNullable(authServiceClient.getIdentityStatuses(userIds))
+        .map(this::extractPayload)
+        .orElse(Collections.emptyList());
+
+    Map<Long, String> statusMap = new HashMap<>();
+    for (AuthIdentityStatusDto status : statuses) {
+      if (status == null || status.getUserId() == null || !hasText(status.getSysStatus())) {
+        continue;
+      }
+      statusMap.put(status.getUserId(), status.getSysStatus());
+    }
+    return statusMap;
   }
 
   private <T> T extractData(ResponseApi<T> response) {
