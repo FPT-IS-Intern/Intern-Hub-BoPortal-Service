@@ -1,10 +1,8 @@
 package com.fis.boportalservice.core.util;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -13,15 +11,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
-@Component
+@RequiredArgsConstructor
 public class LogMaskingUtils {
 
-  @Value("#{'${logging.sensitive-fields}'.split(',')}")
-  private List<String> sensitiveFields;
+  private final LoggingProperties loggingProperties;
 
   public String maskSensitiveFields(String input) {
-    if (!StringUtils.hasText(input)) return input;
+    if (isBlank(input)) return input;
 
+    List<String> sensitiveFields = loggingProperties.getSensitiveFields();
     if (ObjectUtils.isEmpty(sensitiveFields)) {
       sensitiveFields = new ArrayList<>();
       sensitiveFields.add("url");
@@ -78,5 +76,9 @@ public class LogMaskingUtils {
     String masked = "*".repeat(maskedLength);
     String lastIndex = input.substring(maskedLength);
     return masked + lastIndex;
+  }
+
+  private boolean isBlank(String value) {
+    return value == null || value.isBlank();
   }
 }

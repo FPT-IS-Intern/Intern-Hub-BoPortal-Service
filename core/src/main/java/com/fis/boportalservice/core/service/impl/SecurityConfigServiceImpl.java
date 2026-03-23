@@ -2,13 +2,13 @@ package com.fis.boportalservice.core.service.impl;
 
 import com.fis.boportalservice.core.domain.model.SecurityConfig;
 import com.fis.boportalservice.core.domain.repository.SecurityConfigRepository;
+import com.fis.boportalservice.core.exception.ClientSideException;
+import com.fis.boportalservice.core.exception.ErrorCode;
 import com.fis.boportalservice.core.service.SecurityConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class SecurityConfigServiceImpl implements SecurityConfigService {
 
@@ -19,7 +19,7 @@ public class SecurityConfigServiceImpl implements SecurityConfigService {
     return securityConfigRepository.find()
         .orElseThrow(() -> {
           log.error("Security configuration not found");
-          return new RuntimeException("Security config not found");
+          return new ClientSideException(ErrorCode.NOT_FOUND, "Security config not found");
         });
   }
 

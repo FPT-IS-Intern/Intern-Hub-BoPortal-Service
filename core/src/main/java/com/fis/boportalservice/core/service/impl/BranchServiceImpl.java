@@ -2,16 +2,16 @@ package com.fis.boportalservice.core.service.impl;
 
 import com.fis.boportalservice.core.domain.model.Branch;
 import com.fis.boportalservice.core.domain.repository.BranchRepository;
+import com.fis.boportalservice.core.exception.ClientSideException;
+import com.fis.boportalservice.core.exception.ErrorCode;
 import com.fis.boportalservice.core.service.BranchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class BranchServiceImpl implements BranchService {
 
@@ -32,7 +32,7 @@ public class BranchServiceImpl implements BranchService {
     return branchRepository.findById(id)
         .orElseThrow(() -> {
           log.error("Branch not found with id: {}", id);
-          return new RuntimeException("Branch not found with id: " + id);
+          return new ClientSideException(ErrorCode.NOT_FOUND, "Branch not found");
         });
   }
 

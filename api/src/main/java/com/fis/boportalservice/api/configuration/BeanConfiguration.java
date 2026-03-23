@@ -1,5 +1,8 @@
 package com.fis.boportalservice.api.configuration;
 
+import com.fis.boportalservice.core.util.LogMaskingUtils;
+import com.fis.boportalservice.core.util.LoggingProperties;
+import com.fis.boportalservice.core.util.SensitiveValueMasker;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +15,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -74,6 +78,22 @@ public class BeanConfiguration {
   @Bean
   public RestTemplate restTemplate() {
     return new RestTemplate();
+  }
+
+  @Bean
+  @ConfigurationProperties(prefix = "logging")
+  public LoggingProperties loggingProperties() {
+    return new LoggingProperties();
+  }
+
+  @Bean
+  public SensitiveValueMasker sensitiveValueMasker(LoggingProperties loggingProperties) {
+    return new SensitiveValueMasker(loggingProperties);
+  }
+
+  @Bean
+  public LogMaskingUtils logMaskingUtils(LoggingProperties loggingProperties) {
+    return new LogMaskingUtils(loggingProperties);
   }
 
 }

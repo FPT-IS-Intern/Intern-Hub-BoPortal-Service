@@ -1,5 +1,6 @@
 package com.fis.boportalservice.api;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import javax.annotation.PostConstruct;
 import java.util.TimeZone;
 
+@Slf4j
 @EnableFeignClients(basePackages = "com.fis.boportalservice.infra")
 @SpringBootApplication(scanBasePackages = {"com.fis.boportalservice"})
 @EnableJpaRepositories(basePackages = "com.fis.boportalservice.infra")
@@ -30,6 +32,14 @@ public class BoPortalServiceApplication {
 
   @PostConstruct
   public void setUp() {
-    TimeZone.setDefault(TimeZone.getTimeZone(env.getProperty("configuration.timezone")));
+    String timezoneId = env.getProperty("configuration.timezone");
+    if (timezoneId == null || timezoneId.isBlank()) {
+      log.warn("event=TIMEZONE_CONFIG_MISSING fallback={}", TimeZone.getDefault().getID());
+      return;
+    }
+
+    TimeZone timezone = TimeZone.getTimeZone(timezoneId);
+    TimeZone.setDefault(timezone);
+    log.info("event=TIMEZONE_CONFIG_APPLIED timezone={}", timezone.getID());
   }
 }

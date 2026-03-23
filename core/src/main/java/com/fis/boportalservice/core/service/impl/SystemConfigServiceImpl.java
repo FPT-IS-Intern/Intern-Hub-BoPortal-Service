@@ -2,13 +2,13 @@ package com.fis.boportalservice.core.service.impl;
 
 import com.fis.boportalservice.core.domain.model.SystemConfig;
 import com.fis.boportalservice.core.domain.repository.SystemConfigRepository;
+import com.fis.boportalservice.core.exception.ClientSideException;
+import com.fis.boportalservice.core.exception.ErrorCode;
 import com.fis.boportalservice.core.service.SystemConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class SystemConfigServiceImpl implements SystemConfigService {
 
@@ -19,7 +19,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     return systemConfigRepository.find()
         .orElseThrow(() -> {
           log.error("System configuration not found");
-          return new RuntimeException("System config not found");
+          return new ClientSideException(ErrorCode.NOT_FOUND, "System config not found");
         });
   }
 

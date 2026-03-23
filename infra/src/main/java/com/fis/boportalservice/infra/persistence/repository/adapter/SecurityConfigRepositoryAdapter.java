@@ -2,6 +2,8 @@ package com.fis.boportalservice.infra.persistence.repository.adapter;
 
 import com.fis.boportalservice.core.domain.model.SecurityConfig;
 import com.fis.boportalservice.core.domain.repository.SecurityConfigRepository;
+import com.fis.boportalservice.core.exception.ErrorCode;
+import com.fis.boportalservice.core.exception.ServerSideException;
 import com.fis.boportalservice.infra.persistence.entity.SecurityConfigEntity;
 import com.fis.boportalservice.infra.persistence.mapper.SecurityConfigEntityMapper;
 import com.fis.boportalservice.infra.persistence.repository.SecurityConfigJPARepository;
@@ -25,7 +27,10 @@ public class SecurityConfigRepositoryAdapter implements SecurityConfigRepository
   @Override
   public SecurityConfig save(SecurityConfig config) {
     SecurityConfigEntity entity = jpaRepository.findTopByOrderByCreatedAtDesc()
-        .orElseThrow(() -> new RuntimeException("Security config not initialized"));
+        .orElseThrow(() -> new ServerSideException(
+            ErrorCode.SYSTEM_ERROR.getRawCode(),
+            "Security config not initialized"
+        ));
     entityMapper.updateEntity(config, entity);
     return entityMapper.toDomain(jpaRepository.save(entity));
   }

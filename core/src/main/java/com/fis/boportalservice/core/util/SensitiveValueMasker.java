@@ -1,16 +1,14 @@
 package com.fis.boportalservice.core.util;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
-@Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SensitiveValueMasker {
   private final LoggingProperties loggingProperties;
   private static final String BEARER = "Bearer ";

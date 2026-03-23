@@ -2,16 +2,16 @@ package com.fis.boportalservice.core.service.impl;
 
 import com.fis.boportalservice.core.domain.model.HomepageBanner;
 import com.fis.boportalservice.core.domain.repository.HomepageBannerRepository;
+import com.fis.boportalservice.core.exception.ClientSideException;
+import com.fis.boportalservice.core.exception.ErrorCode;
 import com.fis.boportalservice.core.service.HomepageBannerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class HomepageBannerServiceImpl implements HomepageBannerService {
 
@@ -32,7 +32,7 @@ public class HomepageBannerServiceImpl implements HomepageBannerService {
     return bannerRepository.findById(id)
         .orElseThrow(() -> {
           log.error("Homepage banner not found with id: {}", id);
-          return new RuntimeException("Banner not found with id: " + id);
+          return new ClientSideException(ErrorCode.NOT_FOUND, "Homepage banner not found");
         });
   }
 

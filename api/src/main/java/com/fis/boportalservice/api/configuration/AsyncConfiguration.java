@@ -1,4 +1,4 @@
-package com.fis.boportalservice.core.configuration;
+package com.fis.boportalservice.api.configuration;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,26 +10,21 @@ import java.util.concurrent.Executor;
 
 @Slf4j
 @Configuration
-public class AsyncTaskConfig {
-
-  @Value("${threadPool.asyncTask.maxPoolSize}")
-  public int maxPoolSize;
-
-  @Value("${threadPool.asyncTask.corePoolSize}")
-  public int corePoolSize;
-
-  @Value("${threadPool.asyncTask.queueCapacity}")
-  public int queueCapacity;
+public class AsyncConfiguration {
 
   @Bean(name = "asyncTask")
-  Executor asyncTask() {
+  public Executor asyncTask(
+      @Value("${threadPool.asyncTask.maxPoolSize}") int maxPoolSize,
+      @Value("${threadPool.asyncTask.corePoolSize}") int corePoolSize,
+      @Value("${threadPool.asyncTask.queueCapacity}") int queueCapacity) {
     log.info("event=ASYNC_TASK_EXECUTION_START");
+
     ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
     pool.setCorePoolSize(corePoolSize);
     pool.setMaxPoolSize(maxPoolSize);
     pool.setQueueCapacity(queueCapacity);
     pool.setThreadNamePrefix("async-task-");
-    pool.setRejectedExecutionHandler((runnable, threadPoolExecutor) -> log.error("task rejected"));
+    pool.setRejectedExecutionHandler((runnable, executor) -> log.error("task rejected"));
     pool.initialize();
     return pool;
   }

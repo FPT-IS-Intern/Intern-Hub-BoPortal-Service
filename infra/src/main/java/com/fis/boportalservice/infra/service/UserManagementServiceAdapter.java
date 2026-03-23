@@ -38,12 +38,8 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   @Override
   public UserPageResult filterUsers(UserFilterCriteria criteria, int page, int size) {
-    HrmFilterRequest request = new HrmFilterRequest();
-    request.setKeyword(criteria.keyword());
-    request.setSysStatuses(criteria.sysStatuses());
+    HrmFilterRequest request = toHrmFilterRequest(criteria);
     List<String> normalizedRoles = normalizeFilters(criteria.roles());
-    request.setRoles(null);
-    request.setPositions(normalizeFilters(criteria.positions()));
 
     log.info(
         "event=HRM_FILTER_USERS_REQUEST page={} size={} keyword={} statuses={} roles={} positions={}",
@@ -68,37 +64,14 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
       return filterUsersBySystemRole(request, page, size, allowedUserIds);
     }
 
-    ResponseApi<HrmPageResponse<HrmFilterResponse>> response = hrmServiceClient.filterUsers(request, page, size);
-    HrmPageResponse<HrmFilterResponse> payload = response != null ? response.data() : null;
-    List<HrmFilterResponse> items = payload != null && payload.getItems() != null
-        ? payload.getItems()
-        : Collections.emptyList();
-
-    log.info(
-        "event=HRM_FILTER_USERS_SUCCESS page={} size={} totalItems={} totalPages={} returnedItems={}",
-        page,
-        size,
-        payload != null ? payload.getTotalItems() : 0,
-        payload != null ? payload.getTotalPages() : 0,
-        items.size()
-    );
-
-    return new UserPageResult(
-        items.stream()
-            .map(this::toListItem)
-            .map(this::applySystemRole)
-            .toList(),
-        payload != null ? payload.getTotalItems() : 0L,
-        payload != null ? payload.getTotalPages() : 0
-    );
+    HrmPageResponse<HrmFilterResponse> payload = fetchUsers(request, page, size);
+    return toUserPageResult(payload, page, size);
   }
 
   @Override
   public UserDetail getUserById(Long userId) {
     log.info("event=HRM_USER_DETAIL_REQUEST targetUserId={}", userId);
-    HrmUserResponse user = Optional.ofNullable(hrmServiceClient.getUserById(userId))
-        .map(ResponseApi::data)
-        .orElse(null);
+    HrmUserResponse user = extractData(hrmServiceClient.getUserById(userId));
     if (user == null) {
       log.warn("event=HRM_USER_DETAIL_EMPTY targetUserId={}", userId);
       return null;
@@ -127,13 +100,11 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         .orElse(Collections.emptyList());
 
     log.info("event=HRM_META_POSITIONS_REQUEST");
-    List<HrmPositionResponse> hrmPositions = Optional.ofNullable(hrmServiceClient.getPositions())
-        .map(ResponseApi::data)
-        .orElse(Collections.emptyList());
+    List<HrmPositionResponse> hrmPositions = getPositions();
 
     List<String> roles = authRoles.stream()
         .map(AuthzRoleDto::getName)
-        .filter(name -> name != null && !name.isBlank())
+        .filter(this::hasText)
         .distinct()
         .sorted(String::compareToIgnoreCase)
         .toList();
@@ -142,7 +113,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
       roles = hrmPositions.stream()
           .map(HrmPositionResponse::getName)
           .map(this::extractDisplayRole)
-          .filter(name -> name != null && !name.isBlank())
+          .filter(this::hasText)
           .distinct()
           .sorted(String::compareToIgnoreCase)
           .toList();
@@ -151,7 +122,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
     List<String> positions = hrmPositions.stream()
         .map(HrmPositionResponse::getName)
         .map(this::extractDisplayPosition)
-        .filter(name -> name != null && !name.isBlank())
+        .filter(this::hasText)
         .distinct()
         .sorted(String::compareToIgnoreCase)
         .toList();
@@ -170,49 +141,49 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
   public UserDetail lockUser(Long userId) {
     log.info("event=AUTH_LOCK_REQUEST targetUserId={}", userId);
     authServiceClient.lockIdentity(userId);
-    return getUserById(userId);
+    return reloadUserDetail(userId);
   }
 
   @Override
   public UserDetail unlockUser(Long userId) {
     log.info("event=AUTH_UNLOCK_REQUEST targetUserId={}", userId);
     authServiceClient.unlockIdentity(userId);
-    return getUserById(userId);
+    return reloadUserDetail(userId);
   }
 
   @Override
   public UserDetail approveUser(Long userId) {
     log.info("event=HRM_APPROVE_REQUEST targetUserId={}", userId);
     hrmServiceClient.approveUser(userId);
-    return getUserById(userId);
+    return reloadUserDetail(userId);
   }
 
   @Override
   public UserDetail rejectUser(Long userId, String reason) {
     log.info("event=HRM_REJECT_REQUEST targetUserId={} reason={}", userId, reason);
     hrmServiceClient.rejectUser(userId);
-    return getUserById(userId);
+    return reloadUserDetail(userId);
   }
 
   @Override
   public UserDetail suspendUser(Long userId, String reason) {
     log.info("event=HRM_SUSPEND_REQUEST targetUserId={} reason={}", userId, reason);
     hrmServiceClient.suspendUser(userId);
-    return getUserById(userId);
+    return reloadUserDetail(userId);
   }
 
   @Override
   public UserDetail reactivateUser(Long userId) {
     log.info("event=HRM_REACTIVATE_REQUEST targetUserId={}", userId);
     hrmServiceClient.unlockUser(userId);
-    return getUserById(userId);
+    return reloadUserDetail(userId);
   }
 
   @Override
   public UserDetail resetPassword(Long userId) {
     log.info("event=AUTH_RESET_PASSWORD_REQUEST targetUserId={}", userId);
     authServiceClient.resetPassword(userId);
-    return getUserById(userId);
+    return reloadUserDetail(userId);
   }
 
   @Override
@@ -226,9 +197,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         command.department()
     );
 
-    HrmUserResponse current = Optional.ofNullable(hrmServiceClient.getUserById(userId))
-        .map(ResponseApi::data)
-        .orElse(null);
+    HrmUserResponse current = extractData(hrmServiceClient.getUserById(userId));
 
     if (current == null) {
       log.warn("event=HRM_PROFILE_UPDATE_ABORTED targetUserId={} reason=current-profile-not-found", userId);
@@ -239,15 +208,15 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         valueOrFallback(command.fullName(), current.getFullName()),
         current.getEmail(),
         current.getDateOfBirth() != null ? current.getDateOfBirth() : LocalDate.of(2000, 1, 1),
-        valueOrFallback(current.getIdNumber(), current.getIdNumber()),
-        valueOrFallback(current.getAddress(), current.getAddress()),
+        current.getIdNumber(),
+        current.getAddress(),
         valueOrFallback(command.phoneNumber(), current.getPhoneNumber()),
         resolvePositionId(command.positionCode(), current.getPositionCode()),
         valueOrFallback(current.getSysStatus(), "APPROVED")
     ));
 
     log.info("event=HRM_PROFILE_UPDATE_SUCCESS targetUserId={}", userId);
-    return getUserById(userId);
+    return reloadUserDetail(userId);
   }
 
   @Override
@@ -301,7 +270,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
       return item;
     }
 
-    AuthzRoleDto role = extractPayload(authServiceClient.getRoleByUserId(item.userId()));
+    AuthzRoleDto role = getUserRole(item.userId());
     if (role == null || role.getName() == null || role.getName().isBlank()) {
       return item;
     }
@@ -353,9 +322,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
       return null;
     }
 
-    List<HrmPositionResponse> positions = Optional.ofNullable(hrmServiceClient.getPositions())
-        .map(ResponseApi::data)
-        .orElse(Collections.emptyList());
+    List<HrmPositionResponse> positions = getPositions();
 
     try {
       long parsedId = Long.parseLong(target);
@@ -403,7 +370,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
               .map(this::extractPayload)
               .orElse(Collections.emptyList());
           attachedUsers.stream()
-              .filter(userId -> userId != null && !userId.isBlank())
+              .filter(this::hasText)
               .forEach(userIds::add);
         });
 
@@ -418,11 +385,8 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
     int totalPages = 0;
 
     for (int currentPage = 0; ; currentPage++) {
-      ResponseApi<HrmPageResponse<HrmFilterResponse>> response = hrmServiceClient.filterUsers(request, currentPage, size);
-      HrmPageResponse<HrmFilterResponse> payload = response != null ? response.data() : null;
-      List<HrmFilterResponse> items = payload != null && payload.getItems() != null
-          ? payload.getItems()
-          : Collections.emptyList();
+      HrmPageResponse<HrmFilterResponse> payload = fetchUsers(request, currentPage, size);
+      List<HrmFilterResponse> items = getItems(payload);
       totalPages = payload != null ? payload.getTotalPages() : 0;
 
       for (HrmFilterResponse item : items) {
@@ -505,7 +469,70 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
   }
 
   private String valueOrFallback(String value, String fallback) {
-    return value != null && !value.isBlank() ? value : fallback;
+    return hasText(value) ? value : fallback;
+  }
+
+  private UserDetail reloadUserDetail(Long userId) {
+    return getUserById(userId);
+  }
+
+  private HrmFilterRequest toHrmFilterRequest(UserFilterCriteria criteria) {
+    HrmFilterRequest request = new HrmFilterRequest();
+    request.setKeyword(criteria.keyword());
+    request.setSysStatuses(criteria.sysStatuses());
+    request.setRoles(null);
+    request.setPositions(normalizeFilters(criteria.positions()));
+    return request;
+  }
+
+  private HrmPageResponse<HrmFilterResponse> fetchUsers(HrmFilterRequest request, int page, int size) {
+    return extractData(hrmServiceClient.filterUsers(request, page, size));
+  }
+
+  private List<HrmFilterResponse> getItems(HrmPageResponse<HrmFilterResponse> payload) {
+    return payload != null && payload.getItems() != null ? payload.getItems() : Collections.emptyList();
+  }
+
+  private UserPageResult toUserPageResult(HrmPageResponse<HrmFilterResponse> payload, int page, int size) {
+    List<HrmFilterResponse> items = getItems(payload);
+
+    log.info(
+        "event=HRM_FILTER_USERS_SUCCESS page={} size={} totalItems={} totalPages={} returnedItems={}",
+        page,
+        size,
+        payload != null ? payload.getTotalItems() : 0,
+        payload != null ? payload.getTotalPages() : 0,
+        items.size()
+    );
+
+    return new UserPageResult(
+        items.stream()
+            .map(this::toListItem)
+            .map(this::applySystemRole)
+            .toList(),
+        payload != null ? payload.getTotalItems() : 0L,
+        payload != null ? payload.getTotalPages() : 0
+    );
+  }
+
+  private List<HrmPositionResponse> getPositions() {
+    return defaultIfNull(extractData(hrmServiceClient.getPositions()));
+  }
+
+  private AuthzRoleDto getUserRole(Long userId) {
+    return extractPayload(authServiceClient.getRoleByUserId(userId));
+  }
+
+  private <T> T extractData(ResponseApi<T> response) {
+    return response != null ? response.data() : null;
+  }
+
+  private <T> List<T> defaultIfNull(List<T> values) {
+    return values != null ? values : Collections.emptyList();
+  }
+
+  private boolean hasText(String value) {
+    return value != null && !value.isBlank();
   }
 
   private <T> T extractPayload(ResponseFeignClient<T> response) {

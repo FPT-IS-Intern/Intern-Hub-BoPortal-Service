@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -32,9 +30,7 @@ public class AuthzServiceAdapter implements AuthzServicePort {
   public AuthzResource createResource(String name, String code, String categoryId, String description) {
     log.info("event=AUTH_SERVICE_RESOURCE_CREATE_REQUEST name={} code={} categoryId={}", name, code, categoryId);
     var request = new AuthzCreateResourceRequest(name, code, categoryId, description);
-    ResponseFeignClient<com.fis.boportalservice.infra.feignclient.dto.AuthzResourceDto> response =
-        authServiceClient.createResource(request);
-    var dto = response.getData() != null ? response.getData() : response.getResult();
+    var dto = extractPayload(authServiceClient.createResource(request));
     if (dto == null) {
       log.warn("No data returned from auth-service createResource");
       return null;
@@ -52,8 +48,7 @@ public class AuthzServiceAdapter implements AuthzServicePort {
   public AuthzRole createRole(String name, String description) {
     log.info("event=AUTH_SERVICE_ROLE_CREATE_REQUEST name={}", name);
     var request = new AuthzCreateRoleRequest(name, description);
-    ResponseFeignClient<AuthzRoleDto> response = authServiceClient.createRole(request);
-    var dto = response.getData() != null ? response.getData() : response.getResult();
+    var dto = extractPayload(authServiceClient.createRole(request));
     if (dto == null) {
       log.warn("No data returned from auth-service createRole");
       return null;
@@ -71,55 +66,73 @@ public class AuthzServiceAdapter implements AuthzServicePort {
     log.info("event=AUTH_SERVICE_ROLE_PERMISSION_UPDATE_REQUEST roleId={}", roleId);
     var requestResources = resources.stream()
         .map(r -> new AuthzUpdateRolePermissionRequest.ResourcePermission(r.id(), r.permissions()))
-        .collect(Collectors.toList());
+        .toList();
     authServiceClient.updateRolePermissions(roleId, new AuthzUpdateRolePermissionRequest(requestResources));
   }
 
   @Override
   public List<AuthzRole> getRoles() {
     log.info("event=AUTH_SERVICE_ROLE_LIST_REQUEST");
-    ResponseFeignClient<List<AuthzRoleDto>> response = authServiceClient.getRoles();
-    List<AuthzRoleDto> dtos = Optional.ofNullable(response.getData())
-        .orElseGet(() -> Optional.ofNullable(response.getResult()).orElse(Collections.emptyList()));
+    List<AuthzRoleDto> dtos = extractListPayload(authServiceClient.getRoles());
     return dtos.stream()
-        .map(dto -> AuthzRole.builder()
-            .id(dto.getId())
-            .name(dto.getName())
-            .description(dto.getDescription())
-            .status(dto.getStatus())
-            .build())
-        .collect(Collectors.toList());
+        .map(this::toRole)
+        .toList();
   }
 
   @Override
   public List<AuthzRolePermission> getRolePermissions(String roleId) {
     log.info("event=AUTH_SERVICE_ROLE_PERMISSION_LIST_REQUEST roleId={}", roleId);
-    ResponseFeignClient<List<AuthzRolePermissionDto>> response = authServiceClient.getRolePermissions(roleId);
-    List<AuthzRolePermissionDto> dtos = Optional.ofNullable(response.getData())
-        .orElseGet(() -> Optional.ofNullable(response.getResult()).orElse(Collections.emptyList()));
+    List<AuthzRolePermissionDto> dtos = extractListPayload(authServiceClient.getRolePermissions(roleId));
     return dtos.stream()
-        .map(dto -> AuthzRolePermission.builder()
-            .resourceId(dto.getResource() != null ? dto.getResource().getId() : null)
-            .permissions(dto.getPermissions())
-            .build())
-        .collect(Collectors.toList());
+        .map(this::toRolePermission)
+        .toList();
   }
 
   @Override
   public List<AuthzResource> getAllResources() {
     log.info("event=AUTH_SERVICE_RESOURCE_LIST_REQUEST");
-    ResponseFeignClient<List<AuthzResourceDto>> response = authServiceClient.getAllResources();
-    List<AuthzResourceDto> dtos = Optional.ofNullable(response.getData())
-        .orElseGet(() -> Optional.ofNullable(response.getResult()).orElse(Collections.emptyList()));
+    List<AuthzResourceDto> dtos = extractListPayload(authServiceClient.getAllResources());
     return dtos.stream()
-        .map(dto -> AuthzResource.builder()
-            .id(dto.getId())
-            .name(dto.getName())
-            .code(dto.getCode())
-            .description(dto.getDescription())
-            .categoryId(dto.getCategoryId())
-            .build())
-        .collect(Collectors.toList());
+        .map(this::toResource)
+        .toList();
+  }
+
+  private AuthzRole toRole(AuthzRoleDto dto) {
+    return AuthzRole.builder()
+        .id(dto.getId())
+        .name(dto.getName())
+        .description(dto.getDescription())
+        .status(dto.getStatus())
+        .build();
+  }
+
+  private AuthzRolePermission toRolePermission(AuthzRolePermissionDto dto) {
+    return AuthzRolePermission.builder()
+        .resourceId(dto.getResource() != null ? dto.getResource().getId() : null)
+        .permissions(dto.getPermissions())
+        .build();
+  }
+
+  private AuthzResource toResource(AuthzResourceDto dto) {
+    return AuthzResource.builder()
+        .id(dto.getId())
+        .name(dto.getName())
+        .code(dto.getCode())
+        .description(dto.getDescription())
+        .categoryId(dto.getCategoryId())
+        .build();
+  }
+
+  private <T> T extractPayload(ResponseFeignClient<T> response) {
+    if (response == null) {
+      return null;
+    }
+    return response.getData() != null ? response.getData() : response.getResult();
+  }
+
+  private <T> List<T> extractListPayload(ResponseFeignClient<List<T>> response) {
+    List<T> payload = extractPayload(response);
+    return payload != null ? payload : Collections.emptyList();
   }
 }
 

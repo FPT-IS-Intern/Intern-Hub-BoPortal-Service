@@ -2,10 +2,11 @@ package com.fis.boportalservice.core.service.impl;
 
 import com.fis.boportalservice.core.domain.model.PortalMenu;
 import com.fis.boportalservice.core.domain.repository.PortalMenuRepository;
+import com.fis.boportalservice.core.exception.ClientSideException;
+import com.fis.boportalservice.core.exception.ErrorCode;
 import com.fis.boportalservice.core.service.PortalMenuService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,7 +16,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class PortalMenuServiceImpl implements PortalMenuService {
 
@@ -47,7 +47,7 @@ public class PortalMenuServiceImpl implements PortalMenuService {
     return menuRepository.findById(id)
         .orElseThrow(() -> {
           log.error("Portal menu not found with id: {}", id);
-          return new RuntimeException("Menu not found with id: " + id);
+          return new ClientSideException(ErrorCode.NOT_FOUND, "Portal menu not found");
         });
   }
 

@@ -2,16 +2,16 @@ package com.fis.boportalservice.core.service.impl;
 
 import com.fis.boportalservice.core.domain.model.AllowedIpRange;
 import com.fis.boportalservice.core.domain.repository.AllowedIpRangeRepository;
+import com.fis.boportalservice.core.exception.ClientSideException;
+import com.fis.boportalservice.core.exception.ErrorCode;
 import com.fis.boportalservice.core.service.AllowedIpRangeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class AllowedIpRangeServiceImpl implements AllowedIpRangeService {
 
@@ -32,7 +32,7 @@ public class AllowedIpRangeServiceImpl implements AllowedIpRangeService {
     return allowedIpRangeRepository.findById(id)
         .orElseThrow(() -> {
           log.error("Allowed IP range not found with id: {}", id);
-          return new RuntimeException("AllowedIpRange not found with id: " + id);
+          return new ClientSideException(ErrorCode.NOT_FOUND, "Allowed IP range not found");
         });
   }
 

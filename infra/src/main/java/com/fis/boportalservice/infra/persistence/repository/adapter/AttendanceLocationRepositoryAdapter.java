@@ -1,9 +1,10 @@
-package com.fis.boportalservice.infra.persistence.repository;
+package com.fis.boportalservice.infra.persistence.repository.adapter;
 
 import com.fis.boportalservice.core.domain.model.AttendanceLocation;
 import com.fis.boportalservice.core.domain.repository.AttendanceLocationRepository;
 import com.fis.boportalservice.infra.persistence.entity.AttendanceLocationEntity;
 import com.fis.boportalservice.infra.persistence.mapper.AttendanceLocationEntityMapper;
+import com.fis.boportalservice.infra.persistence.repository.AttendanceLocationJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

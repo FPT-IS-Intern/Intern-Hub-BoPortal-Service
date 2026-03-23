@@ -2,16 +2,16 @@ package com.fis.boportalservice.core.service.impl;
 
 import com.fis.boportalservice.core.domain.model.AttendanceLocation;
 import com.fis.boportalservice.core.domain.repository.AttendanceLocationRepository;
+import com.fis.boportalservice.core.exception.ClientSideException;
+import com.fis.boportalservice.core.exception.ErrorCode;
 import com.fis.boportalservice.core.service.AttendanceLocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class AttendanceLocationServiceImpl implements AttendanceLocationService {
 
@@ -30,7 +30,7 @@ public class AttendanceLocationServiceImpl implements AttendanceLocationService 
   @Override
   public AttendanceLocation getById(UUID id) {
     return attendanceLocationRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Attendance location not found with id: " + id));
+        .orElseThrow(() -> new ClientSideException(ErrorCode.NOT_FOUND, "Attendance location not found"));
   }
 
   @Override
