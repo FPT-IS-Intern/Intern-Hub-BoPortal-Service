@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AuditHashCheckResponse {
 
-  private Long auditId;
+  private String auditId;
   private boolean valid;
 
 }

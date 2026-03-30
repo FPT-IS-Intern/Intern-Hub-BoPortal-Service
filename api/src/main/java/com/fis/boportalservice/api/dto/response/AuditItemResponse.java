@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AuditItemResponse {
 
-  private Long id;
+  private String id;
   private String entity;
   private String actor;
   private String actorId;

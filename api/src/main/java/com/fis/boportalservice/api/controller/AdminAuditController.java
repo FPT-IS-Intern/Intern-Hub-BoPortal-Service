@@ -8,6 +8,7 @@ import com.fis.boportalservice.api.dto.response.AuditRehashResponse;
 import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.domain.model.AuditModel;
 import com.fis.boportalservice.core.domain.model.AuditPageResult;
+import com.fis.boportalservice.core.exception.ErrorCode;
 import com.fis.boportalservice.core.service.AuditServicePort;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -53,9 +54,13 @@ public class AdminAuditController {
   }
 
   @GetMapping("/{auditId}/hash/verify")
-  public ResponseApi<AuditHashCheckResponse> verifyHashByAuditId(@PathVariable Long auditId) {
+  public ResponseApi<AuditHashCheckResponse> verifyHashByAuditId(@PathVariable String auditId) {
     log.info("event=AUDIT_HASH_VERIFY_REQUEST auditId={}", auditId);
-    boolean valid = auditServicePort.verifyHashByAuditId(auditId);
+    Long parsedAuditId = parseLongId(auditId);
+    if (parsedAuditId == null) {
+      return ResponseApi.error(ErrorCode.BAD_REQUEST.getCode(), "Invalid auditId");
+    }
+    boolean valid = auditServicePort.verifyHashByAuditId(parsedAuditId);
     return ResponseApi.success(
         AuditHashCheckResponse.builder()
             .auditId(auditId)
@@ -86,7 +91,7 @@ public class AdminAuditController {
     if (model == null) return ResponseApi.error("1", "Failed to create action function");
     return ResponseApi.success(
             com.fis.boportalservice.api.dto.response.ActionFunctionResponse.builder()
-                    .id(model.getId())
+                    .id(toStringId(model.getId()))
                     .action(model.getAction())
                     .description(model.getDescription())
                     .build()
@@ -97,7 +102,7 @@ public class AdminAuditController {
   public ResponseApi<List<com.fis.boportalservice.api.dto.response.ActionFunctionResponse>> getAllActionFunctions() {
     var list = auditServicePort.getAllActionFunctions().stream()
             .map(model -> com.fis.boportalservice.api.dto.response.ActionFunctionResponse.builder()
-                    .id(model.getId())
+                    .id(toStringId(model.getId()))
                     .action(model.getAction())
                     .description(model.getDescription())
                     .build())
@@ -122,7 +127,7 @@ public class AdminAuditController {
 
   private AuditItemResponse toItemResponse(AuditModel model) {
     return AuditItemResponse.builder()
-        .id(model.getId())
+        .id(toStringId(model.getId()))
         .entity(model.getEntity())
         .actor(model.getActor())
         .actorId(model.getActorId())
@@ -137,5 +142,17 @@ public class AdminAuditController {
         .timeStamp(model.getTimeStamp())
         .hash(model.getHash())
         .build();
+  }
+
+  private String toStringId(Long value) {
+    return value == null ? null : value.toString();
+  }
+
+  private Long parseLongId(String value) {
+    try {
+      return value == null ? null : Long.parseLong(value);
+    } catch (NumberFormatException ex) {
+      return null;
+    }
   }
 }
