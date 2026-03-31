@@ -52,7 +52,9 @@ public class OrgChartServiceAdapter implements OrgChartServicePort {
   @Override
   public OrgChartUserDetail updateManager(Long userId, Long managerId) {
     log.info("event=ORGCHART_MANAGER_UPDATE_REQUEST userId={} managerId={}", userId, managerId);
-    hrmServiceClient.assignMentor(userId, managerId);
+    hrmServiceClient.bulkUpdateOrgChartManager(
+        new HrmBulkManagerUpdateRequest(List.of(userId), managerId)
+    );
     return getUserDetail(userId);
   }
 
