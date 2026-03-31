@@ -1,6 +1,7 @@
 package com.fis.boportalservice.api.controller;
 
 import com.fis.boportalservice.api.dto.request.OrgChartBulkManagerUpdateRequest;
+import com.fis.boportalservice.api.dto.request.OrgChartInitializeRootRequest;
 import com.fis.boportalservice.api.dto.response.OrgChartBulkManagerUpdateResponse;
 import com.fis.boportalservice.api.dto.response.OrgChartPageResponse;
 import com.fis.boportalservice.api.dto.response.OrgChartPathResponse;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,6 +58,14 @@ public class OrgChartController {
   public ResponseApi<OrgChartUserDetailResponse> getUserDetail(@PathVariable Long userId) {
     log.info("event=ORGCHART_DETAIL_BFF_REQUEST userId={}", userId);
     return ResponseApi.success(orgChartApiMapper.toDetailResponse(orgChartServicePort.getUserDetail(userId)));
+  }
+
+  @PostMapping("/root")
+  public ResponseApi<OrgChartUserDetailResponse> initializeRoot(@RequestBody OrgChartInitializeRootRequest request) {
+    log.info("event=ORGCHART_ROOT_INIT_BFF_REQUEST userId={}", request.userId());
+    return ResponseApi.success(
+        orgChartApiMapper.toDetailResponse(orgChartServicePort.initializeRoot(request.userId()))
+    );
   }
 
   @PutMapping("/users/{userId}/manager")

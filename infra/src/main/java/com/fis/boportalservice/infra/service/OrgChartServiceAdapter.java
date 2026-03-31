@@ -5,6 +5,7 @@ import com.fis.boportalservice.core.service.OrgChartServicePort;
 import com.fis.boportalservice.infra.feignclient.HrmServiceClient;
 import com.fis.boportalservice.infra.feignclient.dto.HrmBulkManagerUpdateRequest;
 import com.fis.boportalservice.infra.feignclient.dto.HrmBulkManagerUpdateResponse;
+import com.fis.boportalservice.infra.feignclient.dto.HrmInitializeRootRequest;
 import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartDepartmentResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartPageResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartPathResponse;
@@ -40,6 +41,12 @@ public class OrgChartServiceAdapter implements OrgChartServicePort {
   public OrgChartUserDetail getUserDetail(Long userId) {
     log.info("event=ORGCHART_DETAIL_REQUEST userId={}", userId);
     return toDetail(extractData(hrmServiceClient.getOrgChartUserDetail(userId)));
+  }
+
+  @Override
+  public OrgChartUserDetail initializeRoot(Long userId) {
+    log.info("event=ORGCHART_ROOT_INIT_REQUEST userId={}", userId);
+    return toDetail(extractData(hrmServiceClient.initializeOrgChartRoot(new HrmInitializeRootRequest(userId))));
   }
 
   @Override

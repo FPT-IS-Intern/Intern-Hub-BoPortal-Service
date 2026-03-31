@@ -10,6 +10,8 @@ public interface OrgChartServicePort {
 
   OrgChartUserDetail getUserDetail(Long userId);
 
+  OrgChartUserDetail initializeRoot(Long userId);
+
   OrgChartUserDetail updateManager(Long userId, Long managerId);
 
   OrgChartBulkManagerUpdateResult bulkUpdateManager(List<Long> userIds, Long managerId);

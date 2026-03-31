@@ -4,6 +4,7 @@ import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.infra.configuration.FeignClientCommonConfiguration;
 import com.fis.boportalservice.infra.feignclient.dto.HrmBulkManagerUpdateRequest;
 import com.fis.boportalservice.infra.feignclient.dto.HrmBulkManagerUpdateResponse;
+import com.fis.boportalservice.infra.feignclient.dto.HrmInitializeRootRequest;
 import com.fis.boportalservice.infra.feignclient.dto.HrmFilterRequest;
 import com.fis.boportalservice.infra.feignclient.dto.HrmFilterResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartPageResponse;
@@ -69,6 +70,9 @@ public interface HrmServiceClient {
 
   @GetMapping("/hrm/internal/orgchart/users/{userId}")
   ResponseApi<HrmOrgChartUserDetailResponse> getOrgChartUserDetail(@PathVariable("userId") Long userId);
+
+  @PostMapping("/hrm/internal/orgchart/root")
+  ResponseApi<HrmOrgChartUserDetailResponse> initializeOrgChartRoot(@RequestBody HrmInitializeRootRequest request);
 
   @GetMapping("/hrm/internal/orgchart/users")
   ResponseApi<HrmOrgChartPageResponse<HrmOrgChartUserNodeResponse>> searchOrgChartUsers(
