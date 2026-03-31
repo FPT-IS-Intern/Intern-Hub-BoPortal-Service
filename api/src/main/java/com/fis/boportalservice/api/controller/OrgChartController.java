@@ -1,8 +1,11 @@
 package com.fis.boportalservice.api.controller;
 
+import com.fis.boportalservice.api.dto.request.OrgChartBulkManagerUpdateRequest;
+import com.fis.boportalservice.api.dto.response.OrgChartBulkManagerUpdateResponse;
 import com.fis.boportalservice.api.dto.response.OrgChartPageResponse;
 import com.fis.boportalservice.api.dto.response.OrgChartPathResponse;
 import com.fis.boportalservice.api.dto.response.OrgChartUserDetailResponse;
+import com.fis.boportalservice.api.dto.response.OrgChartUserLiteResponse;
 import com.fis.boportalservice.api.dto.response.OrgChartUserNodeResponse;
 import com.fis.boportalservice.api.mapper.OrgChartApiMapper;
 import com.fis.boportalservice.common.dto.ResponseApi;
@@ -12,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,6 +58,29 @@ public class OrgChartController {
     return ResponseApi.success(orgChartApiMapper.toDetailResponse(orgChartServicePort.getUserDetail(userId)));
   }
 
+  @PutMapping("/users/{userId}/manager")
+  public ResponseApi<OrgChartUserDetailResponse> updateManager(
+      @PathVariable Long userId,
+      @RequestParam(required = false) Long managerId
+  ) {
+    log.info("event=ORGCHART_MANAGER_UPDATE_BFF_REQUEST userId={} managerId={}", userId, managerId);
+    return ResponseApi.success(
+        orgChartApiMapper.toDetailResponse(orgChartServicePort.updateManager(userId, managerId))
+    );
+  }
+
+  @PutMapping("/users/manager")
+  public ResponseApi<OrgChartBulkManagerUpdateResponse> bulkUpdateManager(
+      @RequestBody OrgChartBulkManagerUpdateRequest request
+  ) {
+    log.info("event=ORGCHART_BULK_MANAGER_UPDATE_BFF_REQUEST userIds={} managerId={}", request.userIds(), request.managerId());
+    return ResponseApi.success(
+        orgChartApiMapper.toBulkManagerUpdateResponse(
+            orgChartServicePort.bulkUpdateManager(request.userIds(), request.managerId())
+        )
+    );
+  }
+
   @GetMapping("/users")
   public ResponseApi<OrgChartPageResponse<OrgChartUserNodeResponse>> searchUsers(
       @RequestParam(required = false, name = "q") String query,
@@ -71,6 +99,18 @@ public class OrgChartController {
     );
     return ResponseApi.success(
         orgChartApiMapper.toPageResponse(orgChartServicePort.searchUsers(query, department, status, page, limit))
+    );
+  }
+
+  @GetMapping("/assignable-users")
+  public ResponseApi<OrgChartPageResponse<OrgChartUserLiteResponse>> getAssignableUsers(
+      @RequestParam(required = false, name = "q") String query,
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "20") int limit
+  ) {
+    log.info("event=ORGCHART_ASSIGNABLE_USERS_BFF_REQUEST query={} page={} limit={}", query, page, limit);
+    return ResponseApi.success(
+        orgChartApiMapper.toLitePageResponse(orgChartServicePort.getAssignableUsers(query, page, limit))
     );
   }
 

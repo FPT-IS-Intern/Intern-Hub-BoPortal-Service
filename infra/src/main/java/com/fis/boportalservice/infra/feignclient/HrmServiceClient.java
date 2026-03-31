@@ -2,11 +2,14 @@ package com.fis.boportalservice.infra.feignclient;
 
 import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.infra.configuration.FeignClientCommonConfiguration;
+import com.fis.boportalservice.infra.feignclient.dto.HrmBulkManagerUpdateRequest;
+import com.fis.boportalservice.infra.feignclient.dto.HrmBulkManagerUpdateResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmFilterRequest;
 import com.fis.boportalservice.infra.feignclient.dto.HrmFilterResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartPageResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartPathResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartUserDetailResponse;
+import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartUserLiteResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartUserNodeResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmPageResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmPositionResponse;
@@ -48,6 +51,9 @@ public interface HrmServiceClient {
   @PatchMapping(value = "/hrm/internal/users/{userId}/profile", consumes = MediaType.APPLICATION_JSON_VALUE)
   ResponseApi<Object> updateUserProfile(@PathVariable("userId") Long userId, @RequestBody HrmUpdateProfileRequest request);
 
+  @PutMapping("/hrm/internal/users/{userId}/mentor")
+  ResponseApi<Void> assignMentor(@PathVariable("userId") Long userId, @RequestParam(value = "mentorId", required = false) Long mentorId);
+
   @GetMapping("/hrm/internal/orgchart")
   ResponseApi<HrmOrgChartUserNodeResponse> getOrgChart(
       @RequestParam(value = "rootId", required = false) Long rootId,
@@ -71,6 +77,18 @@ public interface HrmServiceClient {
       @RequestParam(value = "status", required = false) String status,
       @RequestParam("page") int page,
       @RequestParam("limit") int limit
+  );
+
+  @GetMapping("/hrm/internal/orgchart/assignable-users")
+  ResponseApi<HrmOrgChartPageResponse<HrmOrgChartUserLiteResponse>> getAssignableOrgChartUsers(
+      @RequestParam(value = "q", required = false) String query,
+      @RequestParam("page") int page,
+      @RequestParam("limit") int limit
+  );
+
+  @PutMapping("/hrm/internal/orgchart/users/manager")
+  ResponseApi<HrmBulkManagerUpdateResponse> bulkUpdateOrgChartManager(
+      @RequestBody HrmBulkManagerUpdateRequest request
   );
 
   @GetMapping("/hrm/internal/orgchart/users/{userId}/path")

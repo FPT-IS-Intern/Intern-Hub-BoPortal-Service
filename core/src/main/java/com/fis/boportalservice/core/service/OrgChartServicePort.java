@@ -10,7 +10,13 @@ public interface OrgChartServicePort {
 
   OrgChartUserDetail getUserDetail(Long userId);
 
+  OrgChartUserDetail updateManager(Long userId, Long managerId);
+
+  OrgChartBulkManagerUpdateResult bulkUpdateManager(List<Long> userIds, Long managerId);
+
   OrgChartPageResult searchUsers(String query, String department, String status, int page, int limit);
+
+  OrgChartLitePageResult getAssignableUsers(String query, int page, int limit);
 
   List<OrgChartUserLite> getPathToRoot(Long userId);
 
@@ -72,6 +78,22 @@ public interface OrgChartServicePort {
       int page,
       int limit,
       int totalPages
+  ) {
+  }
+
+  record OrgChartLitePageResult(
+      List<OrgChartUserLite> data,
+      long total,
+      int page,
+      int limit,
+      int totalPages
+  ) {
+  }
+
+  record OrgChartBulkManagerUpdateResult(
+      List<String> updatedUserIds,
+      String managerId,
+      int updatedCount
   ) {
   }
 }

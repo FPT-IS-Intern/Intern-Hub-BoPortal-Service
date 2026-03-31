@@ -3,6 +3,8 @@ package com.fis.boportalservice.infra.service;
 import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.service.OrgChartServicePort;
 import com.fis.boportalservice.infra.feignclient.HrmServiceClient;
+import com.fis.boportalservice.infra.feignclient.dto.HrmBulkManagerUpdateRequest;
+import com.fis.boportalservice.infra.feignclient.dto.HrmBulkManagerUpdateResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartDepartmentResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartPageResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmOrgChartPathResponse;
@@ -41,6 +43,27 @@ public class OrgChartServiceAdapter implements OrgChartServicePort {
   }
 
   @Override
+  public OrgChartUserDetail updateManager(Long userId, Long managerId) {
+    log.info("event=ORGCHART_MANAGER_UPDATE_REQUEST userId={} managerId={}", userId, managerId);
+    hrmServiceClient.assignMentor(userId, managerId);
+    return getUserDetail(userId);
+  }
+
+  @Override
+  public OrgChartBulkManagerUpdateResult bulkUpdateManager(List<Long> userIds, Long managerId) {
+    log.info("event=ORGCHART_BULK_MANAGER_UPDATE_REQUEST userIds={} managerId={}", userIds, managerId);
+    HrmBulkManagerUpdateResponse response =
+        extractData(hrmServiceClient.bulkUpdateOrgChartManager(new HrmBulkManagerUpdateRequest(userIds, managerId)));
+    return new OrgChartBulkManagerUpdateResult(
+        response != null && response.getUpdatedUserIds() != null
+            ? response.getUpdatedUserIds().stream().map(String::valueOf).toList()
+            : Collections.emptyList(),
+        response != null && response.getManagerId() != null ? String.valueOf(response.getManagerId()) : null,
+        response != null ? response.getUpdatedCount() : 0
+    );
+  }
+
+  @Override
   public OrgChartPageResult searchUsers(String query, String department, String status, int page, int limit) {
     log.info(
         "event=ORGCHART_SEARCH_REQUEST query={} department={} status={} page={} limit={}",
@@ -48,9 +71,25 @@ public class OrgChartServiceAdapter implements OrgChartServicePort {
         department,
         status,
         page,
-        limit
-    );
+        limit);
     return toPageResult(extractData(hrmServiceClient.searchOrgChartUsers(query, department, status, page, limit)));
+  }
+
+  @Override
+  public OrgChartLitePageResult getAssignableUsers(String query, int page, int limit) {
+    log.info("event=ORGCHART_ASSIGNABLE_USERS_REQUEST query={} page={} limit={}", query, page, limit);
+    HrmOrgChartPageResponse<HrmOrgChartUserLiteResponse> response =
+        extractData(hrmServiceClient.getAssignableOrgChartUsers(query, page, limit));
+    if (response == null) {
+      return new OrgChartLitePageResult(Collections.emptyList(), 0, 1, 0, 0);
+    }
+
+    return new OrgChartLitePageResult(
+        response.getData() != null ? response.getData().stream().map(this::toLite).toList() : Collections.emptyList(),
+        response.getMeta() != null ? response.getMeta().getTotal() : 0,
+        response.getMeta() != null ? response.getMeta().getPage() : 1,
+        response.getMeta() != null ? response.getMeta().getLimit() : 0,
+        response.getMeta() != null ? response.getMeta().getTotalPages() : 0);
   }
 
   @Override
@@ -73,8 +112,7 @@ public class OrgChartServiceAdapter implements OrgChartServicePort {
         response.getMeta() != null ? response.getMeta().getTotal() : 0,
         response.getMeta() != null ? response.getMeta().getPage() : 1,
         response.getMeta() != null ? response.getMeta().getLimit() : 0,
-        response.getMeta() != null ? response.getMeta().getTotalPages() : 0
-    );
+        response.getMeta() != null ? response.getMeta().getTotalPages() : 0);
   }
 
   private OrgChartNode toNode(HrmOrgChartUserNodeResponse response) {
@@ -96,8 +134,7 @@ public class OrgChartServiceAdapter implements OrgChartServicePort {
         response.getManagerId(),
         response.isHasChildren(),
         response.getSubordinateCount(),
-        response.getChildren() != null ? response.getChildren().stream().map(this::toNode).toList() : Collections.emptyList()
-    );
+        response.getChildren() != null ? response.getChildren().stream().map(this::toNode).toList() : Collections.emptyList());
   }
 
   private OrgChartUserDetail toDetail(HrmOrgChartUserDetailResponse response) {
@@ -120,8 +157,7 @@ public class OrgChartServiceAdapter implements OrgChartServicePort {
         response.getSubordinates() != null ? response.getSubordinates().stream().map(this::toLite).toList() : Collections.emptyList(),
         response.getProjects() != null ? response.getProjects() : Collections.emptyList(),
         response.isHasChildren(),
-        response.getSubordinateCount()
-    );
+        response.getSubordinateCount());
   }
 
   private OrgChartDepartment toDepartment(HrmOrgChartDepartmentResponse response) {

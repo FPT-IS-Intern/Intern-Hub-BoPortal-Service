@@ -1,6 +1,7 @@
 package com.fis.boportalservice.api.mapper;
 
 import com.fis.boportalservice.api.dto.response.OrgChartDepartmentResponse;
+import com.fis.boportalservice.api.dto.response.OrgChartBulkManagerUpdateResponse;
 import com.fis.boportalservice.api.dto.response.OrgChartMetaResponse;
 import com.fis.boportalservice.api.dto.response.OrgChartPageResponse;
 import com.fis.boportalservice.api.dto.response.OrgChartPathResponse;
@@ -43,6 +44,13 @@ public class OrgChartApiMapper {
     );
   }
 
+  public OrgChartPageResponse<OrgChartUserLiteResponse> toLitePageResponse(OrgChartServicePort.OrgChartLitePageResult pageResult) {
+    return new OrgChartPageResponse<>(
+        pageResult.data().stream().map(this::toLite).toList(),
+        new OrgChartMetaResponse(pageResult.total(), pageResult.page(), pageResult.limit(), pageResult.totalPages())
+    );
+  }
+
   public OrgChartUserDetailResponse toDetailResponse(OrgChartServicePort.OrgChartUserDetail detail) {
     if (detail == null) {
       return null;
@@ -69,6 +77,11 @@ public class OrgChartApiMapper {
 
   public OrgChartPathResponse toPathResponse(java.util.List<OrgChartServicePort.OrgChartUserLite> items) {
     return new OrgChartPathResponse(items.stream().map(this::toLite).toList());
+  }
+
+  public OrgChartBulkManagerUpdateResponse toBulkManagerUpdateResponse(
+      OrgChartServicePort.OrgChartBulkManagerUpdateResult result) {
+    return new OrgChartBulkManagerUpdateResponse(result.updatedUserIds(), result.managerId(), result.updatedCount());
   }
 
   private OrgChartDepartmentResponse toDepartment(OrgChartServicePort.OrgChartDepartment department) {
