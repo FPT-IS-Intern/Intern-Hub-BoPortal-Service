@@ -102,6 +102,23 @@ public class OrgChartServiceAdapter implements OrgChartServicePort {
   }
 
   @Override
+  public OrgChartLitePageResult getParentCandidates(Long userId, String query, int page, int limit) {
+    log.info("event=ORGCHART_PARENT_CANDIDATES_REQUEST userId={} query={} page={} limit={}", userId, query, page, limit);
+    HrmOrgChartPageResponse<HrmOrgChartUserLiteResponse> response =
+        extractData(hrmServiceClient.getOrgChartParentCandidates(userId, query, page, limit));
+    if (response == null) {
+      return new OrgChartLitePageResult(Collections.emptyList(), 0, 1, 0, 0);
+    }
+
+    return new OrgChartLitePageResult(
+        response.getData() != null ? response.getData().stream().map(this::toLite).toList() : Collections.emptyList(),
+        response.getMeta() != null ? response.getMeta().getTotal() : 0,
+        response.getMeta() != null ? response.getMeta().getPage() : 1,
+        response.getMeta() != null ? response.getMeta().getLimit() : 0,
+        response.getMeta() != null ? response.getMeta().getTotalPages() : 0);
+  }
+
+  @Override
   public List<OrgChartUserLite> getPathToRoot(Long userId) {
     log.info("event=ORGCHART_PATH_REQUEST userId={}", userId);
     HrmOrgChartPathResponse response = extractData(hrmServiceClient.getOrgChartPath(userId));

@@ -20,6 +20,8 @@ public interface OrgChartServicePort {
 
   OrgChartLitePageResult getAssignableUsers(String query, int page, int limit);
 
+  OrgChartLitePageResult getParentCandidates(Long userId, String query, int page, int limit);
+
   List<OrgChartUserLite> getPathToRoot(Long userId);
 
   record OrgChartNode(

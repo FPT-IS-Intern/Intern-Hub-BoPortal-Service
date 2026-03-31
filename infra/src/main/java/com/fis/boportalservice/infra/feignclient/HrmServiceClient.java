@@ -90,6 +90,14 @@ public interface HrmServiceClient {
       @RequestParam("limit") int limit
   );
 
+  @GetMapping("/hrm/internal/orgchart/nodes")
+  ResponseApi<HrmOrgChartPageResponse<HrmOrgChartUserLiteResponse>> getOrgChartParentCandidates(
+      @RequestParam("userId") Long userId,
+      @RequestParam(value = "q", required = false) String query,
+      @RequestParam("page") int page,
+      @RequestParam("limit") int limit
+  );
+
   @PutMapping("/hrm/internal/orgchart/users/manager")
   ResponseApi<HrmBulkManagerUpdateResponse> bulkUpdateOrgChartManager(
       @RequestBody HrmBulkManagerUpdateRequest request

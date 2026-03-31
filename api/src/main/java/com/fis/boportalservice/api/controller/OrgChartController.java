@@ -124,6 +124,19 @@ public class OrgChartController {
     );
   }
 
+  @GetMapping("/nodes")
+  public ResponseApi<OrgChartPageResponse<OrgChartUserLiteResponse>> getParentCandidates(
+      @RequestParam Long userId,
+      @RequestParam(required = false, name = "q") String query,
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "20") int limit
+  ) {
+    log.info("event=ORGCHART_PARENT_CANDIDATES_BFF_REQUEST userId={} query={} page={} limit={}", userId, query, page, limit);
+    return ResponseApi.success(
+        orgChartApiMapper.toLitePageResponse(orgChartServicePort.getParentCandidates(userId, query, page, limit))
+    );
+  }
+
   @GetMapping("/users/{userId}/path")
   public ResponseApi<OrgChartPathResponse> getPathToRoot(@PathVariable Long userId) {
     log.info("event=ORGCHART_PATH_BFF_REQUEST userId={}", userId);
