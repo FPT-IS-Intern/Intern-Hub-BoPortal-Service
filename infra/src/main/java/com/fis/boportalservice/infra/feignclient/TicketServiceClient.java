@@ -40,4 +40,21 @@ public interface TicketServiceClient {
       @PathVariable("approverId") Long approverId,
       @RequestParam(value = "level", required = false) Integer level
   );
+
+  @GetMapping("/ticket/approvers")
+  ResponseApi<TicketApproverIdsResponse> getGlobalApproverIds(
+      @RequestParam(value = "level", required = false) Integer level
+  );
+
+  @PostMapping("/ticket/approvers/{approverId}")
+  ResponseApi<Void> assignGlobalApprover(
+      @PathVariable("approverId") Long approverId,
+      @RequestParam(value = "level", required = false) Integer level
+  );
+
+  @DeleteMapping("/ticket/approvers/{approverId}")
+  ResponseApi<Void> removeGlobalApprover(
+      @PathVariable("approverId") Long approverId,
+      @RequestParam(value = "level", required = false) Integer level
+  );
 }

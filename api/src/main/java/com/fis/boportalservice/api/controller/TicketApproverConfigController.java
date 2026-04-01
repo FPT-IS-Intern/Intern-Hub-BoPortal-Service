@@ -56,4 +56,30 @@ public class TicketApproverConfigController {
     servicePort.removeApprover(ticketTypeId, approverId, level);
     return ResponseApi.success();
   }
+
+  // Global approver config (applies to all ticket types)
+  @GetMapping("/approvers")
+  public ResponseApi<List<String>> getGlobalApproverIds(
+      @RequestParam(value = "level", required = false) Integer level
+  ) {
+    return ResponseApi.success(servicePort.getGlobalApproverIds(level));
+  }
+
+  @PostMapping("/approvers/{approverId}")
+  public ResponseApi<Void> assignGlobalApprover(
+      @PathVariable Long approverId,
+      @RequestParam(value = "level", required = false) Integer level
+  ) {
+    servicePort.assignGlobalApprover(approverId, level);
+    return ResponseApi.success();
+  }
+
+  @DeleteMapping("/approvers/{approverId}")
+  public ResponseApi<Void> removeGlobalApprover(
+      @PathVariable Long approverId,
+      @RequestParam(value = "level", required = false) Integer level
+  ) {
+    servicePort.removeGlobalApprover(approverId, level);
+    return ResponseApi.success();
+  }
 }

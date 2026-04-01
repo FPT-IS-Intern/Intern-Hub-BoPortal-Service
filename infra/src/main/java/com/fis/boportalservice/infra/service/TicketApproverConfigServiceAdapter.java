@@ -52,6 +52,26 @@ public class TicketApproverConfigServiceAdapter implements TicketApproverConfigS
     ticketServiceClient.removeTicketTypeApprover(ticketTypeId, approverId, level);
   }
 
+  @Override
+  public List<String> getGlobalApproverIds(Integer level) {
+    log.info("event=TICKET_GLOBAL_APPROVER_IDS_REQUEST level={}", level);
+    TicketApproverIdsResponse response = extractData(ticketServiceClient.getGlobalApproverIds(level));
+    if (response == null || response.approverIds() == null) return Collections.emptyList();
+    return response.approverIds().stream().map(String::valueOf).toList();
+  }
+
+  @Override
+  public void assignGlobalApprover(Long approverId, Integer level) {
+    log.info("event=TICKET_GLOBAL_APPROVER_ASSIGN_REQUEST approverId={} level={}", approverId, level);
+    ticketServiceClient.assignGlobalApprover(approverId, level);
+  }
+
+  @Override
+  public void removeGlobalApprover(Long approverId, Integer level) {
+    log.info("event=TICKET_GLOBAL_APPROVER_REMOVE_REQUEST approverId={} level={}", approverId, level);
+    ticketServiceClient.removeGlobalApprover(approverId, level);
+  }
+
   private <T> T extractData(com.fis.boportalservice.common.dto.ResponseApi<T> response) {
     return response != null ? response.data() : null;
   }
