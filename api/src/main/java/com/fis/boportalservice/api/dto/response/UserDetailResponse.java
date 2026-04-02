@@ -11,6 +11,8 @@ public record UserDetailResponse(
     String status,
     String loginStatus,
     String department,
+    String mentorName,
+    String mentorId,
     Boolean activated,
     Boolean deleted
 ) {

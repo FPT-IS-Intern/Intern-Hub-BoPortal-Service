@@ -68,6 +68,8 @@ public interface UserManagementServicePort {
       String status,
       String loginStatus,
       String department,
+      String mentorName,
+      Long mentorId,
       Boolean activated,
       Boolean deleted
   ) {

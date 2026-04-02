@@ -235,6 +235,8 @@ public class UserManagementController {
         user.status(),
         user.loginStatus(),
         user.department(),
+        user.mentorName(),
+        user.mentorId() != null ? String.valueOf(user.mentorId()) : null,
         user.activated(),
         user.deleted()
     );

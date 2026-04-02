@@ -324,6 +324,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
 
   private UserDetail toDetail(HrmUserResponse item, AuthzRoleDto role, AuthIdentityStatusDto identityStatus) {
     String authSysStatus = identityStatus != null ? identityStatus.getSysStatus() : null;
+    Long mentorId = item.getMentorId();
     return new UserDetail(
         item.getUserId(),
         item.getEmail(),
@@ -335,9 +336,24 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
         authSysStatus,
         authSysStatus,
         item.getDepartment(),
+        resolveMentorName(mentorId),
+        mentorId,
         "APPROVED".equalsIgnoreCase(item.getSysStatus()),
         false
     );
+  }
+
+  private String resolveMentorName(Long mentorId) {
+    if (mentorId == null) {
+      return null;
+    }
+    try {
+      HrmUserResponse mentor = extractData(hrmServiceClient.getUserById(mentorId));
+      return mentor != null ? mentor.getFullName() : null;
+    } catch (Exception ex) {
+      log.warn("event=HRM_MENTOR_DETAIL_FAILED mentorId={} message={}", mentorId, ex.getMessage());
+      return null;
+    }
   }
 
   private UserRole toUserRole(AuthzRoleDto role) {

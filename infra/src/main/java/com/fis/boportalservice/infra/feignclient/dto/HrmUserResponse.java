@@ -24,6 +24,8 @@ public class HrmUserResponse {
   private String address;
   private LocalDate dateOfBirth;
   private String department;
+  @JsonAlias({"superVisorId", "supervisorId", "mentorId", "mentor_id"})
+  private Long mentorId;
   @JsonAlias({"sysStatus", "status"})
   private String sysStatus;
 }
