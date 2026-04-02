@@ -86,7 +86,7 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
     log.info("event=AUTH_ROLE_LOOKUP_REQUEST targetUserId={}", userId);
     AuthzRoleDto role = extractPayload(authServiceClient.getRoleByUserId(userId));
     log.info("event=AUTH_IDENTITY_STATUS_REQUEST targetUserId={}", userId);
-    AuthIdentityStatusDto identityStatus = extractPayload(authServiceClient.getIdentityStatus(userId));
+    AuthIdentityStatusDto identityStatus = getIdentityStatusDto(userId);
 
     log.info(
         "event=USER_DETAIL_COMPOSED targetUserId={} businessStatus={} loginStatus={} role={}",
@@ -597,9 +597,13 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
   }
 
   private String getIdentityStatus(Long userId) {
+    AuthIdentityStatusDto dto = getIdentityStatusDto(userId);
+    return dto != null ? dto.getSysStatus() : null;
+  }
+
+  private AuthIdentityStatusDto getIdentityStatusDto(Long userId) {
     try {
-      AuthIdentityStatusDto dto = extractPayload(authServiceClient.getIdentityStatus(userId));
-      return dto != null ? dto.getSysStatus() : null;
+      return extractPayload(authServiceClient.getIdentityStatus(userId));
     } catch (FeignException.NotFound ex) {
       log.warn("event=AUTH_IDENTITY_STATUS_NOT_FOUND targetUserId={} message={}", userId, ex.getMessage());
       return null;
