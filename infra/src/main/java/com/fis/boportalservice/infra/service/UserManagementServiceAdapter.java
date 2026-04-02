@@ -15,6 +15,7 @@ import com.fis.boportalservice.infra.feignclient.dto.HrmPageResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmPositionResponse;
 import com.fis.boportalservice.infra.feignclient.dto.HrmUpdateProfileRequest;
 import com.fis.boportalservice.infra.feignclient.dto.HrmUserResponse;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -596,8 +597,13 @@ public class UserManagementServiceAdapter implements UserManagementServicePort {
   }
 
   private String getIdentityStatus(Long userId) {
-    AuthIdentityStatusDto dto = extractPayload(authServiceClient.getIdentityStatus(userId));
-    return dto != null ? dto.getSysStatus() : null;
+    try {
+      AuthIdentityStatusDto dto = extractPayload(authServiceClient.getIdentityStatus(userId));
+      return dto != null ? dto.getSysStatus() : null;
+    } catch (FeignException.NotFound ex) {
+      log.warn("event=AUTH_IDENTITY_STATUS_NOT_FOUND targetUserId={} message={}", userId, ex.getMessage());
+      return null;
+    }
   }
 
   private String getIdentityStatusCached(Long userId, Map<Long, String> identityStatusCache) {
