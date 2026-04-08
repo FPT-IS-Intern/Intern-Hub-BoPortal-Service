@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +55,7 @@ public class PortalMenuServiceImpl implements PortalMenuService {
   @Override
   public PortalMenu createMenu(PortalMenu menu) {
     log.info("event=PORTAL_MENU_PERSIST_CREATE code={}", menu.getCode());
+    menu.setRoleCodes(normalizeRoleCodes(menu.getRoleCodes()));
     return menuRepository.save(menu);
   }
 
@@ -67,7 +69,7 @@ public class PortalMenuServiceImpl implements PortalMenuService {
     existing.setPath(menu.getPath());
     existing.setIcon(menu.getIcon());
     existing.setParentId(menu.getParentId());
-    existing.setRoleCodes(menu.getRoleCodes());
+    existing.setRoleCodes(normalizeRoleCodes(menu.getRoleCodes()));
     existing.setSortOrder(menu.getSortOrder());
     existing.setStatus(menu.getStatus());
 
@@ -90,6 +92,23 @@ public class PortalMenuServiceImpl implements PortalMenuService {
     }
     PortalMenu parent = menuById.get(parentId);
     return parent == null || hasVisibleParentChain(parent, menuById, visibleIds);
+  }
+
+  private List<String> normalizeRoleCodes(List<String> roleCodes) {
+    if (roleCodes == null || roleCodes.isEmpty()) {
+      return List.of();
+    }
+    LinkedHashSet<String> unique = new LinkedHashSet<>();
+    for (String code : roleCodes) {
+      if (code == null) {
+        continue;
+      }
+      String trimmed = code.trim();
+      if (!trimmed.isEmpty()) {
+        unique.add(trimmed);
+      }
+    }
+    return List.copyOf(unique);
   }
 }
 
