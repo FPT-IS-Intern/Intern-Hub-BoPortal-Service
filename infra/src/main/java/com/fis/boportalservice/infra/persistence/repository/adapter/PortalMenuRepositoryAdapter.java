@@ -12,9 +12,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -59,9 +61,9 @@ public class PortalMenuRepositoryAdapter implements PortalMenuRepository {
     PortalMenuEntity entity = entityMapper.toEntity(menu);
     PortalMenuEntity saved = jpaRepository.save(entity);
     roleJPARepository.deleteAllByMenuId(saved.getId());
-    if (menu.getRoleCodes() != null && !menu.getRoleCodes().isEmpty()) {
-      List<PortalMenuRoleEntity> roleEntities = menu.getRoleCodes().stream()
-          .distinct()
+    List<String> normalizedRoleCodes = normalizeRoleCodes(menu.getRoleCodes());
+    if (!normalizedRoleCodes.isEmpty()) {
+      List<PortalMenuRoleEntity> roleEntities = normalizedRoleCodes.stream()
           .map(roleCode -> PortalMenuRoleEntity.builder()
               .menuId(saved.getId())
               .roleCode(roleCode)
@@ -70,7 +72,7 @@ public class PortalMenuRepositoryAdapter implements PortalMenuRepository {
       roleJPARepository.saveAll(roleEntities);
     }
     PortalMenu result = entityMapper.toDomain(saved);
-    result.setRoleCodes(menu.getRoleCodes() == null ? Collections.emptyList() : menu.getRoleCodes().stream().distinct().collect(Collectors.toList()));
+    result.setRoleCodes(normalizedRoleCodes);
     return result;
   }
 
@@ -105,5 +107,22 @@ public class PortalMenuRepositoryAdapter implements PortalMenuRepository {
             PortalMenuRoleEntity::getMenuId,
             Collectors.mapping(PortalMenuRoleEntity::getRoleCode, Collectors.collectingAndThen(Collectors.toList(), list ->
                 list.stream().distinct().collect(Collectors.toList())))));
+  }
+
+  private List<String> normalizeRoleCodes(List<String> roleCodes) {
+    if (roleCodes == null || roleCodes.isEmpty()) {
+      return Collections.emptyList();
+    }
+    Set<String> unique = new LinkedHashSet<>();
+    for (String code : roleCodes) {
+      if (code == null) {
+        continue;
+      }
+      String trimmed = code.trim();
+      if (!trimmed.isEmpty()) {
+        unique.add(trimmed);
+      }
+    }
+    return List.copyOf(unique);
   }
 }
