@@ -69,7 +69,7 @@ public class PortalMenuServiceImpl implements PortalMenuService {
     existing.setPath(menu.getPath());
     existing.setIcon(menu.getIcon());
     existing.setParentId(menu.getParentId());
-    existing.setRoleCodes(mergeRoleCodes(existing.getRoleCodes(), menu.getRoleCodes()));
+    existing.setRoleCodes(normalizeRoleCodes(menu.getRoleCodes()));
     existing.setSortOrder(menu.getSortOrder());
     existing.setStatus(menu.getStatus());
 
@@ -111,10 +111,5 @@ public class PortalMenuServiceImpl implements PortalMenuService {
     return List.copyOf(unique);
   }
 
-  private List<String> mergeRoleCodes(List<String> existingRoleCodes, List<String> incomingRoleCodes) {
-    LinkedHashSet<String> merged = new LinkedHashSet<>(normalizeRoleCodes(existingRoleCodes));
-    merged.addAll(normalizeRoleCodes(incomingRoleCodes));
-    return List.copyOf(merged);
-  }
 }
 
