@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "bo_admin_user", schema = "ih_bo_portal")
+@Table(name = "bo_admin_user")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -56,4 +56,5 @@ public class BoAdminUserEntity {
   @UpdateTimestamp
   private LocalDateTime updatedAt;
 }
+
 

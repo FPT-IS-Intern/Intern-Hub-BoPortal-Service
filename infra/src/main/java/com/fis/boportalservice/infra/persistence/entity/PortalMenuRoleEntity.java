@@ -6,7 +6,6 @@ import lombok.*;
 @Entity
 @Table(
     name = "portal_menu_role",
-    schema = "ih_bo_portal",
     uniqueConstraints = @UniqueConstraint(name = "uk_portal_menu_role", columnNames = {"menu_id", "role_code"})
 )
 @Getter
@@ -26,3 +25,4 @@ public class PortalMenuRoleEntity {
   @Column(name = "role_code", nullable = false, length = 100)
   private String roleCode;
 }
+

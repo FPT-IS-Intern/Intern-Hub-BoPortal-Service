@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "attendance_locations", schema = "ih_bo_portal")
+@Table(name = "attendance_locations")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -49,3 +49,4 @@ public class AttendanceLocationEntity {
   @Column(name = "branch_id")
   private UUID branchId;
 }
+

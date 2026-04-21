@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "bo_refresh_token", schema = "ih_bo_portal")
+@Table(name = "bo_refresh_token")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,4 +42,5 @@ public class BoRefreshTokenEntity {
   @CreationTimestamp
   private LocalDateTime createdAt;
 }
+
 

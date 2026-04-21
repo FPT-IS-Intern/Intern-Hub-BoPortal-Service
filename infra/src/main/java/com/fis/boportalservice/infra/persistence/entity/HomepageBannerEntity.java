@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "homepage_banners", schema = "ih_bo_portal")
+@Table(name = "homepage_banners")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -75,3 +75,4 @@ public class HomepageBannerEntity {
   @Column(name = "updated_by")
   private UUID updatedBy;
 }
+

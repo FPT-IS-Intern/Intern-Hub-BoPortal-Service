@@ -12,7 +12,7 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "system_config", schema = "ih_bo_portal")
+@Table(name = "system_config")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -52,3 +52,4 @@ public class SystemConfigEntity {
   @Column(name = "updated_by")
   private UUID updatedBy;
 }
+

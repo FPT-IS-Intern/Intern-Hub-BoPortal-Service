@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "portal_menu", schema = "ih_bo_portal")
+@Table(name = "portal_menu")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -61,3 +61,4 @@ public class PortalMenuEntity {
   @Column(name = "updated_by")
   private UUID updatedBy;
 }
+

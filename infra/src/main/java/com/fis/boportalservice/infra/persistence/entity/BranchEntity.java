@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "branches", schema = "ih_bo_portal")
+@Table(name = "branches")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,3 +39,4 @@ public class BranchEntity {
   @UpdateTimestamp
   private LocalDateTime updatedAt;
 }
+
