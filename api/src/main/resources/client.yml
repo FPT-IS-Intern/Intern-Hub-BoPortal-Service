@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:ih_bo_portal}}
-    username: ${DB_USERNAME:admin}
-    password: ${DB_PASSWORD:admin}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:ih_bo_portal}?currentSchema=${SCHEMA_NAME:ih_bo_portal}
+    username: ${DB_USERNAME:ih_bo_portal}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: HikariCP
@@ -10,11 +10,10 @@ spring:
       maximum-pool-size: ${HIKARI_CONNECTION_MAX:2}
       idle-timeout: ${HIKARI_IDLE_TIMEOUT:600000}
       max-lifetime: ${HIKARI_MAX_LIFETIME:1800000}
-      connection-timeout: ${HIKARI_CONNECTION_TIMEOUT:180000}
+      connection-timeout: ${HIKARI_CONNECTION_TIMEOUT:30000}
       auto-commit: true
-      connection-init-sql: SELECT 1
+      connection-init-sql: SET search_path TO ${SCHEMA_NAME}
       connection-test-query: SELECT 1
-      schema: ${SCHEMA_NAME:ih_bo_portal}
 
   jpa:
     hibernate:
@@ -23,3 +22,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: ${SCHEMA_NAME}
+
+  flyway:
+    enabled: true
+    default-schema: ${SCHEMA_NAME}
+    schemas: ${SCHEMA_NAME}
