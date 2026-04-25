@@ -33,6 +33,9 @@ public class MenuHierarchyHelper {
           parent.setChildren(new ArrayList<>());
         }
         parent.getChildren().add(menu);
+      } else {
+        // Keep orphan items visible (e.g. parent filtered by role) so URL-level access still works.
+        rootMenus.add(menu);
       }
     }
 

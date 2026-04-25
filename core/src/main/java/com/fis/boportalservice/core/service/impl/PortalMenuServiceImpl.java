@@ -8,13 +8,8 @@ import com.fis.boportalservice.core.service.PortalMenuService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,18 +19,7 @@ public class PortalMenuServiceImpl implements PortalMenuService {
 
   @Override
   public List<PortalMenu> getAvailableMenus(List<String> userRoles) {
-    List<PortalMenu> activeMenus = menuRepository.findActiveMenusByRoles(userRoles);
-    if (activeMenus.isEmpty()) {
-      return activeMenus;
-    }
-
-    Map<Integer, PortalMenu> menuById = activeMenus.stream()
-        .collect(Collectors.toMap(PortalMenu::getId, menu -> menu, (left, right) -> left, HashMap::new));
-    Set<Integer> visibleIds = new HashSet<>(menuById.keySet());
-
-    return activeMenus.stream()
-        .filter(menu -> hasVisibleParentChain(menu, menuById, visibleIds))
-        .collect(Collectors.toList());
+    return menuRepository.findActiveMenusByRoles(userRoles);
   }
 
   @Override
@@ -80,18 +64,6 @@ public class PortalMenuServiceImpl implements PortalMenuService {
   public void deleteMenu(Integer id) {
     log.info("event=PORTAL_MENU_PERSIST_DELETE id={}", id);
     menuRepository.deleteById(id);
-  }
-
-  private boolean hasVisibleParentChain(PortalMenu menu, Map<Integer, PortalMenu> menuById, Set<Integer> visibleIds) {
-    Integer parentId = menu.getParentId();
-    if (parentId == null) {
-      return true;
-    }
-    if (!visibleIds.contains(parentId)) {
-      return false;
-    }
-    PortalMenu parent = menuById.get(parentId);
-    return parent == null || hasVisibleParentChain(parent, menuById, visibleIds);
   }
 
   private List<String> normalizeRoleCodes(List<String> roleCodes) {
