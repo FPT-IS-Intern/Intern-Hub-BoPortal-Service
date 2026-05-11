@@ -42,6 +42,9 @@ public class SystemConfigEntity {
   @Column(name = "auto_checkout_time", nullable = false)
   private LocalTime autoCheckoutTime;
 
+  @Column(name = "attendance_offset_minutes")
+  private Integer attendanceOffsetMinutes;
+
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 

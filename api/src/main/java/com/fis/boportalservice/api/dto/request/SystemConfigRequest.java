@@ -15,5 +15,6 @@ public class SystemConfigRequest {
   private LocalTime workStartTime;
   private LocalTime workEndTime;
   private LocalTime autoCheckoutTime;
+  private Integer attendanceOffsetMinutes;
   private UUID updatedBy;
 }

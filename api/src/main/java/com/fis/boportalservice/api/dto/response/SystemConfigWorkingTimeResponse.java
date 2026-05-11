@@ -11,4 +11,5 @@ public class SystemConfigWorkingTimeResponse {
   private LocalTime workStartTime;
   private LocalTime workEndTime;
   private LocalTime autoCheckoutTime;
+  private Integer attendanceOffsetMinutes;
 }
