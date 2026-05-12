@@ -39,6 +39,7 @@ public class AdminAuditController {
   @GetMapping
   public ResponseApi<AuditPageResponse> queryAudits(@ModelAttribute AuditQueryRequest request) {
     log.info("event=AUDIT_QUERY_REQUEST action={} page={} size={}", request.getAction(), request.getPage(), request.getSize());
+    log.info("API - Query audits request: action={}, page={}, size={}", request.getAction(), request.getPage(), request.getSize());
     AuditPageResult result = auditServicePort.queryAudits(
         request.getStartDate(),
         request.getEndDate(),
@@ -50,23 +51,26 @@ public class AdminAuditController {
         request.getSortBy(),
         request.getSortDirection()
     );
-    return ResponseApi.success(toPageResponse(result));
+    AuditPageResponse response = toPageResponse(result);
+    log.info("API - Query audits response: totalElements={}, totalPages={}", response.getTotalElements(), response.getTotalPages());
+    return ResponseApi.success(response);
   }
 
   @GetMapping("/{auditId}/hash/verify")
   public ResponseApi<AuditHashCheckResponse> verifyHashByAuditId(@PathVariable String auditId) {
     log.info("event=AUDIT_HASH_VERIFY_REQUEST auditId={}", auditId);
+    log.info("API - Verify audit hash request: auditId={}", auditId);
     Long parsedAuditId = parseLongId(auditId);
     if (parsedAuditId == null) {
       return ResponseApi.error(ErrorCode.BAD_REQUEST.getCode(), "Invalid auditId");
     }
     boolean valid = auditServicePort.verifyHashByAuditId(parsedAuditId);
-    return ResponseApi.success(
-        AuditHashCheckResponse.builder()
+    AuditHashCheckResponse response = AuditHashCheckResponse.builder()
             .auditId(auditId)
             .valid(valid)
-            .build()
-    );
+            .build();
+    log.info("API - Verify audit hash response: auditId={}, valid={}", auditId, valid);
+    return ResponseApi.success(response);
   }
 
   @PostMapping("/hash/rehash")
@@ -74,32 +78,38 @@ public class AdminAuditController {
       @RequestParam("beforeDay") @DateTimeFormat(iso = ISO.DATE) LocalDate beforeDay
   ) {
     log.info("event=AUDIT_REHASH_REQUEST beforeDay={}", beforeDay);
+    log.info("API - Rehash audits request: beforeDay={}", beforeDay);
     AuditServicePort.AuditRehashResult result = auditServicePort.rehashAllBeforeDay(beforeDay);
-    return ResponseApi.success(
-        AuditRehashResponse.builder()
+    AuditRehashResponse response = AuditRehashResponse.builder()
             .beforeDay(result.beforeDay())
             .matchedCount(result.matchedCount())
             .updatedCount(result.updatedCount())
-            .build()
-    );
+            .build();
+    log.info("API - Rehash audits response: beforeDay={}, matchedCount={}, updatedCount={}",
+            response.getBeforeDay(),
+            response.getMatchedCount(),
+            response.getUpdatedCount());
+    return ResponseApi.success(response);
   }
 
   @PostMapping("/action-functions")
   public ResponseApi<com.fis.boportalservice.api.dto.response.ActionFunctionResponse> createActionFunction(
           @org.springframework.web.bind.annotation.RequestBody com.fis.boportalservice.api.dto.request.ActionFunctionRequest request) {
+      log.info("API - Create action function request: action={}", request.getAction());
     var model = auditServicePort.createActionFunction(request.getAction(), request.getDescription());
     if (model == null) return ResponseApi.error("1", "Failed to create action function");
-    return ResponseApi.success(
-            com.fis.boportalservice.api.dto.response.ActionFunctionResponse.builder()
-                    .id(toStringId(model.getId()))
-                    .action(model.getAction())
-                    .description(model.getDescription())
-                    .build()
-    );
+      var response = com.fis.boportalservice.api.dto.response.ActionFunctionResponse.builder()
+        .id(toStringId(model.getId()))
+        .action(model.getAction())
+        .description(model.getDescription())
+        .build();
+      log.info("API - Create action function response: id={}, action={}", response.getId(), response.getAction());
+      return ResponseApi.success(response);
   }
 
   @GetMapping("/action-functions")
   public ResponseApi<List<com.fis.boportalservice.api.dto.response.ActionFunctionResponse>> getAllActionFunctions() {
+      log.info("API - Get all action functions request");
     var list = auditServicePort.getAllActionFunctions().stream()
             .map(model -> com.fis.boportalservice.api.dto.response.ActionFunctionResponse.builder()
                     .id(toStringId(model.getId()))
@@ -107,6 +117,7 @@ public class AdminAuditController {
                     .description(model.getDescription())
                     .build())
             .toList();
+      log.info("API - Get all action functions response: total={}", list.size());
     return ResponseApi.success(list);
   }
 
