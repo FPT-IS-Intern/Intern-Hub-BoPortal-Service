@@ -24,6 +24,12 @@ spring:
   config:
     import:
       - "classpath:client.yml"
+  liquibase:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
 
 feign:
   client:
@@ -40,19 +46,6 @@ feign:
         url: ${NOTI_SERVICE_URL:http://notification-service:8080}
       audit-service:
         url: ${AUDIT_SERVICE_URL:http://audit-service:8080}
-
-  liquibase:
-    enabled: false
-  jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: false
-    properties:
-      hibernate:
-        default_schema:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        database-platform: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
 
 app:
   jwt:
