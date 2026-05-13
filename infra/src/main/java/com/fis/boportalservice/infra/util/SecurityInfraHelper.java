@@ -4,7 +4,6 @@ import com.fis.boportalservice.core.exception.ErrorCode;
 import com.fis.boportalservice.core.exception.ServerSideException;
 import com.fis.boportalservice.infra.constant.SecurityConstant;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -23,11 +22,13 @@ public class SecurityInfraHelper {
   private SecurityInfraHelper() {
   }
 
+  private static final java.util.HexFormat HEX_FORMAT = java.util.HexFormat.of();
+
   public static String sha256Hex(String input) {
     try {
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
       byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-      return Hex.encodeHexString(hash);
+      return HEX_FORMAT.formatHex(hash);
     } catch (NoSuchAlgorithmException e) {
       throw new ServerSideException("SHA-256 algorithm not found!", e.getMessage());
     }

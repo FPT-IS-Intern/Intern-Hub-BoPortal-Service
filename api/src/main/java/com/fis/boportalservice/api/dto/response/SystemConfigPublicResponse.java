@@ -1,7 +1,9 @@
 package com.fis.boportalservice.api.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Response trả về cho frontend (public).
@@ -9,6 +11,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SystemConfigPublicResponse {
   private String appName;
   private String logoUrl;

@@ -40,7 +40,7 @@ feign:
         url: ${NOTI_SERVICE_URL:http://notification-service:8080}
       audit-service:
         url: ${AUDIT_SERVICE_URL:http://audit-service:8080}
-  jackson:
+
   liquibase:
     enabled: false
   jpa:
@@ -125,6 +125,11 @@ threadPool:
 
 application:
   cache-ttl-default-days: 3
+
+common:
+  object-mapper:
+    enabled: true
+    serialize-long-as-string: true
 
 services:
   gateway:
