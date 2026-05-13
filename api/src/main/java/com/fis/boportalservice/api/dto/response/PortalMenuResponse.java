@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -21,5 +22,6 @@ public class PortalMenuResponse {
   private List<String> roleCodes;
   private Integer sortOrder;
   private String status;
+  @ToString.Exclude
   private List<PortalMenuResponse> children;
 }

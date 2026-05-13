@@ -1,9 +1,9 @@
 package com.fis.boportalservice.core.domain.model;
 
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 @Builder
 public class ActionFunctionModel {
     private Long id;
