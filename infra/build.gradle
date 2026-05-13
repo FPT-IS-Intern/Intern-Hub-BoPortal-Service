@@ -1,6 +1,7 @@
 dependencies {
     implementation project(':common')
     implementation project(':core')
+    implementation libs.jackson3.databind
 
     implementation libs.openFeign.starter
     implementation libs.openFeign.core

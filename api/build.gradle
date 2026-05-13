@@ -9,6 +9,7 @@ dependencies {
     implementation project(':common')
     implementation project(':core')
     implementation project(':infra')
+    implementation libs.jackson3.databind
 
     implementation libs.springBoot.starter
     implementation libs.springBoot.starter.web
