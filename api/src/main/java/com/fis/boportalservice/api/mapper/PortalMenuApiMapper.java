@@ -8,9 +8,8 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface PortalMenuApiMapper {
-  @Mapping(target = "children", ignore = true)
   PortalMenuResponse toResponse(PortalMenu domain);
 
   @Mapping(target = "id", ignore = true)

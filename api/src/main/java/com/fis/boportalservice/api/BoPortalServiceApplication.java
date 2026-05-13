@@ -7,12 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
-
-import javax.annotation.PostConstruct;
-import java.util.TimeZone;
 
 @Slf4j
 @EnableFeignClients(basePackages = "com.fis.boportalservice.infra")
@@ -24,22 +20,8 @@ import java.util.TimeZone;
 @RequiredArgsConstructor
 public class BoPortalServiceApplication {
 
-  private final Environment env;
-
-  public static void main(String[] args) {
+  static void main(String[] args) {
     SpringApplication.run(BoPortalServiceApplication.class, args);
   }
 
-  @PostConstruct
-  public void setUp() {
-    String timezoneId = env.getProperty("configuration.timezone");
-    if (timezoneId == null || timezoneId.isBlank()) {
-      log.warn("event=TIMEZONE_CONFIG_MISSING fallback={}", TimeZone.getDefault().getID());
-      return;
-    }
-
-    TimeZone timezone = TimeZone.getTimeZone(timezoneId);
-    TimeZone.setDefault(timezone);
-    log.info("event=TIMEZONE_CONFIG_APPLIED timezone={}", timezone.getID());
-  }
 }

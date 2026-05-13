@@ -1,10 +1,5 @@
 package com.fis.boportalservice.infra.security;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.auth0.jwt.interfaces.JWTVerifier;
 import com.fis.boportalservice.core.domain.model.BoTokenClaims;
 import com.fis.boportalservice.core.domain.repository.BoTokenProvider;
 import com.fis.boportalservice.core.exception.ClientSideException;
@@ -12,23 +7,37 @@ import com.fis.boportalservice.core.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import tools.jackson.databind.ObjectMapper;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @Component
 public class BoTokenProviderImpl implements BoTokenProvider {
 
+  private static final String HMAC_ALGORITHM = "HmacSHA256";
   private static final String ISSUER = "bo-portal";
   private static final String AUDIENCE = "bo-portal-admin";
+  private static final String HEADER_BASE64;
 
-  private final Algorithm algorithm;
+  static {
+    String header = "{\"typ\":\"JWT\",\"alg\":\"HS256\"}";
+    HEADER_BASE64 = Base64.getUrlEncoder().withoutPadding()
+        .encodeToString(header.getBytes(StandardCharsets.UTF_8));
+  }
+
+  private final Mac mac;
   private final long accessTokenExpiresInSeconds;
   private final long refreshTokenExpiresInSeconds;
+  private final ObjectMapper objectMapper;
 
   public BoTokenProviderImpl(
       @Value("${app.jwt.secret}") String secret,
@@ -37,57 +46,68 @@ public class BoTokenProviderImpl implements BoTokenProvider {
     if (!StringUtils.hasText(secret)) {
       throw new IllegalStateException("app.jwt.secret must not be empty for BO auth");
     }
-    this.algorithm = Algorithm.HMAC256(secret.getBytes(StandardCharsets.UTF_8));
+    try {
+      SecretKeySpec keySpec = new SecretKeySpec(
+          secret.getBytes(StandardCharsets.UTF_8), HMAC_ALGORITHM);
+      Mac instance = Mac.getInstance(HMAC_ALGORITHM);
+      instance.init(keySpec);
+      this.mac = instance;
+    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+      throw new IllegalStateException("Failed to initialize HMAC", e);
+    }
     this.accessTokenExpiresInSeconds = accessTokenExpiresInMs / 1000;
     this.refreshTokenExpiresInSeconds = refreshTokenExpiresInMs / 1000;
+    this.objectMapper = new ObjectMapper();
   }
 
   @Override
   public String generateAccessToken(BoTokenClaims claims) {
     Instant now = Instant.now();
-    return JWT.create()
-        .withIssuer(ISSUER)
-        .withAudience(AUDIENCE)
-        .withSubject(String.valueOf(claims.getUserId()))
-        .withClaim("username", claims.getUsername())
-        .withClaim("roles", claims.getRoles())
-        .withClaim("permissions", claims.getPermissions())
-        .withJWTId(claims.getJti())
-        .withIssuedAt(Date.from(now))
-        .withExpiresAt(Date.from(now.plusSeconds(accessTokenExpiresInSeconds)))
-        .sign(algorithm);
+    long exp = now.getEpochSecond() + accessTokenExpiresInSeconds;
+    Map<String, Object> payload = Map.of(
+        "iss", ISSUER,
+        "aud", AUDIENCE,
+        "sub", claims.getUserId().toString(),
+        "username", claims.getUsername(),
+        "roles", claims.getRoles(),
+        "permissions", claims.getPermissions(),
+        "jti", claims.getJti(),
+        "iat", now.getEpochSecond(),
+        "exp", exp
+    );
+    return encode(payload);
   }
 
   @Override
   public String generateRefreshToken(BoTokenClaims claims) {
     Instant now = Instant.now();
-    return JWT.create()
-        .withIssuer(ISSUER)
-        .withAudience(AUDIENCE)
-        .withSubject(String.valueOf(claims.getUserId()))
-        .withClaim("username", claims.getUsername())
-        .withJWTId(claims.getJti())
-        .withIssuedAt(Date.from(now))
-        .withExpiresAt(Date.from(now.plusSeconds(refreshTokenExpiresInSeconds)))
-        .sign(algorithm);
+    long exp = now.getEpochSecond() + refreshTokenExpiresInSeconds;
+    Map<String, Object> payload = Map.of(
+        "iss", ISSUER,
+        "aud", AUDIENCE,
+        "sub", claims.getUserId().toString(),
+        "username", claims.getUsername(),
+        "jti", claims.getJti(),
+        "iat", now.getEpochSecond(),
+        "exp", exp
+    );
+    return encode(payload);
   }
 
   @Override
   public BoTokenClaims parseAccessToken(String token) {
-    DecodedJWT jwt = verifyToken(token);
-    return toClaims(jwt);
+    Map<String, Object> payload = verify(token);
+    @SuppressWarnings("unchecked")
+    List<String> roles = (List<String>) payload.getOrDefault("roles", Collections.emptyList());
+    @SuppressWarnings("unchecked")
+    List<String> permissions = (List<String>) payload.getOrDefault("permissions", Collections.emptyList());
+    return toClaims(payload, roles, permissions);
   }
 
   @Override
   public BoTokenClaims parseRefreshToken(String token) {
-    DecodedJWT jwt = verifyToken(token);
-    return BoTokenClaims.builder()
-        .userId(UUID.fromString(jwt.getSubject()))
-        .username(jwt.getClaim("username").asString())
-        .jti(jwt.getId())
-        .roles(Collections.emptyList())
-        .permissions(Collections.emptyList())
-        .build();
+    Map<String, Object> payload = verify(token);
+    return toClaims(payload, Collections.emptyList(), Collections.emptyList());
   }
 
   @Override
@@ -100,27 +120,58 @@ public class BoTokenProviderImpl implements BoTokenProvider {
     return refreshTokenExpiresInSeconds;
   }
 
-  private DecodedJWT verifyToken(String token) {
+  private String encode(Map<String, Object> payload) {
     try {
-      JWTVerifier verifier =
-          JWT.require(algorithm).withIssuer(ISSUER).withAudience(AUDIENCE).build();
-      return verifier.verify(token);
-    } catch (JWTVerificationException ex) {
-      throw new ClientSideException(ErrorCode.BAD_REQUEST, "Invalid token", ex);
+      String payloadBase64 = Base64.getUrlEncoder().withoutPadding()
+          .encodeToString(objectMapper.writeValueAsBytes(payload));
+      String signingInput = HEADER_BASE64 + "." + payloadBase64;
+      String signature = sign(signingInput);
+      return signingInput + "." + signature;
+    } catch (Exception e) {
+      throw new ClientSideException(ErrorCode.BO_TOKEN_PROCESS_FAILED, "Failed to generate token", e);
     }
   }
 
-  private BoTokenClaims toClaims(DecodedJWT jwt) {
-    List<String> roles = jwt.getClaim("roles").asList(String.class);
-    List<String> permissions = jwt.getClaim("permissions").asList(String.class);
+  private Map<String, Object> verify(String token) {
+    try {
+      String[] parts = token.split("\\.");
+      if (parts.length != 3) {
+        throw new ClientSideException(ErrorCode.BAD_REQUEST, "Invalid token format");
+      }
+      String signingInput = parts[0] + "." + parts[1];
+      String expectedSignature = sign(signingInput);
+      if (!expectedSignature.equals(parts[2])) {
+        throw new ClientSideException(ErrorCode.BAD_REQUEST, "Invalid token signature");
+      }
+      byte[] payloadBytes = Base64.getUrlDecoder().decode(parts[1]);
+      @SuppressWarnings("unchecked")
+      Map<String, Object> payload = objectMapper.readValue(payloadBytes, Map.class);
+      long exp = ((Number) payload.get("exp")).longValue();
+      if (Instant.now().getEpochSecond() >= exp) {
+        throw new ClientSideException(ErrorCode.BAD_REQUEST, "Token expired");
+      }
+      return payload;
+    } catch (ClientSideException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new ClientSideException(ErrorCode.BAD_REQUEST, "Invalid token", e);
+    }
+  }
 
+  private String sign(String input) {
+    byte[] hash = mac.doFinal(input.getBytes(StandardCharsets.UTF_8));
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+  }
+
+  private BoTokenClaims toClaims(Map<String, Object> payload,
+                                  List<String> roles, List<String> permissions) {
+    String sub = (String) payload.get("sub");
     return BoTokenClaims.builder()
-        .userId(UUID.fromString(jwt.getSubject()))
-        .username(jwt.getClaim("username").asString())
-        .roles(roles == null ? Collections.emptyList() : roles)
-        .permissions(permissions == null ? Collections.emptyList() : permissions)
-        .jti(jwt.getId())
+        .userId(java.util.UUID.fromString(sub))
+        .username((String) payload.get("username"))
+        .roles(roles)
+        .permissions(permissions)
+        .jti((String) payload.get("jti"))
         .build();
   }
 }
-

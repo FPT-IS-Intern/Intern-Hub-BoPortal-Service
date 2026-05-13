@@ -1,7 +1,0 @@
-rootProject.name = 'bo-portal-service'
-
-include 'common'
-include 'api'
-include 'core'
-include 'infra'
-

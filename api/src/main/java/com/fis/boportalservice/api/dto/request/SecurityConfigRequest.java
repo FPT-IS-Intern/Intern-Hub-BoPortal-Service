@@ -1,12 +1,12 @@
 package com.fis.boportalservice.api.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+
+
 import lombok.Data;
 
 import java.util.UUID;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SecurityConfigRequest {
   private Integer minPasswordLength;
   private Integer maxPasswordLength;
