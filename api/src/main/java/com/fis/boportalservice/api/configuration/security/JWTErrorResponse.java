@@ -1,14 +1,12 @@
 package com.fis.boportalservice.api.configuration.security;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 public class JWTErrorResponse {
 
   private String responseId;

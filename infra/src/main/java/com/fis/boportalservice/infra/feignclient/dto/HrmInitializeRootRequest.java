@@ -1,10 +1,10 @@
 package com.fis.boportalservice.infra.feignclient.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class HrmInitializeRootRequest {

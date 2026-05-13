@@ -1,10 +1,8 @@
 package com.fis.boportalservice.core.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
+@Data
 public class BaseResponse {
 
   Object response;
