@@ -3,10 +3,6 @@ server:
 #  servlet:
 #    context-path: /bo-portal
 
-common:
-  object-mapper:
-    enabled: false
-
 security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue}
   internal-path-prefix: /bo-portal/internal/

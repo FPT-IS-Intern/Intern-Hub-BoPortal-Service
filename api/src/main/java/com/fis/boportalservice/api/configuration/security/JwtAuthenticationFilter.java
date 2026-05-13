@@ -1,6 +1,6 @@
 package com.fis.boportalservice.api.configuration.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.domain.model.BoTokenClaims;
 import com.fis.boportalservice.core.domain.repository.BoTokenProvider;

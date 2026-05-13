@@ -3,13 +3,6 @@ package com.fis.boportalservice.api.configuration;
 import com.fis.boportalservice.core.util.LogMaskingUtils;
 import com.fis.boportalservice.core.util.LoggingProperties;
 import com.fis.boportalservice.core.util.SensitiveValueMasker;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -19,6 +12,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 
 import java.math.BigInteger;
 
@@ -47,32 +45,18 @@ public class BeanConfiguration {
         .info(new Info().title(title).version(VERSION).description(DESCRIPTION));
   }
 
-  /**
-   * Model resolver bean.
-   *
-   * @param objectMapper ObjectMapper
-   * @return ModelResolver
-   */
-  @Bean
-  public ModelResolver modelResolver(final ObjectMapper objectMapper) {
-    return new ModelResolver(
-        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE));
-  }
-
   @Bean
   public ObjectMapper objectMapper() {
     SimpleModule simpleModule = new SimpleModule();
-    simpleModule.addSerializer(Long.class, new ToStringSerializer());
-    simpleModule.addSerializer(Long.TYPE, new ToStringSerializer());
-    simpleModule.addSerializer(BigInteger.class, new ToStringSerializer());
-    // findAndRegisterModules() first, then registerModule() last so our Long→String serializers
-    // are registered after any auto-discovered modules and therefore take final precedence.
-    ObjectMapper mapper = new ObjectMapper()
-        .findAndRegisterModules()
-        .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
-        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    mapper.registerModule(simpleModule);
-    return mapper;
+    simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
+    simpleModule.addSerializer(Long.TYPE, ToStringSerializer.instance);
+    simpleModule.addSerializer(BigInteger.class, ToStringSerializer.instance);
+
+    return JsonMapper.builder()
+        .findAndAddModules()
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        .addModule(simpleModule)
+        .build();
   }
 
   @Bean
