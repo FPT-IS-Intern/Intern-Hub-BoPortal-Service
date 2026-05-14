@@ -4,6 +4,7 @@ import com.fis.boportalservice.core.domain.model.BoTokenClaims;
 import com.fis.boportalservice.core.domain.repository.BoTokenProvider;
 import com.fis.boportalservice.core.exception.ClientSideException;
 import com.fis.boportalservice.core.exception.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class BoTokenProviderImpl implements BoTokenProvider {
 
@@ -34,10 +36,10 @@ public class BoTokenProviderImpl implements BoTokenProvider {
         .encodeToString(header.getBytes(StandardCharsets.UTF_8));
   }
 
-  private final Mac mac;
   private final long accessTokenExpiresInSeconds;
   private final long refreshTokenExpiresInSeconds;
   private final ObjectMapper objectMapper;
+  private final SecretKeySpec keySpec;
 
   public BoTokenProviderImpl(
       @Value("${app.jwt.secret}") String secret,
@@ -46,15 +48,9 @@ public class BoTokenProviderImpl implements BoTokenProvider {
     if (!StringUtils.hasText(secret)) {
       throw new IllegalStateException("app.jwt.secret must not be empty for BO auth");
     }
-    try {
-      SecretKeySpec keySpec = new SecretKeySpec(
-          secret.getBytes(StandardCharsets.UTF_8), HMAC_ALGORITHM);
-      Mac instance = Mac.getInstance(HMAC_ALGORITHM);
-      instance.init(keySpec);
-      this.mac = instance;
-    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-      throw new IllegalStateException("Failed to initialize HMAC", e);
-    }
+
+    this.keySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_ALGORITHM);
+
     this.accessTokenExpiresInSeconds = accessTokenExpiresInMs / 1000;
     this.refreshTokenExpiresInSeconds = refreshTokenExpiresInMs / 1000;
     this.objectMapper = new ObjectMapper();
@@ -141,6 +137,8 @@ public class BoTokenProviderImpl implements BoTokenProvider {
       String signingInput = parts[0] + "." + parts[1];
       String expectedSignature = sign(signingInput);
       if (!expectedSignature.equals(parts[2])) {
+        log.warn("JWT_SIGNATURE_MISMATCH token={}..(snipped) thread={} expectedSig={} actualSig={}",
+            parts[0], Thread.currentThread().getName(), expectedSignature, parts[2]);
         throw new ClientSideException(ErrorCode.BAD_REQUEST, "Invalid token signature");
       }
       byte[] payloadBytes = Base64.getUrlDecoder().decode(parts[1]);
@@ -148,19 +146,30 @@ public class BoTokenProviderImpl implements BoTokenProvider {
       Map<String, Object> payload = objectMapper.readValue(payloadBytes, Map.class);
       long exp = ((Number) payload.get("exp")).longValue();
       if (Instant.now().getEpochSecond() >= exp) {
+        log.warn("JWT_TOKEN_EXPIRED sub={} exp={} now={}",
+            payload.get("sub"), exp, Instant.now().getEpochSecond());
         throw new ClientSideException(ErrorCode.BAD_REQUEST, "Token expired");
       }
       return payload;
     } catch (ClientSideException e) {
       throw e;
     } catch (Exception e) {
+      log.error("JWT_VERIFY_EXCEPTION token={}..(snipped) thread={} error={}",
+          token.substring(0, Math.min(20, token.length())), Thread.currentThread().getName(), e.getMessage());
       throw new ClientSideException(ErrorCode.BAD_REQUEST, "Invalid token", e);
     }
   }
 
   private String sign(String input) {
-    byte[] hash = mac.doFinal(input.getBytes(StandardCharsets.UTF_8));
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+    try {
+      Mac mac = Mac.getInstance(HMAC_ALGORITHM);
+      mac.init(keySpec);
+      byte[] hash = mac.doFinal(input.getBytes(StandardCharsets.UTF_8));
+      return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+      log.error("Error signing token: {}", e.getMessage(), e);
+      throw new ClientSideException(ErrorCode.BAD_REQUEST, "Invalid token", e);
+    }
   }
 
   private BoTokenClaims toClaims(Map<String, Object> payload,

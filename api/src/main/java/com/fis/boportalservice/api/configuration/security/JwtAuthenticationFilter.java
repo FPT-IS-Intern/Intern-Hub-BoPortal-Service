@@ -1,9 +1,11 @@
 package com.fis.boportalservice.api.configuration.security;
 
+import org.jspecify.annotations.NonNull;
 import tools.jackson.databind.ObjectMapper;
 import com.fis.boportalservice.common.dto.ResponseApi;
 import com.fis.boportalservice.core.domain.model.BoTokenClaims;
 import com.fis.boportalservice.core.domain.repository.BoTokenProvider;
+import com.fis.boportalservice.core.exception.ClientSideException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -38,9 +39,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   protected final void doFilterInternal(
-      @NonNull final HttpServletRequest request,
-      @NonNull final HttpServletResponse response,
-      @NonNull final FilterChain filterChain)
+      final HttpServletRequest request,
+      final @NonNull HttpServletResponse response,
+      final @NonNull FilterChain filterChain)
       throws ServletException, IOException {
 
     // Generate a RequestId for logging
@@ -85,8 +86,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
           SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+      } catch (ClientSideException ex) {
+        log.error("AUTH_FAILED reason={} uri={} thread={}", ex.getMessage(), request.getRequestURI(), Thread.currentThread().getName());
+        writeErrorResponse(response, "Unauthorized - Invalid Token");
+        return;
       } catch (Exception ex) {
-        log.error("Unauthorized access - Invalid JWT Token: {}", ex.getMessage());
+        log.error("AUTH_FAILED_UNEXPECTED error={} uri={} thread={}", ex.getMessage(), request.getRequestURI(), Thread.currentThread().getName(), ex);
         writeErrorResponse(response, "Unauthorized - Invalid Token");
         return;
       }

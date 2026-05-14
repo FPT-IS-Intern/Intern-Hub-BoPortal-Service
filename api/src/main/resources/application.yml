@@ -3,6 +3,26 @@ server:
 #  servlet:
 #    context-path: /bo-portal
 
+management:
+  opentelemetry:
+    resource-attributes:
+      "service.name": ${spring.application.name}
+      "service.version": "1.0.5"
+      "deployment.environment": ${DEPLOY_ENV:dev}
+  logging:
+    export:
+      otlp:
+        enabled: false
+  tracing:
+    export:
+      otlp:
+        enabled: false
+  otlp:
+    metrics:
+      export:
+        enabled: false
+
+
 security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue}
   internal-path-prefix: /bo-portal/internal/
@@ -60,52 +80,7 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: alpha
     path: /swagger-ui.html
-#  api-docs:
-#    path: /v3/api-docs
 
-configuration:
-  timezone: ${TIMEZONE_CONFIG:Asia/Ho_Chi_Minh}
-
-management:
-  endpoints:
-    web:
-      base-path: /
-      exposure:
-        include:
-          - prometheus
-          - health
-          - metrics
-          - loggers
-      path-mapping:
-        health: /actuator/health
-        prometheus: /actuator/prometheus
-        metrics: /actuator/metrics
-        loggers: /actuator/loggers
-  endpoint:
-    prometheus:
-      enabled: true
-    health:
-      probes:
-        enabled: true
-      livenessState:
-        enabled: true
-      readinessState:
-        enabled: true
-      show-components: always
-    loggers:
-      enabled: true
-  metrics:
-    distribution:
-      percentiles-histogram:
-        "http.server.requests": true
-        "http.client.requests": true
-      percentiles:
-        "http.server.requests": 0.5, 0.90, 0.95, 0.99
-        "http.client.requests": 0.5, 0.90, 0.95, 0.99
-
-idempotence:
-  spring:
-    package-to-scan: com.fis.boportalservice
 
 logging:
   sensitive-fields: ${SENSITIVE_DATA:access_token,cvv,url}
@@ -115,9 +90,6 @@ threadPool:
     maxPoolSize: 10
     corePoolSize: 5
     queueCapacity: 10000
-
-application:
-  cache-ttl-default-days: 3
 
 common:
   object-mapper:
